@@ -15,6 +15,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,
-    port: 5173,
+    // Was a hardcoded 5173 — that blocked the harness from reassigning a
+    // free port when another session's dev server already holds 5173 (this
+    // app has no OAuth/webhook/CORS dependency on that specific port).
+    // Falls back to 5173 for a plain `npm run dev` outside the harness.
+    port: Number(process.env.PORT) || 5173,
   },
 })

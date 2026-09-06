@@ -1,32 +1,65 @@
-import { useState, type ReactNode } from 'react'
-import { motion } from 'framer-motion'
-import { Menu, ChevronDown, ChevronLeft, ChevronRight, Home, Search, Heart, User, Trophy } from 'lucide-react'
+import { useState } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import CaseStudyHeader from './CaseStudyHeader'
 import FloatingElement from '../ui/FloatingElement'
 import { GoldCoin, MusicNote } from '../ui/decor'
 import { asset } from '../../lib/asset'
+import { PROJECT_NUMBER } from '../../lib/projectMeta'
 
 const ASSETS = {
-  keyArt: asset('/assets/galgalatz/banner-cover.jpg'),
-  rank1: asset('/assets/galgalatz/rank-01.png'),
-  rank2: asset('/assets/galgalatz/rank-02.png'),
-  rank3: asset('/assets/galgalatz/rank-03.png'),
-  top50: asset('/assets/galgalatz/rank-31-50.jpg'),
   neonBox: asset('/assets/galgalatz/neon-box-tight.png'),
 }
 
+// Each of these is a real, already-composited phone mockup — the actual
+// screen artwork placed inside the real phone frame by the designer, at
+// the frame's own native canvas size (941×1672, matching
+// glaglatz-phones-front.png exactly). No separate compositing needed on
+// this end: the 3D tilt below is applied to the whole flat image, frame
+// and screen moving together as one surface, so nothing can drift out of
+// alignment the way the old hand-measured overlay could.
 const FRAMES = [
-  { key: 'key-art', label: 'Key Art', sub: '3D Neon Logo', thumb: ASSETS.keyArt },
-  { key: 'voting', label: 'User-Centered', sub: 'Voting Flow', thumb: ASSETS.rank1 },
-  { key: 'star-born', label: 'Victory Story', sub: 'A Star Is Born (#1)', thumb: ASSETS.rank1 },
-  { key: 'titanic', label: 'Victory Story', sub: 'Titanic (#2)', thumb: ASSETS.rank2 },
-  { key: 'rocky', label: 'Victory Story', sub: 'Rocky III (#3)', thumb: ASSETS.rank3 },
-  { key: 'top50', label: 'Full Top 50', sub: 'Leaderboard', thumb: ASSETS.top50 },
+  {
+    key: 'key-art',
+    label: 'Key Art',
+    sub: '3D Neon Logo',
+    src: asset('/assets/galgalatz/1_galgaltz_front.png'),
+    alt: 'Galgalatz app splash screen — the neon "Music From The Screen" key art',
+  },
+  {
+    key: 'star-born',
+    label: 'Victory Story',
+    sub: 'A Star Is Born (#1)',
+    src: asset('/assets/galgalatz/3_galgaltz_front.png'),
+    alt: 'Chart position #1 — A Star Is Born, "Shallow"',
+  },
+  {
+    key: 'titanic',
+    label: 'Victory Story',
+    sub: 'Titanic (#2)',
+    src: asset('/assets/galgalatz/4_galgaltz_front.png'),
+    alt: 'Chart position #2 — Titanic, "My Heart Will Go On"',
+  },
+  {
+    key: 'rocky',
+    label: 'Victory Story',
+    sub: 'Rocky III (#3)',
+    src: asset('/assets/galgalatz/5_galgaltz_front.png'),
+    alt: 'Chart position #3 — Rocky III, "Eye of the Tiger"',
+  },
+  {
+    key: 'top50',
+    label: 'Full Top 50',
+    sub: 'Leaderboard',
+    src: asset('/assets/galgalatz/2_galgaltz_front.png'),
+    alt: 'Full leaderboard, chart positions 31–50',
+  },
 ] as const
 
 /* ------------------------------- Glass display case ------------------------------- */
 
 function GlassDisplayCase({ highlighted }: { highlighted: boolean }) {
+  const prefersReduced = useReducedMotion()
   return (
     <div className="relative h-full">
       {/* h-full, not its own vh-based height — this zone's proportions are
@@ -35,11 +68,30 @@ function GlassDisplayCase({ highlighted }: { highlighted: boolean }) {
           independently of the phone next to it. */}
       <motion.div
         animate={{
+          // Both states carry the same two drop-shadow() functions — the
+          // "off" state's second one is fully transparent/zero-blur rather
+          // than omitted. Animating between a one-function and a
+          // two-function filter value produces an unparseable
+          // intermediate keyframe ("Invalid keyframe value for property
+          // filter"), since the browser can't interpolate a filter list
+          // against a different-length one.
           filter: highlighted
             ? 'drop-shadow(0 0 26px rgba(255,95,160,0.55)) drop-shadow(0 0 46px rgba(79,216,255,0.35))'
-            : 'drop-shadow(0 0 18px rgba(79,216,255,0.18))',
+            : 'drop-shadow(0 0 18px rgba(79,216,255,0.18)) drop-shadow(0 0 0px rgba(79,216,255,0))',
+          // A real neon tube flickers irregularly — a couple of quick
+          // sub-frame dips, then a long stable stretch — not a metronomic
+          // pulse. Clustering the dips in the first ~12% of a long (7s)
+          // cycle, then holding steady for the rest, approximates that
+          // without a true random generator. Kept on its own per-property
+          // transition (below) so it runs independently of the
+          // `highlighted` crossfade above, which fires on its own 0.4s
+          // beat whenever a different filmstrip frame is selected.
+          opacity: prefersReduced ? 1 : [1, 0.93, 1, 0.97, 1, 1, 1, 1],
         }}
-        transition={{ duration: 0.4 }}
+        transition={{
+          filter: { duration: 0.4 },
+          opacity: prefersReduced ? { duration: 0 } : { duration: 7, times: [0, 0.03, 0.06, 0.09, 0.12, 0.4, 0.7, 1], repeat: Infinity, ease: 'easeInOut' },
+        }}
         className="relative flex items-center justify-center h-full"
       >
         {/* Real 3D glass display case render — neon "Music From The Screen"
@@ -62,111 +114,47 @@ function GlassDisplayCase({ highlighted }: { highlighted: boolean }) {
   )
 }
 
-/* ------------------------------------ Phone UI ------------------------------------ */
+/* ------------------------------------ Phone ------------------------------------ */
 
-function VotingScreen() {
-  // No painted background — the phone's own photographed screen (a
-  // solid indigo) already supplies one, same fix as Amy's 27 Club grid:
-  // a second, different-toned fill on top just looked like a patch.
-  return (
-    <div className="w-full h-full text-white flex flex-col">
-      <div className="flex items-center justify-between px-3 pt-8 pb-2">
-        <Menu size={14} />
-        <span className="font-display font-black text-[11px] tracking-wide">N12</span>
-      </div>
-      <p className="px-3 text-[13px] font-display font-bold leading-tight mt-1">Production Voting</p>
-      <div className="mx-3 mt-2 flex items-center justify-between text-[9px] bg-white/10 rounded-lg px-2 py-1.5">
-        <span className="text-white/60">Category</span>
-        <span className="flex items-center gap-1 text-white">Select <ChevronDown size={10} /></span>
-      </div>
-      <div className="grid grid-cols-3 gap-2 px-3 mt-2.5">
-        {[
-          { img: ASSETS.rank1, title: 'A Star Is Born' },
-          { img: ASSETS.rank2, title: 'Titanic' },
-          { img: ASSETS.rank3, title: 'Rocky III' },
-        ].map((m) => (
-          <div key={m.title} className="rounded-lg overflow-hidden bg-black/30 border border-white/10">
-            <img src={m.img} alt={m.title} className="block w-full aspect-[3/4] object-cover" />
-            <p className="text-[7px] font-semibold px-1 py-1 truncate">{m.title}</p>
-          </div>
-        ))}
-      </div>
-      <div className="mt-2 mx-3 flex items-center gap-1.5 text-[9px] text-white/70">
-        <span className="w-4 h-4 rounded-full bg-cine-magenta/80 flex items-center justify-center text-[8px] font-bold">0</span>
-        Votes cast
-      </div>
-      <div className="mt-auto flex items-center justify-around py-2.5 border-t border-white/10 bg-black/20">
-        {[Home, Search, Heart, User].map((Icon, i) => (
-          <Icon key={i} size={14} className={i === 0 ? 'text-cine-cyan' : 'text-white/40'} />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function VictoryScreen({ img, rank, title, song }: { img: string; rank: string; title: string; song: string }) {
+/** The real phone mockup, already fully composited (frame + screen
+ *  artwork) by the designer — see FRAMES above. This just crossfades
+ *  between the 5 flat images and keeps the same "tuning channels"
+ *  scanline beat the old synthetic screens had. No separate frame layer,
+ *  no clip-path, no corner calibration: it's one flat image, so whatever
+ *  3D tilt the parent applies to it, frame and screen tilt together,
+ *  pixel-locked, by construction. */
+function PhoneShot({ frame }: { frame: (typeof FRAMES)[number] }) {
+  const prefersReduced = useReducedMotion()
   return (
     <div className="relative w-full h-full">
-      {/* object-contain — the poster art was cropping at the top/bottom
-          edges under object-cover inside the 9:19 phone screen; contain
-          shows the full artwork, letterboxed against the phone's own
-          screen color (no painted bg-black) rather than cut or patched
-          with a mismatched fill. */}
-      <img src={img} alt={`${title} — ${song}`} className="absolute inset-0 w-full h-full object-contain" />
-      {/* Two SEPARATE, short gradient patches (top badge, bottom caption)
-          instead of one full-cover gradient — a full-inset-0 wash darkened
-          the letterboxed padding around the object-contain image too
-          (which now shows the phone's own screen color, not bg-black),
-          combining into a visible uneven band right at the image's real
-          edge instead of just legibility-darkening the badge/text. */}
-      <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/55 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/75 to-transparent" />
-      <span className="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-full bg-cine-gold text-[#4a2d0f] text-[9px] font-black uppercase">
-        <Trophy size={10} /> #{rank}
-      </span>
-      <div className="absolute bottom-3 inset-x-3 text-white">
-        <p className="font-display font-bold text-xs">{title}</p>
-        <p className="text-[9px] text-white/70">{song}</p>
-      </div>
+      <motion.img
+        key={frame.key}
+        src={frame.src}
+        alt={frame.alt}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="absolute inset-0 w-full h-full object-contain"
+        draggable={false}
+      />
+      {/* A bright scanline sweeps down as the frame changes — this is a
+          radio station's own voting chart, so switching frames should feel
+          like tuning between channels, not a slideshow crossfade. Keyed by
+          `frame` so it replays on every switch; skipped entirely under
+          reduced motion rather than reduced to a static remnant, since a
+          motionless "scanline" would just look like a stray bar. */}
+      {!prefersReduced && (
+        <motion.div
+          key={`scan-${frame.key}`}
+          aria-hidden
+          initial={{ top: '-15%', opacity: 0.9 }}
+          animate={{ top: '115%', opacity: 0 }}
+          transition={{ duration: 0.32, ease: 'easeIn' }}
+          className="absolute inset-x-[13%] h-[8%] pointer-events-none z-20"
+          style={{ background: 'linear-gradient(180deg, transparent, rgba(255,255,255,0.35) 45%, rgba(79,216,255,0.25) 55%, transparent)' }}
+        />
+      )}
     </div>
-  )
-}
-
-function LeaderboardScreen() {
-  return (
-    <div className="relative w-full h-full overflow-hidden">
-      <img src={ASSETS.top50} alt="Full Top 50 leaderboard, ranks 31–50" className="absolute inset-0 w-full h-full object-contain" />
-    </div>
-  )
-}
-
-function KeyArtScreen() {
-  return (
-    <div className="relative w-full h-full">
-      <img src={ASSETS.keyArt} alt="Galgalatz key art neon logo" className="absolute inset-0 w-full h-full object-contain" />
-    </div>
-  )
-}
-
-/** One screen at a time, guaranteed: a plain lookup keyed by the active
- *  frame (rather than a chain of `frame === x &&` checks) so there is no
- *  ambiguity about more than one screen ever being selected, and `key`
- *  forces React to fully unmount the previous screen — including its
- *  <img> — before the next one mounts, rather than patching over it. */
-function PhoneScreen({ frame }: { frame: (typeof FRAMES)[number]['key'] }) {
-  const SCREENS: Record<(typeof FRAMES)[number]['key'], ReactNode> = {
-    'key-art': <KeyArtScreen />,
-    voting: <VotingScreen />,
-    'star-born': <VictoryScreen img={ASSETS.rank1} rank="1" title="A Star Is Born" song="Shallow — Lady Gaga, Bradley Cooper" />,
-    titanic: <VictoryScreen img={ASSETS.rank2} rank="2" title="Titanic" song="My Heart Will Go On — Céline Dion" />,
-    rocky: <VictoryScreen img={ASSETS.rank3} rank="3" title="Rocky III" song="Eye Of The Tiger — Survivor" />,
-    top50: <LeaderboardScreen />,
-  }
-
-  return (
-    <motion.div key={frame} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="w-full h-full">
-      {SCREENS[frame]}
-    </motion.div>
   )
 }
 
@@ -205,7 +193,7 @@ function FilmStrip({ active, onSelect }: { active: number; onSelect: (i: number)
                   : 'border-white/15 hover:border-white/40 opacity-70 hover:opacity-100'
               }`}
             >
-              <img src={f.thumb} alt="" aria-hidden className="w-full aspect-[4/3] object-cover" />
+              <img src={f.src} alt="" aria-hidden className="w-full aspect-[4/3] object-contain bg-black/30" />
               <div className={`absolute inset-0 transition-opacity ${active === i ? 'bg-gradient-to-t from-black/75 to-transparent' : 'bg-gradient-to-t from-black/90 to-black/20'}`} />
               <div className="absolute bottom-1 left-1.5 right-1.5">
                 <p className={`text-[8.5px] font-bold leading-tight ${active === i ? 'text-cine-cyan' : 'text-white'}`}>{f.label}</p>
@@ -230,7 +218,7 @@ export default function GalgalatzCaseStudy({ onClose }: { onClose: () => void })
     <div className="relative">
       <CaseStudyHeader
         id="modal-galgalatz-title"
-        stageLabel="02"
+        stageLabel={PROJECT_NUMBER.galgalatz}
         title="Game UI UX Prototyping"
         supportLabel="Production Voting Flow & 3D Neon Integration"
         theme="dark"
@@ -313,10 +301,10 @@ export default function GalgalatzCaseStudy({ onClose }: { onClose: () => void })
           {/* Two coins in the cabinet-phone gap — nudged left to stay in
               the (now narrower) gap after the phone was enlarged to reach
               the cabinet's own full height. */}
-          <FloatingElement delay={0.3} distance={8} fleeTo={{ x: -14, y: -18 }} className="absolute z-20" style={{ left: '51%', top: '22%' }}>
+          <FloatingElement delay={0.3} distance={8} magnetic className="absolute z-20" style={{ left: '51%', top: '22%' }}>
             <GoldCoin size={34} />
           </FloatingElement>
-          <FloatingElement delay={0.9} distance={9} fleeTo={{ x: 14, y: 18 }} className="absolute z-20" style={{ left: '55%', top: '51%' }}>
+          <FloatingElement delay={0.9} distance={9} magnetic className="absolute z-20" style={{ left: '55%', top: '51%' }}>
             <GoldCoin size={40} />
           </FloatingElement>
 
@@ -331,45 +319,23 @@ export default function GalgalatzCaseStudy({ onClose }: { onClose: () => void })
                 child to roughly half the intended size (a real
                 flexbox+aspect-ratio sizing interaction, confirmed via
                 DOM measurement: 112px rendered vs 221px available). */}
-            <div className="relative h-full">
-              {/* The real photographed phone replaces the hand-built
-                  PhoneMockup frame — same technique as the Amy case study's
-                  27 Club phone: the asset is one wide canvas with a lot of
-                  transparent padding, so this crops in on just the phone
-                  (an oversized absolutely-positioned img offset by negative
-                  %) and overlays PhoneScreen in a plain (non-rotated,
-                  non-3D) rectangle positioned over the photographed screen.
-                  A tiny hover "breathe" (scale + near-zero rotate) stands
-                  in for straightening the phone's own baked-in camera
-                  angle — a true front-on view isn't possible from a single
-                  photographed asset, so this is the closest a CSS hover
-                  can get to "feels alive" without a second photo. */}
+            <div className="relative h-full" style={{ perspective: 1400 }}>
+              {/* The new front-facing phone render replaces the old
+                  photographed/tilted one — it's a clean, un-tilted asset,
+                  and the 5 screen mockups are already fully composited onto
+                  it at its own native canvas size (941×1672), so there's no
+                  separate frame + content overlay to keep aligned anymore:
+                  it's one flat image, and the 3D tilt below is applied to
+                  that whole image at once. Frame and screen can't drift
+                  apart because they were never separate layers to begin
+                  with. */}
               <motion.div
                 className="relative w-full"
-                style={{ aspectRatio: '617 / 1326' }}
-                whileHover={{ scale: 1.015, rotate: 0.4 }}
-                transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                style={{ aspectRatio: '941 / 1672', transformStyle: 'preserve-3d', rotateY: -9, rotateX: 3 }}
+                whileHover={{ rotateY: -5, rotateX: 1.5, scale: 1.015 }}
+                transition={{ type: 'spring', stiffness: 220, damping: 22 }}
               >
-                <img
-                  src={asset('/assets/galgalatz/glaglatz-phones.png')}
-                  alt=""
-                  aria-hidden
-                  className="absolute pointer-events-none select-none"
-                  style={{ width: '176.1%', maxWidth: 'none', left: '-40%', top: '-1%' }}
-                />
-                {/* Re-measured directly against the source photo via a
-                    tight color-based pixel scan of the actual screen
-                    boundary (the previous top:21.3%/height:69.5% estimate
-                    was well short of the real screen, which actually
-                    starts almost right below the notch and runs almost to
-                    the home-bar — leaving screen content cut off/floating
-                    wrong against the bezel instead of filling the glass). */}
-                <div
-                  className="absolute overflow-hidden rounded-[8px]"
-                  style={{ left: '11.5%', top: '6%', width: '78.5%', height: '87%', transform: 'rotate(-0.5deg)' }}
-                >
-                  <PhoneScreen frame={FRAMES[active].key} />
-                </div>
+                <PhoneShot frame={FRAMES[active]} />
               </motion.div>
 
               {/* Screen nav arrows — cycle through the same FRAMES the
@@ -441,10 +407,10 @@ export default function GalgalatzCaseStudy({ onClose }: { onClose: () => void })
 export function GalgalatzBreakout() {
   return (
     <>
-      <FloatingElement delay={0.5} distance={9} fleeTo={{ x: 30, y: -10 }} className="absolute top-[24%] -right-8 sm:-right-12 z-30 hidden sm:block">
+      <FloatingElement delay={0.5} distance={9} magnetic className="absolute top-[24%] -right-8 sm:-right-12 z-30 hidden sm:block">
         <MusicNote size={36} />
       </FloatingElement>
-      <FloatingElement delay={1.2} distance={9} fleeTo={{ x: 30, y: 10 }} className="absolute top-[49%] -right-7 sm:-right-11 z-30 hidden sm:block">
+      <FloatingElement delay={1.2} distance={9} magnetic className="absolute top-[49%] -right-7 sm:-right-11 z-30 hidden sm:block">
         <MusicNote size={30} />
       </FloatingElement>
     </>

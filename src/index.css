@@ -156,4 +156,22 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+
+  /* Hero character cursor-follow is deliberately exempt from
+     prefers-reduced-motion (explicit direction, weighed against the
+     accessibility trade-off — see HeroCharacter.tsx's doc comment). This
+     targets the same elements the nested `MotionConfig reducedMotion=
+     "never"` there already covers at the Framer Motion level; this rule
+     is the belt-and-suspenders CSS-level match, for any real `transition`/
+     `animation` on those elements (not just Framer's own JS-driven
+     values). A class selector has higher specificity than the bare `*`
+     above, so it wins regardless of source order despite both being
+     `!important`. */
+  .hero-character-live,
+  .hero-character-live::before,
+  .hero-character-live::after {
+    animation-duration: revert !important;
+    animation-iteration-count: revert !important;
+    transition-duration: revert !important;
+  }
 }

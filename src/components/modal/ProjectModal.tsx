@@ -1,5 +1,5 @@
-import { useEffect, type ReactNode } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { asset } from '../../lib/asset'
 
@@ -41,12 +41,6 @@ interface ProjectModalProps {
    *  plain outline read as an accidental/broken control against AI
    *  Rescue's own cyan/magenta palette. AI Rescue only. */
   closeAccent?: 'red'
-  /** Shared with the originating homepage card's own `layoutId` — Framer
-   *  Motion animates the FLIP between the card's last known rect and this
-   *  panel's rect, so opening a project reads as "the card expands into
-   *  the case study" rather than a dialog popping up disconnected from
-   *  whatever was clicked. */
-  layoutId?: string
   /** Overrides the panel's default max-w-[1180px] — for a case study whose
    *  approved composition is a narrower, portrait-cinematic scene (e.g.
    *  Galgalatz) rather than the shared wide landscape shell. */
@@ -68,59 +62,181 @@ export default function ProjectModal({
   outlineClose = false,
   closeLabel,
   closeAccent,
-  layoutId,
   maxWidthClass = 'max-w-[1180px]',
 }: ProjectModalProps) {
+  const prefersReduced = useReducedMotion()
+  const panelRef = useRef<HTMLDivElement>(null)
+  // What had focus right before the dialog opened — restored on close so a
+  // keyboard/screen-reader user lands back where they were, not at the top
+  // of the document.
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null)
+
+  // Whether the panel is actually in the DOM — deliberately NOT the same
+  // thing as `open`. On close we still want the fade/scale-down to play,
+  // but removal itself is on a plain timer, not gated on Framer Motion
+  // ever reporting the exit animation "complete". That completion signal
+  // depends on requestAnimationFrame, which some hosting contexts (a
+  // backgrounded/hidden browser tab, confirmed in this project's own dev
+  // sandbox) throttle or never fire at all — when that happens the old
+  // AnimatePresence-driven exit left the panel sitting in the DOM forever,
+  // invisible but still containing elements (like the close button, which
+  // has its own explicit `pointer-events-auto`) that could still swallow
+  // clicks meant for the page underneath. A timer-based unmount can't get
+  // stuck the same way: it fires on the DOM's own clock, not on Framer's
+  // animation-progress sampling.
+  const [mounted, setMounted] = useState(open)
   useEffect(() => {
-    if (!open) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+    if (open) {
+      setMounted(true)
+      return
     }
+    const timer = setTimeout(() => setMounted(false), 320)
+    return () => clearTimeout(timer)
+  }, [open])
+
+  useEffect(() => {
+    // `mounted` lags `open` by one render on open (see above) — the panel,
+    // and therefore `panelRef.current`, doesn't exist in the DOM until
+    // `mounted` catches up, so this has to wait for both.
+    if (!open || !mounted) return
+
+    previouslyFocusedRef.current = document.activeElement as HTMLElement | null
+
+    // Move the rest of the page out of the tab order (and out of pointer/
+    // screen-reader reach) while the dialog is open, using the native
+    // `inert` attribute rather than hand-managing every background
+    // element's tabIndex. ProjectModal and PortfolioHub are rendered as
+    // direct siblings under #root (see App.tsx), so every other child of
+    // #root is "the page behind the modal".
+    const root = document.getElementById('root')
+    const invertedSiblings: HTMLElement[] = []
+    if (root) {
+      Array.from(root.children).forEach((child) => {
+        if (child instanceof HTMLElement && !child.contains(panelRef.current) && child !== panelRef.current) {
+          child.setAttribute('inert', '')
+          invertedSiblings.push(child)
+        }
+      })
+    }
+
+    // The panel is a plain DOM node under the hood (Framer Motion doesn't
+    // delay ref attachment for its own animation bookkeeping), and this
+    // effect only runs after React has committed the dialog to the DOM, so
+    // the ref is already live here — no need to defer via
+    // requestAnimationFrame, which doesn't reliably tick in every hosting
+    // context. Focus lands on the dialog itself (tabIndex=-1 below) rather
+    // than a specific control inside it, since case-study content varies
+    // too much to guess a universally-good first focus target.
+    panelRef.current?.focus()
+
+    const getFocusable = () =>
+      panelRef.current
+        ? Array.from(
+            panelRef.current.querySelectorAll<HTMLElement>(
+              'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+            )
+          ).filter((el) => el.offsetParent !== null)
+        : []
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+      if (e.key !== 'Tab' || !panelRef.current) return
+
+      const focusable = getFocusable()
+      const active = document.activeElement
+
+      if (focusable.length === 0) {
+        // Nothing focusable inside yet — keep focus pinned to the dialog
+        // itself instead of letting it fall through anywhere else.
+        e.preventDefault()
+        panelRef.current.focus()
+        return
+      }
+
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+
+      if (e.shiftKey && (active === first || active === panelRef.current)) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault()
+        first.focus()
+      } else if (!panelRef.current.contains(active)) {
+        // Focus somehow ended up outside the dialog — pull it back in
+        // rather than letting Tab continue from wherever it drifted to.
+        e.preventDefault()
+        first.focus()
+      }
+    }
+
     document.addEventListener('keydown', onKey)
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => {
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = prevOverflow
+      invertedSiblings.forEach((el) => el.removeAttribute('inert'))
+      previouslyFocusedRef.current?.focus?.()
     }
-  }, [open, onClose])
+  }, [open, mounted, onClose])
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 lg:p-10"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
-        >
-          {/* Backdrop — a dark frosted glass, but lighter than before (was
-              /60 + blur-2xl, which compounded with the panel's own tint
-              below to read as fully opaque instead of "homepage pushed
-              behind in blur"). Now genuinely translucent — the homepage is
-              still visibly, if softly, there behind every case study. */}
-          <motion.div className="absolute inset-0 bg-slate-900/40 backdrop-blur-lg" onClick={onClose} aria-hidden />
+    // This outer shell is ALWAYS mounted (not conditionally rendered via
+    // `open &&`), and its pointer-events are driven directly from the live
+    // `open` prop — not from Framer's own exit-animation completion — so
+    // even during the brief fade-out window (see `mounted` above) nothing
+    // here can intercept a click meant for the page behind it.
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 lg:p-10"
+      style={{ pointerEvents: open ? 'auto' : 'none' }}
+      aria-hidden={!open}
+    >
+      {/* Backdrop — a dark frosted glass, but lighter than before (was
+          /60 + blur-2xl, which compounded with the panel's own tint below
+          to read as fully opaque instead of "homepage pushed behind in
+          blur"). Now genuinely translucent — the homepage is still
+          visibly, if softly, there behind every case study. Its own
+          opacity is driven directly from `open` (not an exit animation),
+          so it can't get stuck either. */}
+      <motion.div
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-lg"
+        onClick={onClose}
+        aria-hidden
+        animate={{ opacity: open ? 1 : 0 }}
+        transition={{ duration: 0.25 }}
+      />
 
-          {/* Panel — shares `layoutId` with the card that opened it, so its
-              entrance is a genuine shared-layout morph (position, size and
-              border-radius all interpolate from the card's own rect) rather
-              than a fixed scale/translate animation with no relationship to
-              where the click came from. A large ambient shadow underneath
-              gives it real physical presence above the backdrop. */}
+      {mounted && (
           <motion.div
-            layoutId={layoutId}
+            ref={panelRef}
+            tabIndex={-1}
             role="dialog"
             aria-modal="true"
             aria-labelledby={labelledBy}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ layout: { type: 'spring', stiffness: 300, damping: 32 }, opacity: { duration: 0.2 } }}
-            className={`relative w-full ${maxWidthClass} max-h-[90vh] rounded-[28px] sm:rounded-[32px] border ${
+            // A static `initial` object combined with a branching `animate`
+            // target, under this project's global reducedMotion config,
+            // reliably got stuck AT `initial` (permanently opacity:0, but
+            // still pointer-events:auto — invisible yet fully interactive,
+            // silently swallowing every click meant for the page behind
+            // it) instead of ever resolving to `animate`. `initial={false}`
+            // skips the entrance reconciliation entirely, sidestepping the
+            // stuck state — the same fix already applied elsewhere in this
+            // codebase for the identical failure mode.
+            initial={prefersReduced ? false : { opacity: 0, scale: 0.95, y: 12 }}
+            animate={{ opacity: open ? 1 : 0, scale: open ? 1 : 0.96, y: open ? 0 : 8 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 32 }}
+            style={{
+              isolation: 'isolate',
+              boxShadow: '0 0 50px rgba(0,0,0,0.5), 0 40px 90px -20px rgba(0,0,0,0.6)',
+              pointerEvents: open ? 'auto' : 'none',
+            }}
+            className={`relative w-full ${maxWidthClass} max-h-[90vh] rounded-[28px] sm:rounded-[32px] border outline-none ${
               theme === 'light' ? 'bg-white/25 backdrop-blur-xl border-white/60' : 'bg-slate-900/40 backdrop-blur-xl border-white/15'
             }`}
-            style={{ isolation: 'isolate', boxShadow: '0 0 50px rgba(0,0,0,0.5), 0 40px 90px -20px rgba(0,0,0,0.6)' }}
           >
             {/* Retro joystick accent, top-left, Amy only — a standalone 3D
                 render breaking the panel's own top edge (no boxed
@@ -228,8 +344,7 @@ export default function ProjectModal({
 
             {breakout}
           </motion.div>
-        </motion.div>
       )}
-    </AnimatePresence>
+    </div>
   )
 }

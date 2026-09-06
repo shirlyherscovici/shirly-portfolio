@@ -15,11 +15,20 @@ const DarkModeContext = createContext<DarkModeState>({ dark: false, toggle: () =
  *  rather than as PortfolioHub's own local state). Persisted so a
  *  visitor's choice survives a reload. */
 export function DarkModeProvider({ children }: { children: ReactNode }) {
+  // Defaults to dark for a first-time visitor — the cinematic cosmic
+  // background + neon accents read as premium/gaming far more
+  // immediately than the light pearl palette (same content, same
+  // components; this is a "which built theme starts active" change, not
+  // a new design). A visitor's own explicit choice, once made, always
+  // wins on return — this only decides what nobody has opted into yet.
   const [dark, setDark] = useState(() => {
     try {
-      return localStorage.getItem(DARK_MODE_KEY) === '1'
+      const saved = localStorage.getItem(DARK_MODE_KEY)
+      if (saved === '1') return true
+      if (saved === '0') return false
+      return true
     } catch {
-      return false
+      return true
     }
   })
 

@@ -6,6 +6,7 @@ import VideoControlBar, { toggleFullscreen } from '../ui/VideoControlBar'
 import { GoldCoin, HeartIcon, MusicNote } from '../ui/decor'
 import ComputerMonitorFrame from '../ui/ComputerMonitorFrame'
 import { asset } from '../../lib/asset'
+import { PROJECT_NUMBER } from '../../lib/projectMeta'
 
 const VIDEO_SRC = asset('/assets/motion/aca-anashim.mp4')
 const POSTER_SRC = asset('/assets/motion/aca-anashim-poster.jpg')
@@ -39,7 +40,7 @@ export default function PeopleMotionCaseStudy({ onClose, dark = false }: { onClo
     <div>
       <CaseStudyHeader
         id="modal-motion-title"
-        stageLabel="04"
+        stageLabel={PROJECT_NUMBER['people-motion']}
         title="People In Motion"
         supportLabel="Playable Ad Concept & Game UI Motion"
         theme={dark ? 'dark' : 'light'}
@@ -114,6 +115,37 @@ export default function PeopleMotionCaseStudy({ onClose, dark = false }: { onClo
             </ComputerMonitorFrame>
           </div>
 
+          {/* A timeline ruler + a few keyframe diamonds — After Effects'
+              own visual language, in this case study's established gold/
+              red rather than a new accent color, replacing what was a
+              plain empty gap between the screen and the CTA below it. A
+              first attempt at this lived in the absolutely-positioned
+              background layer above at `top-[14%]`, which turned out to
+              sit directly behind the video monitor's own opaque frame —
+              invisible regardless of contrast (caught in review, by
+              actually looking at a screenshot of that exact region, not
+              just trusting the position math). A real in-flow element
+              here instead guarantees it renders in the one gap that's
+              always genuinely visible background, whatever the video's
+              own responsive size. */}
+          <div className="relative mt-4 h-3 mx-auto" style={{ maxWidth: 'calc(52vh * 16 / 9)' }} aria-hidden>
+            <div className="absolute inset-x-[4%] top-1/2 h-px bg-pearl-gold/35" />
+            {Array.from({ length: 16 }).map((_, i) => (
+              <span key={i} className="absolute top-1/2 w-px h-2.5 -translate-y-1/2 bg-pearl-gold/30" style={{ left: `${6 + i * 5.9}%` }} />
+            ))}
+            {[
+              { left: '18%', color: '#b8863b' },
+              { left: '46%', color: '#b02a3a' },
+              { left: '74%', color: '#b8863b' },
+            ].map((k, i) => (
+              <span
+                key={i}
+                className="absolute top-1/2 w-2 h-2"
+                style={{ left: k.left, backgroundColor: k.color, transform: 'translate(-50%, -50%) rotate(45deg)', boxShadow: `0 0 6px ${k.color}` }}
+              />
+            ))}
+          </div>
+
           <div className="mt-5 flex justify-center">
             {/* Light lavender/white glass pill with dark text — matches the
                 mockup's "Watch Playable Demo" CTA exactly (same family as
@@ -153,22 +185,22 @@ export default function PeopleMotionCaseStudy({ onClose, dark = false }: { onClo
 export function PeopleMotionBreakout() {
   return (
     <>
-      <FloatingElement delay={0.2} distance={10} fleeTo={{ x: -30, y: -10 }} className="absolute top-[14%] -left-9 sm:-left-14 z-30 hidden sm:block">
+      <FloatingElement delay={0.2} distance={10} magnetic breathe className="absolute top-[14%] -left-9 sm:-left-14 z-30 hidden sm:block">
         <MusicNote size={44} color="#b8863b" />
       </FloatingElement>
-      <FloatingElement delay={1.1} distance={8} fleeTo={{ x: -34, y: 10 }} className="absolute top-[44%] -left-8 sm:-left-14 z-30 hidden sm:block">
+      <FloatingElement delay={1.1} distance={8} magnetic breathe className="absolute top-[44%] -left-8 sm:-left-14 z-30 hidden sm:block">
         <GoldCoin size={52} />
       </FloatingElement>
-      <FloatingElement delay={0.8} distance={9} fleeTo={{ x: -30, y: -10 }} className="absolute top-[74%] -left-9 sm:-left-14 z-30 hidden sm:block">
+      <FloatingElement delay={0.8} distance={9} magnetic breathe className="absolute top-[74%] -left-9 sm:-left-14 z-30 hidden sm:block">
         <HeartIcon size={46} color="#c23b3b" />
       </FloatingElement>
-      <FloatingElement delay={0.6} distance={9} fleeTo={{ x: 30, y: -10 }} className="absolute top-[10%] -right-9 sm:-right-14 z-30 hidden sm:block">
+      <FloatingElement delay={0.6} distance={9} magnetic breathe className="absolute top-[10%] -right-9 sm:-right-14 z-30 hidden sm:block">
         <GoldCoin size={40} />
       </FloatingElement>
-      <FloatingElement delay={1.5} distance={10} fleeTo={{ x: 30, y: 10 }} className="absolute top-[50%] -right-8 sm:-right-14 z-30 hidden sm:block">
+      <FloatingElement delay={1.5} distance={10} magnetic breathe className="absolute top-[50%] -right-8 sm:-right-14 z-30 hidden sm:block">
         <HeartIcon size={40} color="#c23b3b" />
       </FloatingElement>
-      <FloatingElement delay={0.4} distance={8} fleeTo={{ x: 30, y: -10 }} className="absolute top-[80%] -right-9 sm:-right-14 z-30 hidden sm:block">
+      <FloatingElement delay={0.4} distance={8} magnetic breathe className="absolute top-[80%] -right-9 sm:-right-14 z-30 hidden sm:block">
         <GoldCoin size={48} />
       </FloatingElement>
     </>

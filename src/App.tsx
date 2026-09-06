@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { LayoutGroup } from 'framer-motion'
+import { MotionConfig } from 'framer-motion'
 import PortfolioHub from './components/hub/PortfolioHub'
 import ProjectModal from './components/modal/ProjectModal'
 import AmyCaseStudy, { AmyCaseStudyBreakout } from './components/modal/AmyCaseStudy'
 import GalgalatzCaseStudy, { GalgalatzBreakout } from './components/modal/GalgalatzCaseStudy'
 import AiRescueCaseStudy, { AiRescueBreakout } from './components/modal/AiRescueCaseStudy'
 import PeopleMotionCaseStudy, { PeopleMotionBreakout } from './components/modal/PeopleMotionCaseStudy'
+import EasterEgg from './components/ui/EasterEgg'
 import { DarkModeProvider, useDarkMode } from './lib/darkMode'
 import type { ProjectId, Theme } from './types'
 import { asset } from './lib/asset'
@@ -31,12 +32,16 @@ function AppShell() {
   const theme: Theme = openId ? (ALWAYS_DARK[openId] || dark ? 'dark' : 'light') : 'light'
 
   return (
-    // LayoutGroup gives the homepage cards and the modal panel — two
-    // separate parts of the tree — a shared reconciliation context, so a
-    // card and the modal can carry the same `layoutId` and Framer Motion
-    // will animate the FLIP between them (the "card expands into the case
-    // study" transition) instead of them being unrelated components.
-    <LayoutGroup>
+    // MotionConfig(reducedMotion="user") makes every Framer Motion
+    // transform/layout animation in the tree automatically respect the
+    // OS-level prefers-reduced-motion setting — previously only
+    // HeroDiorama checked that preference itself (via its own
+    // useReducedMotion() calls, left as-is here), so every card's idle
+    // float and case-study ambient loop ran at full motion regardless of
+    // it. Components that already do their own explicit reduced-motion
+    // check (HeroDiorama) are unaffected — this only fills the gap
+    // everywhere else.
+    <MotionConfig reducedMotion="user">
       <PortfolioHub onOpen={setOpenId} openId={openId} />
 
       <ProjectModal
@@ -49,7 +54,6 @@ function AppShell() {
         closeLabel={openId === 'ai-rescue' ? 'Close' : openId === 'people-motion' ? 'Close Case Study' : undefined}
         closeAccent={openId === 'ai-rescue' ? 'red' : undefined}
         joystickBadgeSrc={openId === 'galgalatz' ? asset('/assets/galgalatz/joystick-galgaltz.png') : undefined}
-        layoutId={openId ? `card-${openId}` : undefined}
         breakout={
           openId === 'ai-rescue' ? (
             <AiRescueBreakout />
@@ -67,7 +71,7 @@ function AppShell() {
         {openId === 'ai-rescue' && <AiRescueCaseStudy onClose={close} />}
         {openId === 'people-motion' && <PeopleMotionCaseStudy onClose={close} dark={dark} />}
       </ProjectModal>
-    </LayoutGroup>
+    </MotionConfig>
   )
 }
 
@@ -75,6 +79,7 @@ export default function App() {
   return (
     <DarkModeProvider>
       <AppShell />
+      <EasterEgg />
     </DarkModeProvider>
   )
 }

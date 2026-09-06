@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { animate, useReducedMotion } from 'framer-motion'
 import CompareSlider from '../CompareSlider'
 import { asset } from '../../lib/asset'
 
@@ -16,6 +17,27 @@ const AFTER_SRC = asset('/assets/amy/hero-banner.png')
  *  comparison, so that's what this renders. */
 export default function AmyBeforeAfterPhone({ dark = false }: { dark?: boolean }) {
   const [pos, setPos] = useState(50)
+  const prefersReduced = useReducedMotion()
+
+  // This case study's whole thesis — "raw archive to iconic game-ready
+  // art" — is a real, draggable comparison most visitors will never think
+  // to touch. On mount, sweep through it once, unprompted: the case study
+  // performing its own premise rather than waiting to be discovered, then
+  // handing control back. One-shot, not a loop — and it settles back at
+  // the neutral 50/50 split rather than stopping on "after", so it still
+  // reads as a comparison, not a reveal that picked a side. Skips entirely
+  // under reduced motion rather than jumping straight to one state, which
+  // would misrepresent the comparison as one-sided.
+  useEffect(() => {
+    if (prefersReduced) return
+    const controls = animate(50, [50, 25, 75, 50], {
+      duration: 1.8,
+      ease: 'easeInOut',
+      delay: 0.6,
+      onUpdate: (latest) => setPos(latest),
+    })
+    return () => controls.stop()
+  }, [prefersReduced])
 
   return (
     <div className="w-full h-full flex flex-col">
