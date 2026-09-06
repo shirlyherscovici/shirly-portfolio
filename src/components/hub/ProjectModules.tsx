@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion'
 import { ArrowUpRight } from 'lucide-react'
 import { asset } from '../../lib/asset'
-import { PROJECT_NUMBER } from '../../lib/projectMeta'
 import { useCanHover } from '../../lib/useCanHover'
 import type { ProjectId } from '../../types'
 
@@ -119,9 +118,14 @@ function WorldCard({ id, discipline, tagLines, accent, glowClass, onClick, hidde
   // (touch, or reduced-motion where the same class would just leave it
   // permanently hidden with no hover to reveal it) it renders open by
   // default.
+  // On a hover-capable pointer this collapses to zero height at rest (not
+  // just invisible) so the glass capsule itself hugs the title alone until
+  // hovered — reserving the full expanded height at idle, as a plain
+  // opacity transition did, left every panel reading as an oversized,
+  // mostly-empty glass box instead of a tight floating capsule.
   const revealClass = interactive
-    ? 'opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 group-focus-visible:opacity-100 group-focus-visible:translate-y-0 transition-all duration-300 ease-out'
-    : 'opacity-100 translate-y-0'
+    ? 'max-h-0 opacity-0 overflow-hidden group-hover:max-h-32 group-hover:opacity-100 group-focus-visible:max-h-32 group-focus-visible:opacity-100 transition-all duration-300 ease-out'
+    : 'opacity-100'
 
   return (
     <motion.button
@@ -135,8 +139,8 @@ function WorldCard({ id, discipline, tagLines, accent, glowClass, onClick, hidde
       transition={{ type: 'spring', stiffness: 300, damping: 24 }}
       animate={{ opacity: hidden ? 0 : 1 }}
       style={{ perspective: 1000, pointerEvents: hidden ? 'none' : 'auto', touchAction: 'manipulation' }}
-      className="group relative block w-full aspect-[3/4] sm:aspect-[3/4] rounded-[28px] text-left outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-      aria-label={`Open case study ${PROJECT_NUMBER[id]} — ${discipline}`}
+      className="group relative block w-full aspect-[3/4] sm:aspect-[3/4] lg:aspect-auto lg:h-full rounded-[28px] text-left outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+      aria-label={`Open case study — ${discipline}`}
       aria-hidden={hidden}
       tabIndex={hidden ? -1 : 0}
     >
@@ -144,74 +148,78 @@ function WorldCard({ id, discipline, tagLines, accent, glowClass, onClick, hidde
         style={{ rotateX: interactive ? t.rotateX : 0, rotateY: interactive ? t.rotateY : 0, transformStyle: 'preserve-3d' }}
         className={`glass-cine glass-sheen relative w-full h-full rounded-[28px] overflow-hidden transition-shadow duration-300 ${glowClass}`}
       >
-        {/* .glass-cine's own background is real translucency (a
-            backdrop-blur sampling whatever sits behind the element) —
-            correct for its original job of sitting over the dark cosmic
-            hero/modal chrome, but on this grid the page behind it is the
-            light pearl background in light mode, so that same
-            translucency read as a washed-out flat lavender instead of
-            "premium hardware glass" (caught in review). A rich, mostly-
-            opaque dark base underneath guarantees these cards look like
-            dark glass regardless of the site's light/dark toggle — the
-            unified "same universe" identity the brief asks for — while
-            .glass-cine's border/blur/sheen/shadow on the element above it
-            still do their job on top. */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1b1730]/95 via-[#141222]/95 to-[#0a0914]/95" />
+        {/* A faint tint only — .glass-cine's own translucent
+            gradient/blur/border/sheen (defined once in index.css) IS the
+            glass; this used to be a near-opaque 95%-alpha slab painted
+            directly on top of it, which hid that translucency completely
+            and made every card read as a flat solid panel with a picture
+            dropped on it rather than actual glass. Kept thin enough here
+            that the hero artwork underneath stays the dominant, legible
+            visual — glass is a filter over the art, not a wall in front
+            of it. */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1b1730]/30 via-[#141222]/15 to-[#0a0914]/35" />
 
         {/* Ambient accent wash — one soft radial glow tinted to this card's
             own color, sitting behind everything. Restrained on purpose —
             the brief is explicit that the glow shouldn't compete with the
             hero visual or the glass itself. */}
-        <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(circle at 78% 12%, ${accent}30, transparent 55%)` }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(circle at 78% 12%, ${accent}25, transparent 55%)` }} />
 
         {/* Hero visual — always visible at rest, per the brief ("the hero
             visual/character should be visible without requiring
-            interaction"). Each project supplies its own real artwork. */}
+            interaction"). Each project supplies its own real artwork, and
+            is now the dominant thing the card shows — glass sits over it,
+            not the other way around. */}
         <div className="absolute inset-0">{heroVisual}</div>
 
-        {/* A permanent bottom scrim, under the text column only — not the
-            whole card, so the hero visual keeps its own natural
-            lighting/contrast above it. Guarantees the idle title AND the
-            hover-reveal panel always sit on a legible, intentional dark
-            gradient instead of directly on whatever the hero art happens
-            to render at that exact spot (caught in review: the reveal
-            panel visually collided with the Galgalatz phone's own nav-bar
-            icons with no scrim behind it). */}
-        <div className="absolute inset-x-0 bottom-0 h-[62%] bg-gradient-to-t from-black/85 via-black/35 to-transparent pointer-events-none" />
+        {/* A soft bottom vignette only — just enough falloff to separate
+            the glass panel below from a busy patch of artwork, not a wall
+            of black. The panel itself (its own blur/tint/border below)
+            carries the actual legibility now. */}
+        <div className="absolute inset-x-0 bottom-0 h-[46%] bg-gradient-to-t from-black/45 via-black/10 to-transparent pointer-events-none" />
 
-        {/* Idle content — number + discipline title, always visible; this
-            alone is what a fast HR scan needs to read all four
-            disciplines instantly. */}
-        <div className="relative z-10 flex flex-col h-full p-5 sm:p-6" style={{ transform: 'translateZ(28px)' }}>
-          <span
-            className="block font-display font-black leading-none text-3xl sm:text-4xl"
-            style={{ color: accent, textShadow: `0 0 22px ${accent}99` }}
+        {/* Idle content — a single floating frosted-glass capsule holding
+            the title (always visible) and, on hover/focus, the tagline +
+            CTA. A distinct translucent panel of its own — separate blur/
+            tint/border from the card shell around it — is what makes this
+            read as "layered glass panels over the art" rather than one
+            flat surface; the numbered badge that used to sit above it has
+            been removed outright, per direction, with nothing put in its
+            place. */}
+        <div className="relative z-10 flex flex-col h-full p-3.5 sm:p-4 lg:p-3.5" style={{ transform: 'translateZ(28px)' }}>
+          <div
+            className="mt-auto rounded-2xl backdrop-blur-xl px-4 py-3.5 sm:px-4.5 sm:py-4"
+            style={{
+              background: 'linear-gradient(160deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04))',
+              border: '1px solid rgba(255,255,255,0.28)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 12px rgba(0,0,0,0.15), 0 8px 28px -8px rgba(0,0,0,0.55)',
+            }}
           >
-            {PROJECT_NUMBER[id]}
-          </span>
-          <h3
-            className="mt-2 font-display font-extrabold leading-[1.05] text-xl sm:text-2xl text-white tracking-tight"
-            style={{ textShadow: '0 2px 10px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.9)' }}
-          >
-            {discipline}
-          </h3>
-
-          {/* Hover-reveal — hidden at idle (see revealClass above),
-              opacity + a small translateY per the brief, not a large
-              animation. Sits on the bottom scrim above, no longer needs
-              its own separate boxed background to stay legible. */}
-          <div className={`mt-auto ${revealClass}`}>
-            {tagLines.map((line) => (
-              <p key={line} className="text-[11px] font-semibold uppercase tracking-wide text-white/85 leading-snug" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
-                {line}
-              </p>
-            ))}
-            <span
-              className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[10px] font-display font-bold uppercase tracking-wide border"
-              style={{ color: accent, borderColor: `${accent}55`, background: `${accent}1a` }}
+            <h3
+              className="font-display font-extrabold leading-[1.05] text-lg sm:text-xl lg:text-lg xl:text-xl text-white tracking-tight"
+              style={{ textShadow: '0 2px 10px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.9)' }}
             >
-              Explore Case Study <ArrowUpRight size={12} />
-            </span>
+              {discipline}
+            </h3>
+
+            {/* Hover-reveal — collapsed to zero height at idle (see
+                revealClass above), so the capsule around it stays a tight
+                fit around just the title until hovered. Lives inside the
+                same glass capsule as the title now, rather than a separate
+                boxed background. */}
+            <div className={`${revealClass}`}>
+              {tagLines.map((line) => (
+                <p key={line} className="mt-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/85 leading-snug" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
+                  {line}
+                </p>
+              ))}
+              <span
+                className="mt-2.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-display font-bold uppercase tracking-wide border backdrop-blur-sm"
+                style={{ color: accent, borderColor: `${accent}66`, background: `${accent}22` }}
+              >
+                Explore Case Study <ArrowUpRight size={12} />
+              </span>
+            </div>
           </div>
         </div>
       </motion.div>
@@ -223,30 +231,22 @@ function WorldCard({ id, discipline, tagLines, accent, glowClass, onClick, hidde
 /* Per-project hero visuals — each reuses its own real, existing artwork  */
 /* ---------------------------------------------------------------------- */
 
-/** 01 — Galgalatz — the real glass display case + the real pre-composited
- *  phone frame (same technique/asset as the case study itself, so nothing
- *  can drift out of alignment: no separate compositing step here at all). */
+/** 01 — Galgalatz — the real campaign key art itself, full-bleed and
+ *  prominent, exactly as designed — not composited into a phone mockup.
+ *  The phone-frame treatment (kept in the case-study modal, untouched)
+ *  was a UI chrome choice for THIS card only; showing the actual artwork
+ *  directly is what makes it the card's visual hero, with the glass
+ *  panels above layered over it rather than over a device frame around
+ *  it. */
 function GalgalatzHero() {
   return (
-    <div className="absolute inset-0 flex items-end justify-center overflow-hidden">
-      <div className="absolute left-[2%] bottom-[6%] w-[42%] opacity-90">
-        <img src={asset('/assets/galgalatz/neon-box-tight.png')} alt="" aria-hidden className="w-full h-auto object-contain drop-shadow-2xl" />
-      </div>
-      <motion.div
-        className="absolute right-[4%] bottom-[2%] w-[58%]"
-        style={{ aspectRatio: '941 / 1672', perspective: 1200 }}
-        animate={{ y: [0, -6, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-      >
-        <div className="relative w-full h-full transition-transform duration-500 group-hover:scale-[1.04]" style={{ transformStyle: 'preserve-3d', transform: 'rotateY(-8deg) rotateX(3deg)' }}>
-          <img
-            src={asset('/assets/galgalatz/1_galgaltz_front.png')}
-            alt="Phone showing the Galgalatz key art — the neon 'Music From The Screen' campaign, next to its real 3D glass display case"
-            className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none drop-shadow-2xl"
-            draggable={false}
-          />
-        </div>
-      </motion.div>
+    <div className="absolute inset-0 overflow-hidden">
+      <img
+        src={asset('/assets/galgalatz/banner-cover.jpg')}
+        alt="The real Galgalatz × N12 campaign key art — neon 'Music From The Screen Chart' artwork with a popcorn bucket, clapperboard and film reel"
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/5 to-transparent" />
     </div>
   )
 }
@@ -271,15 +271,18 @@ function MotionHero() {
   )
 }
 
-/** 03 — AI / Navigator — the real cinematic-AI poster + the real pilot
- *  cutout, exactly the assets already used for this project elsewhere on
- *  the homepage. This is the one place the cinematic-AI imagery belongs —
- *  kept clearly apart from the Motion card above. */
+/** 03 — AI / Navigator — a real extracted frame from the actual film
+ *  (main-film.mp4, t=39s: a symmetric, dramatically red-lit troop-transport
+ *  interior) instead of the generic illustrated poster card that stood in
+ *  for it before — plus the real pilot cutout, exactly the assets already
+ *  used for this project elsewhere on the homepage. This is the one place
+ *  the cinematic-AI imagery belongs — kept clearly apart from the Motion
+ *  card above. */
 function AiHero() {
   return (
     <div className="absolute inset-0 overflow-hidden">
       <img
-        src={asset('/assets/navigator/poster-ai-homepage-card.png')}
+        src={asset('/assets/navigator/main-film-frame.jpg')}
         alt=""
         aria-hidden
         className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"

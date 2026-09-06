@@ -7,15 +7,14 @@ import GalgalatzCaseStudy, { GalgalatzBreakout } from './components/modal/Galgal
 import AiRescueCaseStudy, { AiRescueBreakout } from './components/modal/AiRescueCaseStudy'
 import PeopleMotionCaseStudy, { PeopleMotionBreakout } from './components/modal/PeopleMotionCaseStudy'
 import EasterEgg from './components/ui/EasterEgg'
-import { DarkModeProvider, useDarkMode } from './lib/darkMode'
 import type { ProjectId, Theme } from './types'
 import { asset } from './lib/asset'
 
-// Galgalatz and AI Rescue are always dark (their own case-study palette,
-// independent of the site-wide toggle). Amy and People In Motion are
-// normally light but follow the global dark-mode switch — computed in
-// AppShell below, not hardcoded here, since that now depends on state.
-const ALWAYS_DARK: Partial<Record<ProjectId, true>> = { galgalatz: true, 'ai-rescue': true }
+// The site is dark-mode only now (the light theme/toggle was removed
+// entirely, per explicit direction) — every case study always renders its
+// dark palette, so this is a plain constant rather than the old
+// site-wide toggle state it replaces.
+const dark = true
 
 const LABEL_ID: Record<ProjectId, string> = {
   amy: 'modal-amy-title',
@@ -26,10 +25,9 @@ const LABEL_ID: Record<ProjectId, string> = {
 
 function AppShell() {
   const [openId, setOpenId] = useState<ProjectId | null>(null)
-  const { dark } = useDarkMode()
   const close = () => setOpenId(null)
 
-  const theme: Theme = openId ? (ALWAYS_DARK[openId] || dark ? 'dark' : 'light') : 'light'
+  const theme: Theme = openId ? 'dark' : 'light'
 
   return (
     // MotionConfig(reducedMotion="user") makes every Framer Motion
@@ -77,9 +75,9 @@ function AppShell() {
 
 export default function App() {
   return (
-    <DarkModeProvider>
+    <>
       <AppShell />
       <EasterEgg />
-    </DarkModeProvider>
+    </>
   )
 }

@@ -20,10 +20,15 @@ function useHeroSizes() {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  if (width >= 1440) return { character: 340, stage: 640 }
+  // Sized to fit the Hero's own share of a one-desktop-viewport homepage
+  // (Hero + all four project cards together, no scroll) alongside its text
+  // column, rather than the character's own natural full size — the
+  // character/design itself is unchanged, only the stage it's rendered at
+  // is smaller than the earlier full-bleed hero treatment.
+  if (width >= 1440) return { character: 210, stage: 390 }
   // Covers the ~1024–1439 band (1280×800 included) — scaled down a touch
   // from the full desktop size to match the slightly tighter hero column.
-  if (width >= 1024) return { character: 300, stage: 560 }
+  if (width >= 1024) return { character: 180, stage: 330 }
   // Below `lg` the layout stacks (copy above, stage centered below), so
   // the stage's width is no longer set by the 52% column — it scales with
   // the viewport itself, clamped to the ~220–260px range that fits a phone

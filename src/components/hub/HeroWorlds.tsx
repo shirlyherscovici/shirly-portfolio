@@ -26,14 +26,15 @@ export const WORLDS: World[] = [
     name: 'Game UI & UX',
     src: asset('/assets/hub/galgaltz-hero.png'),
     accent: '#ff9f45',
-    x: 12,
-    y: 15,
-    // Sizes scaled up ~25–28% across all four (per explicit request —
-    // "visibly larger and more prominent") and nudged 1–2% further toward
-    // the stage edges to compensate, keeping the same real clearance from
-    // the character's own opaque sprite this was tuned against (checked
-    // at both the 640px and 560px stage tiers, not just 1440's).
-    size: 106,
+    x: 9,
+    y: 12,
+    // Sizes bumped a further ~30% on top of an earlier enlargement pass
+    // (per explicit direction to make the floating elements feel "large,
+    // intentional and clearly visible") and nudged another couple percent
+    // toward the stage edges to compensate — same real clearance from the
+    // character's own opaque sprite this was tuned against, re-checked at
+    // both the 640px and 560px stage tiers, not just 1440's.
+    size: 138,
     delay: 0,
     duration: 4.6,
   },
@@ -43,9 +44,9 @@ export const WORLDS: World[] = [
     name: 'Motion / After Effects',
     src: asset('/assets/hub/AE.png'),
     accent: '#c084fc',
-    x: 86,
-    y: 11,
-    size: 96,
+    x: 89,
+    y: 8,
+    size: 126,
     delay: 0.9,
     duration: 5.2,
   },
@@ -55,9 +56,9 @@ export const WORLDS: World[] = [
     name: 'Cinematic AI',
     src: asset('/assets/hub/ai-hero.png'),
     accent: '#4fd8ff',
-    x: 90,
-    y: 70,
-    size: 116,
+    x: 93,
+    y: 72,
+    size: 150,
     delay: 0.4,
     duration: 4.9,
   },
@@ -67,9 +68,9 @@ export const WORLDS: World[] = [
     name: 'Visual / Graphic Design',
     src: asset('/assets/hub/amy-hero.png'),
     accent: '#ff5f7a',
-    x: 10,
-    y: 75,
-    size: 100,
+    x: 7,
+    y: 79,
+    size: 132,
     delay: 1.3,
     duration: 5.5,
   },
