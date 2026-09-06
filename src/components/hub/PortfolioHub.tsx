@@ -103,27 +103,27 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   return (
-    // lg:h-screen + lg:overflow-hidden lock the whole Hero+grid composition
-    // to exactly one desktop viewport — no scrolling to discover the four
-    // projects, per explicit direction. Below `lg` (tablet/mobile) this
-    // reverts to plain natural-height flow: there's no equivalent "one
-    // screen" expectation on a phone, and forcing it there would crush
-    // the cards unreadably small instead.
-    <div className="relative lg:h-screen lg:max-h-screen bg-cine overflow-x-clip lg:overflow-hidden flex flex-col">
-      {/* Immersive dark/purple environment — now spans the ENTIRE
-          component (not just a capped height behind the Hero), so the
-          Hero, the project cards and the footer all read as one
-          continuous cinematic environment rather than the cards sitting
-          on a separate plain background. The supplied hero-background
-          artwork still anchors the top (where its own photographic detail
-          reads clearly); the gradient beneath it — already reaching
-          #0e0f18, this component's own base tone — and the starfield on
-          top both now cover the full height so nothing "ends" partway
-          down. */}
+    // The outer shell is plain natural-height flow — only the header+Hero+
+    // grid wrapper below locks itself to one desktop viewport (no
+    // scrolling to discover the four projects, per explicit direction);
+    // the footer lives after it in normal flow, reachable with a small
+    // scroll, the same way the approved mockup itself doesn't try to
+    // cram a footer into its own one-screen composition either. Below
+    // `lg` (tablet/mobile) none of this applies — plain natural-height
+    // flow throughout, since forcing "one screen" there would crush the
+    // cards unreadably small.
+    <div className="relative bg-cine overflow-x-clip flex flex-col">
+      {/* Immersive dark/purple environment — spans the ENTIRE page (not a
+          capped region behind the Hero), so the Hero, the project cards
+          and the footer all read as one continuous cinematic environment.
+          The supplied hero-background artwork anchors the top and fades
+          out gradually over a long stretch (not a hard cutoff) into
+          .bg-cine's own matching dark tone beneath, so there's no visible
+          seam where "the photo" ends and "the gradient" begins. */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden>
-        <div className="absolute inset-x-0 top-0 h-[55%] min-h-[420px]">
+        <div className="absolute inset-x-0 top-0 h-[70%] min-h-[520px]">
           <img src={asset('/assets/hub/hero-background.png')} alt="" className="absolute inset-0 w-full h-full object-cover object-top" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0e0f18]" />
+          <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, #0b0a14 90%)' }} />
         </div>
         <Starfield />
       </div>
@@ -216,18 +216,20 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
       </header>
 
       {/* Content — Hero + grid. On desktop this wrapper gets an exact
-          `calc(100vh - header - footer)` height (56px + 60px, matching
-          their own fixed lg heights above/below) and is split into two
-          fixed percentage bands below (60/40) — a hard pixel budget each
-          section is centered and clipped within, rather than natural
-          content height plus flex-grow, which let the grid silently push
-          past the viewport and render underneath the footer. Below `lg`
-          this is entirely inert (plain natural-height flow, scrollable),
-          matching the outer shell's own lg-only one-screen behavior. */}
-      <div className="relative z-10 flex flex-col lg:h-[calc(100vh-116px)] lg:overflow-hidden">
+          `calc(100vh - header)` height (56px, matching the header's own
+          fixed lg height above) and is split into two fixed percentage
+          bands below (53/47, matched to the approved mockup's own
+          hero:grid proportions) — a hard pixel budget each section is
+          centered and clipped within, rather than natural content height
+          plus flex-grow, which let the grid silently push past the
+          viewport. The footer is NOT part of this budget (see below) —
+          reclaiming that height is what let the cards grow back to the
+          mockup's own generous size. Below `lg` this is entirely inert
+          (plain natural-height flow, scrollable). */}
+      <div className="relative z-10 flex flex-col lg:h-[calc(100vh-56px)] lg:overflow-hidden">
         <section
           id="top"
-          className="mx-auto max-w-[1400px] w-full px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-0 pb-4 sm:pb-6 lg:pb-0 scroll-mt-20 shrink-0 lg:h-[60%] lg:flex lg:items-center lg:overflow-hidden"
+          className="mx-auto max-w-[1400px] w-full px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-0 pb-4 sm:pb-6 lg:pb-0 scroll-mt-20 shrink-0 lg:h-[53%] lg:flex lg:items-center lg:overflow-hidden"
         >
           {/* Mobile's own vertical rhythm was compressed here (gap-10→gap-5,
               trimmed mt- steps below) — measured at 863px tall against an
@@ -345,7 +347,7 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
             entirely. */}
         <main
           id="work"
-          className="mx-auto max-w-[1400px] w-full px-4 sm:px-6 lg:px-10 pb-4 sm:pb-6 lg:pb-0 shrink-0 lg:h-[40%] lg:flex lg:items-center lg:overflow-hidden scroll-mt-20"
+          className="mx-auto max-w-[1400px] w-full px-4 sm:px-6 lg:px-10 pb-4 sm:pb-6 lg:pb-2 shrink-0 lg:h-[47%] lg:flex lg:items-center lg:overflow-hidden scroll-mt-20"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-5 lg:w-full lg:h-full">
             <CardArrival index={0} accent="#8b5cf6">
@@ -364,15 +366,17 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
         </main>
       </div>
 
-      {/* Footer — a slim, flush strip directly under the grid rather than a
-          heavy standalone black slab: a plain top border instead of a hard
-          color break, so it reads as the tail end of the same dark
-          interface rather than a separate section cutting the composition.
-          Semi-transparent so the starfield/background above keeps showing
-          straight through it. shrink-0 — its own compact, fixed height is
-          part of the one-screen budget on desktop. */}
-      <footer id="contact" className="shrink-0 relative z-30 lg:h-[60px] border-t border-white/[0.06] scroll-mt-20 bg-[#0B0C10]/55 backdrop-blur-sm">
-        <div className="mx-auto max-w-[1400px] h-full px-5 sm:px-8 py-3 sm:py-3.5 lg:py-0 flex flex-col lg:flex-row items-center lg:items-center justify-between gap-3">
+      {/* Footer — sits in normal flow AFTER the one-screen Hero+grid
+          wrapper above (not squeezed into its viewport budget, matching
+          the approved mockup, which doesn't fit a footer into its own
+          one-screen composition either) — reachable with a small scroll
+          past the four projects, never required to see them. A plain top
+          border instead of a hard color break, so it still reads as the
+          tail end of the same dark interface rather than a separate
+          section; semi-transparent so the starfield/background above
+          keeps showing straight through it. */}
+      <footer id="contact" className="shrink-0 relative z-30 border-t border-white/[0.06] scroll-mt-20 bg-[#0B0C10]/55 backdrop-blur-sm">
+        <div className="mx-auto max-w-[1400px] px-5 sm:px-8 py-4 sm:py-5 flex flex-col lg:flex-row items-center lg:items-center justify-between gap-3">
           <div className="text-center lg:text-left">
             <p className="font-display font-extrabold text-base sm:text-lg text-white tracking-tight">SHIRLY HERSCOVICI</p>
             <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60 mt-0.5">{PROFESSIONAL_TITLE}</p>

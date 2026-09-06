@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { asset } from '../../lib/asset'
 import { useCanHover } from '../../lib/useCanHover'
 import type { ProjectId } from '../../types'
@@ -85,13 +85,29 @@ export function CardArrival({ index, accent, children }: { index: number; accent
 /* WorldCard — the one shared shell all four disciplines render through   */
 /* ---------------------------------------------------------------------- */
 
+/** One metric/label chip in the bottom glass row. `value` is the bold
+ *  headline figure — omit it for a project whose real case study doesn't
+ *  have a clean number to show (that project gets three label-only
+ *  chips instead, matching the mockup's own AI card, which does the
+ *  same). Every value that IS shown here is a real number pulled
+ *  directly from that project's own case-study content, never invented
+ *  for this card. */
+interface Metric {
+  value?: string
+  label: string
+}
+
 interface WorldCardProps {
   id: ProjectId
   discipline: string
-  /** Short hover-reveal lines — kept to 2–3, per the brief's "fast visual
-   *  scanning" idle state and elegant, not-verbose reveal. */
-  tagLines: string[]
-  /** Hex accent driving the number badge, border glow tint and CTA color —
+  /** Short caption under the title — what the discipline covers, in a
+   *  couple of words each line. */
+  caption: string
+  metrics: Metric[]
+  /** One short, true sentence about the work — not a claim, just what the
+   *  card's own case study actually covers. */
+  description: string
+  /** Hex accent driving the border glow tint and metric-value color —
    *  each card gets its own identity within one shared system. */
   accent: string
   /** One of the site's existing pre-tuned glow shadows (glow-purple/-cyan/
@@ -100,32 +116,15 @@ interface WorldCardProps {
   onClick: () => void
   hidden: boolean
   /** The project's own real artwork — unique per card, everything else
-   *  (glass, number, title, reveal, CTA, motion) is the shared system. */
+   *  (glass, title, metrics, description, motion) is the shared system. */
   heroVisual: React.ReactNode
 }
 
-function WorldCard({ id, discipline, tagLines, accent, glowClass, onClick, hidden, heroVisual }: WorldCardProps) {
+function WorldCard({ id, discipline, caption, metrics, description, accent, glowClass, onClick, hidden, heroVisual }: WorldCardProps) {
   const canHover = useCanHover()
   const prefersReduced = useReducedMotion()
   const t = useTiltRef()
   const interactive = canHover && !prefersReduced
-
-  // The hover-reveal block must not hide project information from anyone
-  // who can't hover (touch devices, and — per the brief's own
-  // accessibility section — nobody should need hover at all to get the
-  // information). On a real hover-capable pointer it's an opacity+
-  // translateY reveal on `:hover`/`:focus-visible`; everywhere else
-  // (touch, or reduced-motion where the same class would just leave it
-  // permanently hidden with no hover to reveal it) it renders open by
-  // default.
-  // On a hover-capable pointer this collapses to zero height at rest (not
-  // just invisible) so the glass capsule itself hugs the title alone until
-  // hovered — reserving the full expanded height at idle, as a plain
-  // opacity transition did, left every panel reading as an oversized,
-  // mostly-empty glass box instead of a tight floating capsule.
-  const revealClass = interactive
-    ? 'max-h-0 opacity-0 overflow-hidden group-hover:max-h-32 group-hover:opacity-100 group-focus-visible:max-h-32 group-focus-visible:opacity-100 transition-all duration-300 ease-out'
-    : 'opacity-100'
 
   return (
     <motion.button
@@ -134,19 +133,19 @@ function WorldCard({ id, discipline, tagLines, accent, glowClass, onClick, hidde
       onClick={onClick}
       onMouseMove={interactive ? t.onMouseMove : undefined}
       onMouseLeave={interactive ? t.onMouseLeave : undefined}
-      whileHover={hidden || !interactive ? undefined : { scale: 1.04 }}
-      whileTap={hidden ? undefined : { scale: 0.97 }}
+      whileHover={hidden || !interactive ? undefined : { scale: 1.025 }}
+      whileTap={hidden ? undefined : { scale: 0.98 }}
       transition={{ type: 'spring', stiffness: 300, damping: 24 }}
       animate={{ opacity: hidden ? 0 : 1 }}
       style={{ perspective: 1000, pointerEvents: hidden ? 'none' : 'auto', touchAction: 'manipulation' }}
-      className="group relative block w-full aspect-[3/4] sm:aspect-[3/4] lg:aspect-auto lg:h-full rounded-[28px] text-left outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+      className="group relative block w-full aspect-[3/4] sm:aspect-[3/4] lg:aspect-auto lg:h-full rounded-[26px] text-left outline-none focus-visible:ring-2 focus-visible:ring-white/70"
       aria-label={`Open case study — ${discipline}`}
       aria-hidden={hidden}
       tabIndex={hidden ? -1 : 0}
     >
       <motion.div
         style={{ rotateX: interactive ? t.rotateX : 0, rotateY: interactive ? t.rotateY : 0, transformStyle: 'preserve-3d' }}
-        className={`glass-cine glass-sheen relative w-full h-full rounded-[28px] overflow-hidden transition-shadow duration-300 ${glowClass}`}
+        className={`glass-cine glass-sheen relative w-full h-full rounded-[26px] overflow-hidden transition-shadow duration-300 ${glowClass}`}
       >
         {/* A faint tint only — .glass-cine's own translucent
             gradient/blur/border/sheen (defined once in index.css) IS the
@@ -165,61 +164,77 @@ function WorldCard({ id, discipline, tagLines, accent, glowClass, onClick, hidde
             hero visual or the glass itself. */}
         <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(circle at 78% 12%, ${accent}25, transparent 55%)` }} />
 
-        {/* Hero visual — always visible at rest, per the brief ("the hero
-            visual/character should be visible without requiring
-            interaction"). Each project supplies its own real artwork, and
-            is now the dominant thing the card shows — glass sits over it,
-            not the other way around. */}
+        {/* Hero visual — fills the FULL card (not just an upper zone), so
+            it keeps reading as one continuous scene behind everything
+            below, including the info panel — matching the mockup's own
+            "artwork sits behind the glass" composition rather than
+            artwork-on-top / plain-panel-below as two stacked blocks. */}
         <div className="absolute inset-0">{heroVisual}</div>
 
-        {/* A soft bottom vignette only — just enough falloff to separate
-            the glass panel below from a busy patch of artwork, not a wall
-            of black. The panel itself (its own blur/tint/border below)
-            carries the actual legibility now. */}
-        <div className="absolute inset-x-0 bottom-0 h-[46%] bg-gradient-to-t from-black/45 via-black/10 to-transparent pointer-events-none" />
-
-        {/* Idle content — a single floating frosted-glass capsule holding
-            the title (always visible) and, on hover/focus, the tagline +
-            CTA. A distinct translucent panel of its own — separate blur/
-            tint/border from the card shell around it — is what makes this
-            read as "layered glass panels over the art" rather than one
-            flat surface; the numbered badge that used to sit above it has
-            been removed outright, per direction, with nothing put in its
-            place. */}
-        <div className="relative z-10 flex flex-col h-full p-3.5 sm:p-4 lg:p-3.5" style={{ transform: 'translateZ(28px)' }}>
-          <div
-            className="mt-auto rounded-2xl backdrop-blur-xl px-4 py-3.5 sm:px-4.5 sm:py-4"
-            style={{
-              background: 'linear-gradient(160deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04))',
-              border: '1px solid rgba(255,255,255,0.28)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 12px rgba(0,0,0,0.15), 0 8px 28px -8px rgba(0,0,0,0.55)',
-            }}
-          >
+        {/* Info panel — a real glass layer of its own (blur + translucent
+            tint + a bright top edge), floored to the card's bottom third,
+            not a solid opaque box: the artwork keeps showing through it,
+            per direction ("no opaque black rectangles"). Title + caption
+            sit directly on this glass; the metric row below gets a
+            second, distinctly brighter glass layer of its own — that
+            layering (glass over art, then glass over glass for the
+            metrics) is what the brief's "layered translucent information
+            panels" asks for, matching the mockup's own card composition.
+            No numbered badge above it — removed outright per explicit
+            direction, nothing put in its place. */}
+        <div
+          className="absolute inset-x-0 bottom-0 flex flex-col gap-2 px-4 py-3.5 sm:px-4.5 sm:py-4 backdrop-blur-md"
+          style={{
+            background: 'linear-gradient(180deg, rgba(10,8,20,0.05) 0%, rgba(10,8,20,0.55) 28%, rgba(8,7,16,0.82) 100%)',
+            borderTop: '1px solid rgba(255,255,255,0.16)',
+          }}
+        >
+          <div>
             <h3
               className="font-display font-extrabold leading-[1.05] text-lg sm:text-xl lg:text-lg xl:text-xl text-white tracking-tight"
               style={{ textShadow: '0 2px 10px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.9)' }}
             >
               {discipline}
             </h3>
+            <p className="mt-1 text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wide text-white/55 leading-snug">{caption}</p>
+          </div>
 
-            {/* Hover-reveal — collapsed to zero height at idle (see
-                revealClass above), so the capsule around it stays a tight
-                fit around just the title until hovered. Lives inside the
-                same glass capsule as the title now, rather than a separate
-                boxed background. */}
-            <div className={`${revealClass}`}>
-              {tagLines.map((line) => (
-                <p key={line} className="mt-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/85 leading-snug" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
-                  {line}
-                </p>
-              ))}
-              <span
-                className="mt-2.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-display font-bold uppercase tracking-wide border backdrop-blur-sm"
-                style={{ color: accent, borderColor: `${accent}66`, background: `${accent}22` }}
+          {/* Metric row — 2–3 glass capsules, each its own brighter
+              translucent layer over the panel above. `value` is a real
+              figure from that project's own case study where one exists;
+              a project without a clean number gets label-only chips
+              instead (matching the mockup's own AI card, which does the
+              same). */}
+          <div className="flex items-stretch gap-1.5 sm:gap-2">
+            {metrics.map((m) => (
+              <div
+                key={m.label}
+                className="flex-1 min-w-0 rounded-xl px-1.5 py-1.5 sm:px-2 sm:py-2 text-center backdrop-blur-md"
+                style={{
+                  background: 'linear-gradient(160deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04))',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
+                }}
               >
-                Explore Case Study <ArrowUpRight size={12} />
-              </span>
-            </div>
+                {m.value && (
+                  <p className="font-display font-black text-[13px] sm:text-sm leading-none tabular-nums" style={{ color: accent }}>
+                    {m.value}
+                  </p>
+                )}
+                <p className={`text-[7.5px] sm:text-[8px] font-bold uppercase tracking-wide leading-tight ${m.value ? 'mt-1 text-white/65' : 'text-white/85'}`}>{m.label}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden sm:flex items-end justify-between gap-3">
+            <p className="text-[10.5px] leading-snug text-white/60 max-w-[85%]">{description}</p>
+            <span
+              aria-hidden
+              className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full border transition-colors group-hover:bg-white/10"
+              style={{ borderColor: 'rgba(255,255,255,0.3)' }}
+            >
+              <ArrowRight size={12} className="text-white" />
+            </span>
           </div>
         </div>
       </motion.div>
@@ -231,22 +246,44 @@ function WorldCard({ id, discipline, tagLines, accent, glowClass, onClick, hidde
 /* Per-project hero visuals — each reuses its own real, existing artwork  */
 /* ---------------------------------------------------------------------- */
 
-/** 01 — Galgalatz — the real campaign key art itself, full-bleed and
- *  prominent, exactly as designed — not composited into a phone mockup.
- *  The phone-frame treatment (kept in the case-study modal, untouched)
- *  was a UI chrome choice for THIS card only; showing the actual artwork
- *  directly is what makes it the card's visual hero, with the glass
- *  panels above layered over it rather than over a device frame around
- *  it. */
+/** 01 — Galgalatz — the real glass display case + the real pre-composited
+ *  phone frame, exactly as reference-checked against the approved mockup:
+ *  that composition (a physical display case beside a phone showing the
+ *  campaign key art on its screen) IS the intended artwork for this card,
+ *  not a generic stand-in — so the phone stays, just noticeably larger and
+ *  more central than before. Same two source assets used in the case
+ *  study itself, nothing invented. */
 function GalgalatzHero() {
   return (
-    <div className="absolute inset-0 overflow-hidden">
-      <img
-        src={asset('/assets/galgalatz/banner-cover.jpg')}
-        alt="The real Galgalatz × N12 campaign key art — neon 'Music From The Screen Chart' artwork with a popcorn bucket, clapperboard and film reel"
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/5 to-transparent" />
+    // The shared info panel below is a real translucent glass layer sized
+    // to its own content, not a fixed zone, but in practice it covers
+    // roughly the bottom 45% of the card — these objects are bottom-
+    // anchored well clear of that (bottom-[48%]/[46%], not bottom-0),
+    // otherwise they render underneath the panel instead of above it,
+    // invisible despite `absolute inset-0` on this whole wrapper (which
+    // is intentional: the artwork still needs to reach the card's full
+    // height for the photographic cards' own bottom fade to read
+    // correctly through the glass).
+    <div className="absolute inset-0 flex items-end justify-center overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-[#1b1730] via-[#141222] to-[#0a0914]" />
+      <div className="absolute left-[-3%] bottom-[48%] w-[34%] opacity-95">
+        <img src={asset('/assets/galgalatz/neon-box-tight.png')} alt="" aria-hidden className="w-full h-auto object-contain drop-shadow-2xl" />
+      </div>
+      <motion.div
+        className="absolute right-[-3%] bottom-[46%] w-[58%]"
+        style={{ aspectRatio: '941 / 1672', perspective: 1200 }}
+        animate={{ y: [0, -6, 0] }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        <div className="relative w-full h-full transition-transform duration-500 group-hover:scale-[1.04]" style={{ transformStyle: 'preserve-3d', transform: 'rotateY(-8deg) rotateX(3deg)' }}>
+          <img
+            src={asset('/assets/galgalatz/1_galgaltz_front.png')}
+            alt="Phone showing the Galgalatz key art — the neon 'Music From The Screen' campaign, next to its real 3D glass display case"
+            className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none drop-shadow-2xl"
+            draggable={false}
+          />
+        </div>
+      </motion.div>
     </div>
   )
 }
@@ -326,7 +363,15 @@ export function GalgalatzModule({ onClick, hidden = false }: { onClick: () => vo
     <WorldCard
       id="galgalatz"
       discipline="UI / UX"
-      tagLines={['Game Interfaces', 'Interactive UX', 'N12 × Galgalatz']}
+      caption="Game Interfaces & Interactive UX"
+      // Real figures, straight from this project's own case study (its
+      // Impact/Engagement/Visuals summary row) — not invented for the card.
+      metrics={[
+        { value: '+8.5K', label: 'Voters' },
+        { value: '700%', label: 'Mobile Boost' },
+        { value: '100%', label: 'Custom Craft' },
+      ]}
+      description="Designing intuitive game UI and interactive voting for a live N12 broadcast."
       accent="#8b5cf6"
       glowClass="group-hover:shadow-glow-purple"
       onClick={onClick}
@@ -341,7 +386,12 @@ export function MotionModule({ onClick, hidden = false }: { onClick: () => void;
     <WorldCard
       id="people-motion"
       discipline="MOTION"
-      tagLines={['Motion Design', 'After Effects', 'Cinematic Motion']}
+      caption="Cinematic Motion & After Effects"
+      // This project's own case study doesn't surface one clean number —
+      // label-only chips instead, same treatment as the mockup's own AI
+      // card where a number isn't the point either.
+      metrics={[{ label: 'Motion Design' }, { label: 'After Effects' }, { label: 'Cinematic Motion' }]}
+      description="Bringing stories to life through cinematic motion, VFX and captivating animation."
       accent="#ffb454"
       glowClass="group-hover:shadow-glow-gold"
       onClick={onClick}
@@ -356,7 +406,9 @@ export function AiModule({ onClick, hidden = false }: { onClick: () => void; hid
     <WorldCard
       id="ai-rescue"
       discipline="AI"
-      tagLines={['Generative AI', 'AI Visuals', 'Cinematic AI']}
+      caption="Generative AI & Visual Systems"
+      metrics={[{ label: 'Generative AI' }, { label: 'AI Visuals' }, { label: 'Cinematic AI' }]}
+      description="Exploring AI tools and generative workflows to create new visual worlds."
       accent="#4fd8ff"
       glowClass="group-hover:shadow-glow-cyan"
       onClick={onClick}
@@ -371,7 +423,15 @@ export function AmyModule({ onClick, hidden = false }: { onClick: () => void; hi
     <WorldCard
       id="amy"
       discipline="GRAPHIC DESIGN"
-      tagLines={['Visual Systems', 'Art Direction', 'Character Design']}
+      caption="Visual Systems & Art Direction"
+      // Real figures from this project's own "Campaign Impact" row in its
+      // case study — not invented for the card.
+      metrics={[
+        { value: '+60K', label: 'Engaged Users' },
+        { value: '+2.3M', label: 'Impressions' },
+        { value: '+85%', label: 'Positive Feedback' },
+      ]}
+      description="Crafting bold visual identities, campaigns and key art with strong visual language."
       accent="#ff5fa0"
       glowClass="group-hover:shadow-glow-magenta"
       onClick={onClick}

@@ -177,7 +177,22 @@ function PhoneRosterZone() {
         />
         <div
           className="absolute overflow-y-auto no-scrollbar rounded-[10px]"
-          style={{ left: '10%', top: '9.7%', width: '80%', height: '79.8%', touchAction: 'pan-y' }}
+          // The roster cards inside AmyRosterGrid weren't responding to
+          // clicks at all — found via direct hit-test diagnostics
+          // (elementFromPoint at a real rendered card's own on-screen
+          // center was resolving to this DIV, the cards' shared
+          // grandparent, never the card itself or anything inside it, so
+          // every click silently fell through). Root cause: this
+          // `overflow-y-auto` scroll box sits directly inside the phone
+          // frame's `preserve-3d` + rotateY/rotateX-tilted parent (see the
+          // motion.div above) — Chromium was resolving pointer hit-tests
+          // for its own descendants against the wrong projected
+          // coordinates once several DOM levels deep in that shared 3D
+          // space. `translateZ(1px)` promotes this box onto its own
+          // compositor layer, which corrects the hit-test math without
+          // touching the phone's own visual tilt (this box still inherits
+          // it) or anything about the flip-card interaction itself.
+          style={{ left: '10%', top: '9.7%', width: '80%', height: '79.8%', touchAction: 'pan-y', transform: 'translateZ(1px)' }}
         >
           <AmyRosterGrid />
           {/* A bottom fade signals "there's more below" if the grid's own

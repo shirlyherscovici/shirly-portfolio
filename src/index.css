@@ -58,17 +58,19 @@ body {
 
 .bg-cine {
   /* Purple wash now reaches the full height of whatever contains it (the
-     homepage shell), not just the region behind the Hero — an added glow
-     low on the page (the 15%/90% stop) keeps the card grid and footer
-     reading as the same cinematic-purple environment as the Hero above
-     them, instead of fading to a flat near-black by the time you reach
-     the cards. */
+     homepage shell), not just the region behind the Hero — a low, broad
+     glow (the 85%/95% stop) keeps the card grid and footer reading as the
+     same cinematic-purple environment as the Hero above them, instead of
+     fading to a flat near-black by the time you reach the cards. The base
+     tone (#0b0a14) matches the hero-background photo's own fade target
+     exactly, so there's no visible seam between "the photo" and "the CSS
+     gradient" underneath it. */
   background:
     radial-gradient(ellipse 70% 50% at 15% -10%, rgba(75, 46, 131, 0.4), transparent),
     radial-gradient(ellipse 60% 45% at 100% 10%, rgba(79, 216, 255, 0.09), transparent),
-    radial-gradient(ellipse 65% 55% at 85% 95%, rgba(139, 92, 246, 0.22), transparent),
-    radial-gradient(ellipse 55% 45% at 15% 90%, rgba(255, 95, 160, 0.1), transparent),
-    linear-gradient(180deg, #14101f 0%, #14162399 40%, #191531 75%, #120f22 100%);
+    radial-gradient(ellipse 70% 55% at 85% 95%, rgba(139, 92, 246, 0.2), transparent),
+    radial-gradient(ellipse 55% 45% at 15% 95%, rgba(255, 95, 160, 0.08), transparent),
+    linear-gradient(180deg, #14101f 0%, #0f0d1c 35%, #0b0a14 70%, #0b0a14 100%);
 }
 
 /* ---------------------------------------------------------------------- */
