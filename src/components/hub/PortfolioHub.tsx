@@ -139,7 +139,7 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
           the one-screen budget exact instead of an approximation that can
           drift as copy/spacing changes. */}
       <header className="shrink-0 sticky top-0 z-50 lg:h-14 backdrop-blur-xl border-b bg-[#0e0f18]/25 border-white/10">
-        <div className="mx-auto max-w-[1400px] h-full px-4 sm:px-6 lg:px-10 py-2.5 sm:py-3 lg:py-0 flex items-center justify-between">
+        <div className="mx-auto max-w-[1280px] h-full px-4 sm:px-6 lg:px-10 py-2.5 sm:py-3 lg:py-0 flex items-center justify-between">
           <a href="#top" className="flex items-center gap-2.5 group">
             {/* Purple accent (was pearl-red) — matches this site's own
                 cinematic purple identity rather than the old light-theme
@@ -198,7 +198,7 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
               transition={{ duration: 0.2 }}
               className="md:hidden overflow-hidden border-t border-white/10"
             >
-              <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-2 flex flex-col">
+              <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-2 flex flex-col">
                 {HEADER_LINKS.map(({ label, href }) => (
                   <a
                     key={label}
@@ -229,7 +229,7 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
       <div className="relative z-10 flex flex-col lg:h-[calc(100vh-56px)] lg:overflow-hidden">
         <section
           id="top"
-          className="mx-auto max-w-[1400px] w-full px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-0 pb-4 sm:pb-6 lg:pb-0 scroll-mt-20 shrink-0 lg:h-[52%] lg:flex lg:items-center lg:overflow-hidden"
+          className="mx-auto max-w-[1280px] w-full px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-0 pb-4 sm:pb-6 lg:pb-0 scroll-mt-20 shrink-0 lg:h-[52%] lg:flex lg:items-center lg:overflow-hidden"
         >
           {/* Mobile's own vertical rhythm was compressed here (gap-10→gap-5,
               trimmed mt- steps below) — measured at 863px tall against an
@@ -237,12 +237,21 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
               further), meaning the diorama never landed in the first swipe.
               Desktop/tablet (sm+/lg+) spacing is further compressed again
               for the one-screen composition specifically (lg: steps only). */}
-          <div className="flex flex-col lg:flex-row items-center lg:items-center gap-5 lg:gap-6 lg:w-full">
-            {/* Left — copy, ~45% width on desktop. Left-aligned, compact,
-                premium; no project art duplicated here (that used to live in
-                the old centered hero) — the diorama on the right carries the
-                "this is a game-world designer" signal instead. */}
-            <div className="lg:w-[45%] min-w-0 text-center lg:text-left">
+          {/* A real 2-column grid (was flex with hand-tuned 45%/52% widths)
+              — two EQUAL columns, so the right column's own center is the
+              true horizontal center of its half, not an off-center point
+              determined by unequal flex-basis math. Fixes a real reported
+              bug: on a wide 1080p external monitor the old right column
+              was both wider than the left (52% vs 45%) AND right-justified
+              within itself (see below), which visibly dragged the
+              character/floating-icon cluster toward the far right edge of
+              the container instead of sitting centered over its own half. */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-5 lg:gap-8 w-full">
+            {/* Left — copy. Left-aligned, compact, premium; no project art
+                duplicated here (that used to live in the old centered
+                hero) — the diorama on the right carries the "this is a
+                game-world designer" signal instead. */}
+            <div className="min-w-0 text-center lg:text-left">
               <motion.p
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -324,13 +333,18 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
             </div>
 
             {/* Right — the character + 4 Worlds composition, floating free
-                (no card/container), ~52% of this row's width so it lands in
-                the ~38–46% of total page width the brief calls for. */}
+                (no card/container). Centered within its own grid cell at
+                every size (was `lg:justify-end`, pinning it to the
+                column's far edge instead) — HeroStage's own internal
+                sizing (see useHeroSizes) already keeps it well clear of
+                the left column's text on every viewport this was checked
+                against, so centering it here doesn't need its own
+                per-breakpoint override. */}
             <motion.div
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.7, delay: 0.2 }}
-              className="w-full lg:w-[52%] flex justify-center lg:justify-end"
+              className="w-full flex justify-center items-center"
             >
               <HeroStage onOpen={onOpen} />
             </motion.div>
@@ -347,7 +361,7 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
             entirely. */}
         <main
           id="work"
-          className="mx-auto max-w-[1400px] w-full px-4 sm:px-6 lg:px-10 pb-4 sm:pb-6 lg:pb-2 shrink-0 lg:h-[48%] lg:flex lg:items-center lg:overflow-hidden scroll-mt-20"
+          className="mx-auto max-w-[1280px] w-full px-4 sm:px-6 lg:px-10 pb-4 sm:pb-6 lg:pb-2 shrink-0 lg:h-[48%] lg:flex lg:items-center lg:overflow-hidden scroll-mt-20"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-5 lg:w-full lg:h-full">
             <CardArrival index={0} accent="#8b5cf6">
@@ -376,7 +390,7 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
           section; semi-transparent so the starfield/background above
           keeps showing straight through it. */}
       <footer id="contact" className="shrink-0 relative z-30 border-t border-white/[0.06] scroll-mt-20 bg-[#0B0C10]/55 backdrop-blur-sm">
-        <div className="mx-auto max-w-[1400px] px-5 sm:px-8 py-4 sm:py-5 flex flex-col lg:flex-row items-center lg:items-center justify-between gap-3">
+        <div className="mx-auto max-w-[1280px] px-5 sm:px-8 py-4 sm:py-5 flex flex-col lg:flex-row items-center lg:items-center justify-between gap-3">
           <div className="text-center lg:text-left">
             <p className="font-display font-extrabold text-base sm:text-lg text-white tracking-tight">SHIRLY HERSCOVICI</p>
             <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60 mt-0.5">{PROFESSIONAL_TITLE}</p>
