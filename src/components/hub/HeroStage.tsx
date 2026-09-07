@@ -24,11 +24,16 @@ function useHeroSizes() {
   // (Hero + all four project cards together, no scroll) alongside its text
   // column, rather than the character's own natural full size — the
   // character/design itself is unchanged, only the stage it's rendered at
-  // is smaller than the earlier full-bleed hero treatment.
-  if (width >= 1440) return { character: 210, stage: 390 }
+  // is smaller than the earlier full-bleed hero treatment. Bumped again
+  // (was 210/390, 180/330) — checked directly against the approved
+  // mockup, where the character reads as the dominant focal point of the
+  // whole page; this is the largest size that still leaves the four
+  // project cards their own required tall proportions within the shared
+  // one-screen vertical budget (see PortfolioHub's 52/48 hero/grid split).
+  if (width >= 1440) return { character: 235, stage: 420 }
   // Covers the ~1024–1439 band (1280×800 included) — scaled down a touch
   // from the full desktop size to match the slightly tighter hero column.
-  if (width >= 1024) return { character: 180, stage: 330 }
+  if (width >= 1024) return { character: 200, stage: 360 }
   // Below `lg` the layout stacks (copy above, stage centered below), so
   // the stage's width is no longer set by the 52% column — it scales with
   // the viewport itself, clamped to the ~220–260px range that fits a phone

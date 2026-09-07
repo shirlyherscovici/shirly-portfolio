@@ -305,6 +305,36 @@ function GalgalatzHero() {
           />
         </div>
       </motion.div>
+
+      {/* A small fanned stack of real chart-ranking thumbnails — the
+          project's own actual leaderboard assets (rank-01/02, the real #1
+          and #2 chart entries, plus the full 31–50 leaderboard sheet),
+          not invented decoration. Sits top-left, well clear of both the
+          display case below and the info panel at the bottom, so it reads
+          as a quiet supporting detail — "this card is a real chart
+          countdown" — without competing with the phone as the card's main
+          visual. */}
+      <div className="absolute left-4 top-4 sm:left-5 sm:top-5 flex" aria-hidden>
+        {[
+          { src: asset('/assets/galgalatz/rank-01.png'), rotate: -8, z: 3 },
+          { src: asset('/assets/galgalatz/rank-02.png'), rotate: 3, z: 2 },
+          { src: asset('/assets/galgalatz/rank-31-50.jpg'), rotate: 13, z: 1 },
+        ].map((r, i) => (
+          <div
+            key={r.src}
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg overflow-hidden border shadow-lg"
+            style={{
+              marginLeft: i === 0 ? 0 : -14,
+              transform: `rotate(${r.rotate}deg)`,
+              zIndex: r.z,
+              borderColor: 'rgba(255,255,255,0.35)',
+              boxShadow: '0 4px 10px rgba(0,0,0,0.5)',
+            }}
+          >
+            <img src={r.src} alt="" className="w-full h-full object-cover" />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

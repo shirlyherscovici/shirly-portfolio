@@ -9,10 +9,16 @@ import { PROJECT_NUMBER } from '../../lib/projectMeta'
 const VIDEO_SRC = asset('/assets/navigator/main-film.mp4')
 const AIRPLANE_SRC = asset('/assets/navigator/c13-airplane-tight.png')
 const PILOT_SRC = asset('/assets/navigator/pilot-cutout-tight.png')
-// A real, already-supplied poster frame for this exact video — found
-// sitting completely unused during a performance audit (distinct from
-// poster-ai-homepage-CARD.png, which the home page module already uses).
-const VIDEO_POSTER_SRC = asset('/assets/navigator/poster-ai-homepage.png')
+// A real extracted frame from THIS exact video (main-film.mp4, t=39s — a
+// symmetric, dramatically red-lit troop-transport interior; the same frame
+// already used for the homepage card) — replaces the earlier
+// poster-ai-homepage.png, a separate illustrated/generated scene (an
+// astronaut on a mountain) that never actually appeared anywhere in the
+// film, so pressing Play used to visibly cut to different footage than
+// the poster promised. The old poster's own baked-in "03 / Generate
+// Fiction & Compelling" chrome is effectively unused now — the real
+// heading above this panel already carries that same identity.
+const VIDEO_POSTER_SRC = asset('/assets/navigator/main-film-frame.jpg')
 
 /** Caps the video panel's rendered width so a 16:9 box never exceeds 52% of
  *  the viewport's height — applied via an explicit calc() (not an

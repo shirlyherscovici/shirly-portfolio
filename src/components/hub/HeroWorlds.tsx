@@ -26,15 +26,17 @@ export const WORLDS: World[] = [
     name: 'Game UI & UX',
     src: asset('/assets/hub/galgaltz-hero.png'),
     accent: '#ff9f45',
-    x: 9,
-    y: 12,
-    // Sizes bumped a further ~30% on top of an earlier enlargement pass
-    // (per explicit direction to make the floating elements feel "large,
-    // intentional and clearly visible") and nudged another couple percent
-    // toward the stage edges to compensate — same real clearance from the
-    // character's own opaque sprite this was tuned against, re-checked at
-    // both the 640px and 560px stage tiers, not just 1440's.
-    size: 138,
+    x: 8,
+    y: 10,
+    // Sizes bumped again on top of two earlier enlargement passes (was
+    // 138/126/150/132) — checked directly against the approved mockup,
+    // where these floating props read as large, weighty objects with real
+    // presence, not small decoration. Nudged a couple percent further
+    // toward the stage edges/corners to compensate and keep the same real
+    // clearance from the character's own larger opaque sprite (see
+    // HeroStage's own bumped size) — re-checked at both the 640px and
+    // 560px stage tiers, not just 1440's.
+    size: 168,
     delay: 0,
     duration: 4.6,
   },
@@ -44,9 +46,9 @@ export const WORLDS: World[] = [
     name: 'Motion / After Effects',
     src: asset('/assets/hub/AE.png'),
     accent: '#c084fc',
-    x: 89,
-    y: 8,
-    size: 126,
+    x: 91,
+    y: 6,
+    size: 154,
     delay: 0.9,
     duration: 5.2,
   },
@@ -56,9 +58,9 @@ export const WORLDS: World[] = [
     name: 'Cinematic AI',
     src: asset('/assets/hub/ai-hero.png'),
     accent: '#4fd8ff',
-    x: 93,
-    y: 72,
-    size: 150,
+    x: 95,
+    y: 74,
+    size: 182,
     delay: 0.4,
     duration: 4.9,
   },
@@ -68,9 +70,9 @@ export const WORLDS: World[] = [
     name: 'Visual / Graphic Design',
     src: asset('/assets/hub/amy-hero.png'),
     accent: '#ff5f7a',
-    x: 7,
-    y: 79,
-    size: 132,
+    x: 5,
+    y: 82,
+    size: 160,
     delay: 1.3,
     duration: 5.5,
   },

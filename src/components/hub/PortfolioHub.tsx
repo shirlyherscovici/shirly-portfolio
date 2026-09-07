@@ -229,7 +229,7 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
       <div className="relative z-10 flex flex-col lg:h-[calc(100vh-56px)] lg:overflow-hidden">
         <section
           id="top"
-          className="mx-auto max-w-[1400px] w-full px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-0 pb-4 sm:pb-6 lg:pb-0 scroll-mt-20 shrink-0 lg:h-[53%] lg:flex lg:items-center lg:overflow-hidden"
+          className="mx-auto max-w-[1400px] w-full px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-0 pb-4 sm:pb-6 lg:pb-0 scroll-mt-20 shrink-0 lg:h-[52%] lg:flex lg:items-center lg:overflow-hidden"
         >
           {/* Mobile's own vertical rhythm was compressed here (gap-10→gap-5,
               trimmed mt- steps below) — measured at 863px tall against an
@@ -347,7 +347,7 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
             entirely. */}
         <main
           id="work"
-          className="mx-auto max-w-[1400px] w-full px-4 sm:px-6 lg:px-10 pb-4 sm:pb-6 lg:pb-2 shrink-0 lg:h-[47%] lg:flex lg:items-center lg:overflow-hidden scroll-mt-20"
+          className="mx-auto max-w-[1400px] w-full px-4 sm:px-6 lg:px-10 pb-4 sm:pb-6 lg:pb-2 shrink-0 lg:h-[48%] lg:flex lg:items-center lg:overflow-hidden scroll-mt-20"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-5 lg:w-full lg:h-full">
             <CardArrival index={0} accent="#8b5cf6">
