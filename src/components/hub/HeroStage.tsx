@@ -5,35 +5,46 @@ import HeroWorlds from './HeroWorlds'
 import { useCanHover } from '../../lib/useCanHover'
 import type { ProjectId } from '../../types'
 
-/** Character + stage size, tuned per viewport width so the character reads
- *  as the dominant centerpiece everywhere — not one fixed px number reused
- *  at every breakpoint. The character:stage ratio (~0.53) is kept roughly
- *  constant across the desktop/1280 tiers specifically so the four Worlds'
- *  existing hand-placed % positions (see HeroWorlds' WORLDS array) stay
- *  clear of the character's actual opaque sprite at every size — only the
- *  character's own soft halo is meant to bleed toward them. */
+/** Character + stage size, tuned per viewport so the character reads as
+ *  the dominant centerpiece everywhere — not one fixed px number reused
+ *  at every breakpoint. The character:stage ratio (~0.56) is kept roughly
+ *  constant so the four Worlds' existing hand-placed % positions (see
+ *  HeroWorlds' WORLDS array) stay clear of the character's actual opaque
+ *  sprite at every size — only the character's own soft halo is meant to
+ *  bleed toward them. */
 function useHeroSizes() {
-  const [width, setWidth] = useState(() => (typeof window !== 'undefined' ? window.innerWidth : 1440))
+  const [size, setSize] = useState(computeHeroSizes)
   useEffect(() => {
-    const onResize = () => setWidth(window.innerWidth)
+    const onResize = () => setSize(computeHeroSizes())
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
   }, [])
+  return size
+}
 
-  // Sized to fit the Hero's own share of a one-desktop-viewport homepage
-  // (Hero + all four project cards together, no scroll) alongside its text
-  // column, rather than the character's own natural full size — the
-  // character/design itself is unchanged, only the stage it's rendered at
-  // is smaller than the earlier full-bleed hero treatment. Bumped again
-  // (was 210/390, 180/330) — checked directly against the approved
-  // mockup, where the character reads as the dominant focal point of the
-  // whole page; this is the largest size that still leaves the four
-  // project cards their own required tall proportions within the shared
-  // one-screen vertical budget (see PortfolioHub's 52/48 hero/grid split).
-  if (width >= 1440) return { character: 235, stage: 420 }
-  // Covers the ~1024–1439 band (1280×800 included) — scaled down a touch
-  // from the full desktop size to match the slightly tighter hero column.
-  if (width >= 1024) return { character: 200, stage: 360 }
+function computeHeroSizes() {
+  if (typeof window === 'undefined') return { character: 210, stage: 375 }
+  const width = window.innerWidth
+  const height = window.innerHeight
+
+  if (width >= 1024) {
+    // Desktop/laptop: the stage's height budget is derived from the REAL
+    // viewport height, not a fixed per-width-breakpoint guess — "1024px+
+    // wide" alone spans everything from a 768px-tall laptop panel to a
+    // 1440px-tall external monitor, and a stage size tuned for the tall
+    // case (420px) silently overflowed the hero row's own share of a
+    // 768px-tall screen, forcing the whole one-screen composition below
+    // the fold (caught via a real laptop report — "only fits at 50%
+    // zoom" — a plain width breakpoint can't see viewport height at all).
+    // PortfolioHub gives the hero row 52% of (100vh - 56px header); this
+    // mirrors that same math (minus ~40px breathing room for the row's
+    // own padding/gap) so the stage is guaranteed to fit whatever that
+    // share actually resolves to, on any laptop height, not just the
+    // ones that happened to get tested.
+    const heroBudget = (height - 56) * 0.52 - 40
+    const stage = Math.round(Math.min(420, Math.max(260, heroBudget)))
+    return { character: Math.round(stage * 0.56), stage }
+  }
   // Below `lg` the layout stacks (copy above, stage centered below), so
   // the stage's width is no longer set by the 52% column — it scales with
   // the viewport itself, clamped to the ~220–260px range that fits a phone

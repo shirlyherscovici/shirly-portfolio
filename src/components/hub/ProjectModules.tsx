@@ -138,14 +138,18 @@ function WorldCard({ id, discipline, caption, metrics, description, accent, onCl
       transition={{ type: 'spring', stiffness: 300, damping: 24 }}
       animate={{ opacity: hidden ? 0 : 1 }}
       style={{ perspective: 1000, pointerEvents: hidden ? 'none' : 'auto', touchAction: 'manipulation' }}
-      // aspect-[9/14] + min-h-[520px] — the card's mockup-matched tall
-      // ratio and height floor, replacing the previous aspect-[3/4]/
-      // lg:h-full sizing (which followed the shared one-screen grid
-      // budget instead of a fixed ratio). NOTE: at the `lg` tier this
-      // height floor can exceed that budget, so the card may render taller
-      // than the grid row clips to — flagged for review, not silently
-      // reconciled here per the request to touch only this component.
-      className="group relative block w-full aspect-[9/14] min-h-[520px] rounded-[26px] text-left outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+      // aspect-[9/14] + min-h-[520px] below `lg` — the requested
+      // mockup-matched tall ratio/height floor, where the page scrolls
+      // naturally and a fixed floor is safe. At `lg`+ that same floor was
+      // taller than the one-screen hero+grid budget (confirmed directly —
+      // cards got clipped and the page picked up ~90px of forced scroll,
+      // "only fits at 50% zoom" on a real laptop), so `lg:h-full` reverts
+      // to filling the grid row's own height exactly — self-scaling to
+      // whatever that row resolves to on any laptop screen, rather than a
+      // second fixed guess that could just as easily overflow a shorter
+      // panel. The glass styling itself (.project-card-glass) is
+      // untouched at every size.
+      className="group relative block w-full aspect-[9/14] min-h-[520px] lg:aspect-auto lg:min-h-0 lg:h-full rounded-[26px] text-left outline-none focus-visible:ring-2 focus-visible:ring-white/70"
       aria-label={`Open case study — ${discipline}`}
       aria-hidden={hidden}
       tabIndex={hidden ? -1 : 0}
