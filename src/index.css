@@ -112,6 +112,23 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* Homepage project-card glass — a dedicated class (not .glass-cine, which
+   modals/EasterEgg also use) so this exact spec only ever touches the
+   four project cards. */
+.project-card-glass {
+  background: rgba(18, 16, 38, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(138, 116, 249, 0.35);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(138, 116, 249, 0.1);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-card-glass:hover {
+  border-color: rgba(168, 130, 255, 0.7);
+  box-shadow: 0 12px 40px 0 rgba(112, 66, 248, 0.35), inset 0 0 20px rgba(168, 130, 255, 0.2);
+}
+
 /* Glossy top-highlight sheen shared by both glass families */
 .glass-sheen::before {
   content: '';

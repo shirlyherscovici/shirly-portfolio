@@ -126,18 +126,6 @@ function WorldCard({ id, discipline, caption, metrics, description, accent, onCl
   const t = useTiltRef()
   const interactive = canHover && !prefersReduced
 
-  // A persistent, accent-tinted rim (border + soft outer glow) — built as
-  // real box-shadow layers rather than a Tailwind `shadow-glow-*` utility
-  // so it can be always-on and still brighten further on hover in one
-  // continuous motion value, instead of the old hover-only glow that left
-  // every card looking like a flat, identity-less dark panel until
-  // touched. The first two shadow layers reproduce .glass-cine's own base
-  // drop-shadow/inset-highlight (lost the moment box-shadow is set inline,
-  // since inline always wins the cascade) so depth isn't lost by adding
-  // this.
-  const restShadow = `0 1px 1px rgba(0,0,0,0.3), 0 20px 48px -12px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px ${accent}40, 0 0 26px ${accent}30, 0 0 60px ${accent}14`
-  const hoverShadow = `0 1px 1px rgba(0,0,0,0.3), 0 24px 56px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 1.5px ${accent}80, 0 0 34px ${accent}70, 0 0 90px ${accent}35`
-
   return (
     <motion.button
       ref={t.ref}
@@ -150,18 +138,21 @@ function WorldCard({ id, discipline, caption, metrics, description, accent, onCl
       transition={{ type: 'spring', stiffness: 300, damping: 24 }}
       animate={{ opacity: hidden ? 0 : 1 }}
       style={{ perspective: 1000, pointerEvents: hidden ? 'none' : 'auto', touchAction: 'manipulation' }}
-      className="group relative block w-full aspect-[3/4] sm:aspect-[3/4] lg:aspect-auto lg:h-full rounded-[26px] text-left outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+      // aspect-[9/14] + min-h-[520px] — the card's mockup-matched tall
+      // ratio and height floor, replacing the previous aspect-[3/4]/
+      // lg:h-full sizing (which followed the shared one-screen grid
+      // budget instead of a fixed ratio). NOTE: at the `lg` tier this
+      // height floor can exceed that budget, so the card may render taller
+      // than the grid row clips to — flagged for review, not silently
+      // reconciled here per the request to touch only this component.
+      className="group relative block w-full aspect-[9/14] min-h-[520px] rounded-[26px] text-left outline-none focus-visible:ring-2 focus-visible:ring-white/70"
       aria-label={`Open case study — ${discipline}`}
       aria-hidden={hidden}
       tabIndex={hidden ? -1 : 0}
     >
       <motion.div
-        initial={false}
-        animate={{ boxShadow: restShadow }}
-        whileHover={interactive ? { boxShadow: hoverShadow } : undefined}
-        transition={{ duration: 0.3 }}
         style={{ rotateX: interactive ? t.rotateX : 0, rotateY: interactive ? t.rotateY : 0, transformStyle: 'preserve-3d' }}
-        className="glass-cine glass-sheen relative w-full h-full rounded-[26px] overflow-hidden"
+        className="project-card-glass relative w-full h-full rounded-[26px] overflow-hidden"
       >
         {/* A faint tint only — .glass-cine's own translucent
             gradient/blur/border/sheen (defined once in index.css) IS the
