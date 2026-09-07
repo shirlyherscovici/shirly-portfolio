@@ -107,12 +107,12 @@ interface WorldCardProps {
   /** One short, true sentence about the work — not a claim, just what the
    *  card's own case study actually covers. */
   description: string
-  /** Hex accent driving the border glow tint and metric-value color —
-   *  each card gets its own identity within one shared system. */
+  /** Hex accent driving the border/glow tint and metric-value color —
+   *  each card gets its own identity within one shared system. Also drives
+   *  a persistent (not just hover-triggered) rim glow + tinted border, per
+   *  the mockup: every card reads as its own glowing glass object at rest,
+   *  not just on interaction. */
   accent: string
-  /** One of the site's existing pre-tuned glow shadows (glow-purple/-cyan/
-   *  -magenta/-gold) — reused rather than inventing a fifth. */
-  glowClass: string
   onClick: () => void
   hidden: boolean
   /** The project's own real artwork — unique per card, everything else
@@ -120,11 +120,23 @@ interface WorldCardProps {
   heroVisual: React.ReactNode
 }
 
-function WorldCard({ id, discipline, caption, metrics, description, accent, glowClass, onClick, hidden, heroVisual }: WorldCardProps) {
+function WorldCard({ id, discipline, caption, metrics, description, accent, onClick, hidden, heroVisual }: WorldCardProps) {
   const canHover = useCanHover()
   const prefersReduced = useReducedMotion()
   const t = useTiltRef()
   const interactive = canHover && !prefersReduced
+
+  // A persistent, accent-tinted rim (border + soft outer glow) — built as
+  // real box-shadow layers rather than a Tailwind `shadow-glow-*` utility
+  // so it can be always-on and still brighten further on hover in one
+  // continuous motion value, instead of the old hover-only glow that left
+  // every card looking like a flat, identity-less dark panel until
+  // touched. The first two shadow layers reproduce .glass-cine's own base
+  // drop-shadow/inset-highlight (lost the moment box-shadow is set inline,
+  // since inline always wins the cascade) so depth isn't lost by adding
+  // this.
+  const restShadow = `0 1px 1px rgba(0,0,0,0.3), 0 20px 48px -12px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px ${accent}40, 0 0 26px ${accent}30, 0 0 60px ${accent}14`
+  const hoverShadow = `0 1px 1px rgba(0,0,0,0.3), 0 24px 56px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 1.5px ${accent}80, 0 0 34px ${accent}70, 0 0 90px ${accent}35`
 
   return (
     <motion.button
@@ -144,8 +156,12 @@ function WorldCard({ id, discipline, caption, metrics, description, accent, glow
       tabIndex={hidden ? -1 : 0}
     >
       <motion.div
+        initial={false}
+        animate={{ boxShadow: restShadow }}
+        whileHover={interactive ? { boxShadow: hoverShadow } : undefined}
+        transition={{ duration: 0.3 }}
         style={{ rotateX: interactive ? t.rotateX : 0, rotateY: interactive ? t.rotateY : 0, transformStyle: 'preserve-3d' }}
-        className={`glass-cine glass-sheen relative w-full h-full rounded-[26px] overflow-hidden transition-shadow duration-300 ${glowClass}`}
+        className="glass-cine glass-sheen relative w-full h-full rounded-[26px] overflow-hidden"
       >
         {/* A faint tint only — .glass-cine's own translucent
             gradient/blur/border/sheen (defined once in index.css) IS the
@@ -171,22 +187,27 @@ function WorldCard({ id, discipline, caption, metrics, description, accent, glow
             artwork-on-top / plain-panel-below as two stacked blocks. */}
         <div className="absolute inset-0">{heroVisual}</div>
 
-        {/* Info panel — a real glass layer of its own (blur + translucent
-            tint + a bright top edge), floored to the card's bottom third,
-            not a solid opaque box: the artwork keeps showing through it,
-            per direction ("no opaque black rectangles"). Title + caption
-            sit directly on this glass; the metric row below gets a
-            second, distinctly brighter glass layer of its own — that
-            layering (glass over art, then glass over glass for the
-            metrics) is what the brief's "layered translucent information
-            panels" asks for, matching the mockup's own card composition.
-            No numbered badge above it — removed outright per explicit
-            direction, nothing put in its place. */}
+        {/* Info panel — a real glass layer of its own: strong backdrop
+            blur does the "frosted glass" work, so the tint underneath it
+            can stay genuinely translucent (max ~50% dark, was 82% —
+            reading as a near-opaque black slab at the old value,
+            especially over already-dark artwork like the AI card's own
+            photo) rather than relying on darkness for legibility. The
+            artwork stays visibly, if softly, present behind the whole
+            panel — not just at its top edge. Title + caption sit directly
+            on this glass; the metric row below gets a second, distinctly
+            brighter glass layer of its own — that layering (glass over
+            art, then glass over glass for the metrics) is what "layered
+            translucent information panels" asks for, matching the
+            mockup's own card composition. No numbered badge above it —
+            removed outright per explicit direction, nothing put in its
+            place. */}
         <div
-          className="absolute inset-x-0 bottom-0 flex flex-col gap-2 px-4 py-3.5 sm:px-4.5 sm:py-4 backdrop-blur-md"
+          className="absolute inset-x-0 bottom-0 flex flex-col gap-2 px-4 py-3.5 sm:px-4.5 sm:py-4 backdrop-blur-xl"
           style={{
-            background: 'linear-gradient(180deg, rgba(10,8,20,0.05) 0%, rgba(10,8,20,0.55) 28%, rgba(8,7,16,0.82) 100%)',
-            borderTop: '1px solid rgba(255,255,255,0.16)',
+            background: 'linear-gradient(180deg, rgba(14,11,26,0.02) 0%, rgba(14,11,26,0.28) 22%, rgba(11,9,22,0.42) 55%, rgba(9,7,18,0.5) 100%)',
+            borderTop: '1px solid rgba(255,255,255,0.22)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)',
           }}
         >
           <div>
@@ -373,7 +394,6 @@ export function GalgalatzModule({ onClick, hidden = false }: { onClick: () => vo
       ]}
       description="Designing intuitive game UI and interactive voting for a live N12 broadcast."
       accent="#8b5cf6"
-      glowClass="group-hover:shadow-glow-purple"
       onClick={onClick}
       hidden={hidden}
       heroVisual={<GalgalatzHero />}
@@ -393,7 +413,6 @@ export function MotionModule({ onClick, hidden = false }: { onClick: () => void;
       metrics={[{ label: 'Motion Design' }, { label: 'After Effects' }, { label: 'Cinematic Motion' }]}
       description="Bringing stories to life through cinematic motion, VFX and captivating animation."
       accent="#ffb454"
-      glowClass="group-hover:shadow-glow-gold"
       onClick={onClick}
       hidden={hidden}
       heroVisual={<MotionHero />}
@@ -410,7 +429,6 @@ export function AiModule({ onClick, hidden = false }: { onClick: () => void; hid
       metrics={[{ label: 'Generative AI' }, { label: 'AI Visuals' }, { label: 'Cinematic AI' }]}
       description="Exploring AI tools and generative workflows to create new visual worlds."
       accent="#4fd8ff"
-      glowClass="group-hover:shadow-glow-cyan"
       onClick={onClick}
       hidden={hidden}
       heroVisual={<AiHero />}
@@ -433,7 +451,6 @@ export function AmyModule({ onClick, hidden = false }: { onClick: () => void; hi
       ]}
       description="Crafting bold visual identities, campaigns and key art with strong visual language."
       accent="#ff5fa0"
-      glowClass="group-hover:shadow-glow-magenta"
       onClick={onClick}
       hidden={hidden}
       heroVisual={<AmyHero />}
