@@ -3,6 +3,7 @@ import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } fro
 import { ArrowRight } from 'lucide-react'
 import { asset } from '../../lib/asset'
 import { useCanHover } from '../../lib/useCanHover'
+import { PROJECT_NUMBER } from '../../lib/projectMeta'
 import type { ProjectId } from '../../types'
 
 /* ---------------------------------------------------------------------- */
@@ -107,11 +108,11 @@ interface WorldCardProps {
   /** One short, true sentence about the work — not a claim, just what the
    *  card's own case study actually covers. */
   description: string
-  /** Hex accent driving the border/glow tint and metric-value color —
-   *  each card gets its own identity within one shared system. Also drives
-   *  a persistent (not just hover-triggered) rim glow + tinted border, per
-   *  the mockup: every card reads as its own glowing glass object at rest,
-   *  not just on interaction. */
+  /** Hex accent — no longer used inside WorldCard itself (the number,
+   *  metric values and glass border/glow are all fixed colors now, per
+   *  explicit spec), kept only because CardArrival (the wrapper each
+   *  export below renders this inside) still uses it for its own
+   *  per-card rim-spark entrance effect. */
   accent: string
   onClick: () => void
   hidden: boolean
@@ -149,109 +150,74 @@ function WorldCard({ id, discipline, caption, metrics, description, accent, onCl
       // second fixed guess that could just as easily overflow a shorter
       // panel. The glass styling itself (.project-card-glass) is
       // untouched at every size.
-      className="group relative block w-full aspect-[9/14] min-h-[520px] lg:aspect-auto lg:min-h-0 lg:h-full rounded-[26px] text-left outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+      className="group relative block w-full aspect-[9/14] min-h-[480px] lg:aspect-auto lg:min-h-0 lg:h-full rounded-[26px] text-left outline-none focus-visible:ring-2 focus-visible:ring-white/70"
       aria-label={`Open case study — ${discipline}`}
       aria-hidden={hidden}
       tabIndex={hidden ? -1 : 0}
     >
       <motion.div
         style={{ rotateX: interactive ? t.rotateX : 0, rotateY: interactive ? t.rotateY : 0, transformStyle: 'preserve-3d' }}
-        className="project-card-glass relative w-full h-full rounded-[26px] overflow-hidden"
+        className="project-card-glass relative flex flex-col w-full h-full rounded-[26px] overflow-hidden p-3.5 sm:p-4 gap-2.5 sm:gap-3"
       >
-        {/* A faint tint only — .glass-cine's own translucent
-            gradient/blur/border/sheen (defined once in index.css) IS the
-            glass; this used to be a near-opaque 95%-alpha slab painted
-            directly on top of it, which hid that translucency completely
-            and made every card read as a flat solid panel with a picture
-            dropped on it rather than actual glass. Kept thin enough here
-            that the hero artwork underneath stays the dominant, legible
-            visual — glass is a filter over the art, not a wall in front
-            of it. */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1b1730]/30 via-[#141222]/15 to-[#0a0914]/35" />
+        {/* Header — number, title, caption. The number badge (bright
+            purple, #8b5cf6, per explicit spec) is back after an earlier
+            round explicitly removed it from these cards ("do not replace
+            it with anything") — reintroduced deliberately this round per
+            an equally explicit, specific instruction (exact color +
+            position given), not an oversight. */}
+        <div className="shrink-0">
+          <span className="block font-display font-black leading-none text-2xl sm:text-3xl" style={{ color: '#8b5cf6' }}>
+            {PROJECT_NUMBER[id]}
+          </span>
+          <h3
+            className="mt-1.5 font-display font-extrabold leading-[1.05] text-lg sm:text-xl text-white tracking-tight uppercase"
+            style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}
+          >
+            {discipline}
+          </h3>
+          <p className="mt-1 text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wide text-white/55 leading-snug">{caption}</p>
+        </div>
 
-        {/* Ambient accent wash — one soft radial glow tinted to this card's
-            own color, sitting behind everything. Restrained on purpose —
-            the brief is explicit that the glow shouldn't compete with the
-            hero visual or the glass itself. */}
-        <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(circle at 78% 12%, ${accent}25, transparent 55%)` }} />
+        {/* Media — the project's own real artwork, boxed and bordered
+            rather than full-bleed behind the text (previous treatment) —
+            grows to fill whatever space the header/metrics/footer around
+            it don't need. */}
+        <div className="relative flex-1 min-h-0 rounded-xl overflow-hidden border border-white/[0.08]">
+          {heroVisual}
+        </div>
 
-        {/* Hero visual — fills the FULL card (not just an upper zone), so
-            it keeps reading as one continuous scene behind everything
-            below, including the info panel — matching the mockup's own
-            "artwork sits behind the glass" composition rather than
-            artwork-on-top / plain-panel-below as two stacked blocks. */}
-        <div className="absolute inset-0">{heroVisual}</div>
-
-        {/* Info panel — a real glass layer of its own: strong backdrop
-            blur does the "frosted glass" work, so the tint underneath it
-            can stay genuinely translucent (max ~50% dark, was 82% —
-            reading as a near-opaque black slab at the old value,
-            especially over already-dark artwork like the AI card's own
-            photo) rather than relying on darkness for legibility. The
-            artwork stays visibly, if softly, present behind the whole
-            panel — not just at its top edge. Title + caption sit directly
-            on this glass; the metric row below gets a second, distinctly
-            brighter glass layer of its own — that layering (glass over
-            art, then glass over glass for the metrics) is what "layered
-            translucent information panels" asks for, matching the
-            mockup's own card composition. No numbered badge above it —
-            removed outright per explicit direction, nothing put in its
-            place. */}
+        {/* Metrics — ONE unified glass pill (not three separate chips),
+            split into equal columns by thin internal dividers. `value` is
+            a real figure from that project's own case study where one
+            exists; a project without a clean number gets label-only
+            columns instead (matching the AI card). */}
         <div
-          className="absolute inset-x-0 bottom-0 flex flex-col gap-2 px-4 py-3.5 sm:px-4.5 sm:py-4 backdrop-blur-xl"
-          style={{
-            background: 'linear-gradient(180deg, rgba(14,11,26,0.02) 0%, rgba(14,11,26,0.28) 22%, rgba(11,9,22,0.42) 55%, rgba(9,7,18,0.5) 100%)',
-            borderTop: '1px solid rgba(255,255,255,0.22)',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)',
-          }}
+          className="shrink-0 grid rounded-xl overflow-hidden"
+          style={{ background: 'rgba(10, 8, 22, 0.6)', gridTemplateColumns: `repeat(${metrics.length}, minmax(0, 1fr))` }}
         >
-          <div>
-            <h3
-              className="font-display font-extrabold leading-[1.05] text-lg sm:text-xl lg:text-lg xl:text-xl text-white tracking-tight"
-              style={{ textShadow: '0 2px 10px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.9)' }}
-            >
-              {discipline}
-            </h3>
-            <p className="mt-1 text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wide text-white/55 leading-snug">{caption}</p>
-          </div>
+          {metrics.map((m, i) => (
+            <div key={m.label} className={`px-1.5 py-2 sm:py-2.5 text-center ${i > 0 ? 'border-l border-white/[0.06]' : ''}`}>
+              {m.value && (
+                <p className="font-display font-black text-[13px] sm:text-sm leading-none tabular-nums" style={{ color: '#a78bfa' }}>
+                  {m.value}
+                </p>
+              )}
+              <p className={`text-[7.5px] sm:text-[8px] font-bold uppercase tracking-wide leading-tight ${m.value ? 'mt-1 text-white/60' : 'text-white/80'}`}>{m.label}</p>
+            </div>
+          ))}
+        </div>
 
-          {/* Metric row — 2–3 glass capsules, each its own brighter
-              translucent layer over the panel above. `value` is a real
-              figure from that project's own case study where one exists;
-              a project without a clean number gets label-only chips
-              instead (matching the mockup's own AI card, which does the
-              same). */}
-          <div className="flex items-stretch gap-1.5 sm:gap-2">
-            {metrics.map((m) => (
-              <div
-                key={m.label}
-                className="flex-1 min-w-0 rounded-xl px-1.5 py-1.5 sm:px-2 sm:py-2 text-center backdrop-blur-md"
-                style={{
-                  background: 'linear-gradient(160deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04))',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
-                }}
-              >
-                {m.value && (
-                  <p className="font-display font-black text-[13px] sm:text-sm leading-none tabular-nums" style={{ color: accent }}>
-                    {m.value}
-                  </p>
-                )}
-                <p className={`text-[7.5px] sm:text-[8px] font-bold uppercase tracking-wide leading-tight ${m.value ? 'mt-1 text-white/65' : 'text-white/85'}`}>{m.label}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="hidden sm:flex items-end justify-between gap-3">
-            <p className="text-[10.5px] leading-snug text-white/60 max-w-[85%]">{description}</p>
-            <span
-              aria-hidden
-              className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full border transition-colors group-hover:bg-white/10"
-              style={{ borderColor: 'rgba(255,255,255,0.3)' }}
-            >
-              <ArrowRight size={12} className="text-white" />
-            </span>
-          </div>
+        {/* Footer — left-aligned description, right-aligned circular
+            arrow button (36×36). */}
+        <div className="shrink-0 hidden sm:flex items-center justify-between gap-3">
+          <p className="text-[10.5px] leading-snug text-white/60 max-w-[80%]">{description}</p>
+          <span
+            aria-hidden
+            className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full border transition-colors group-hover:bg-white/10"
+            style={{ borderColor: 'rgba(255,255,255,0.3)' }}
+          >
+            <ArrowRight size={14} className="text-white" />
+          </span>
         </div>
       </motion.div>
     </motion.button>
@@ -280,13 +246,18 @@ function GalgalatzHero() {
     // is intentional: the artwork still needs to reach the card's full
     // height for the photographic cards' own bottom fade to read
     // correctly through the glass).
+    // Bottom-anchoring no longer needs to dodge an overlapping info panel
+    // (that used to sit on top of this full-bleed art; the card is now
+    // zoned into separate header/media/metrics/footer areas instead, see
+    // WorldCard), so both objects simply sit at the media box's own
+    // bottom edge.
     <div className="absolute inset-0 flex items-end justify-center overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-[#1b1730] via-[#141222] to-[#0a0914]" />
-      <div className="absolute left-[-3%] bottom-[48%] w-[34%] opacity-95">
+      <div className="absolute left-[-3%] bottom-0 w-[34%] opacity-95">
         <img src={asset('/assets/galgalatz/neon-box-tight.png')} alt="" aria-hidden className="w-full h-auto object-contain drop-shadow-2xl" />
       </div>
       <motion.div
-        className="absolute right-[-3%] bottom-[46%] w-[58%]"
+        className="absolute right-[-3%] bottom-0 w-[58%]"
         style={{ aspectRatio: '941 / 1672', perspective: 1200 }}
         animate={{ y: [0, -6, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
@@ -304,12 +275,11 @@ function GalgalatzHero() {
       {/* A small fanned stack of real chart-ranking thumbnails — the
           project's own actual leaderboard assets (rank-01/02, the real #1
           and #2 chart entries, plus the full 31–50 leaderboard sheet),
-          not invented decoration. Sits top-left, well clear of both the
-          display case below and the info panel at the bottom, so it reads
-          as a quiet supporting detail — "this card is a real chart
-          countdown" — without competing with the phone as the card's main
-          visual. */}
-      <div className="absolute left-4 top-4 sm:left-5 sm:top-5 flex" aria-hidden>
+          not invented decoration. Sits top-left of the media box, clear of
+          the display case below, so it reads as a quiet supporting detail
+          — "this card is a real chart countdown" — without competing with
+          the phone as the card's main visual. */}
+      <div className="absolute left-2 top-2 sm:left-3 sm:top-3 flex" aria-hidden>
         {[
           { src: asset('/assets/galgalatz/rank-01.png'), rotate: -8, z: 3 },
           { src: asset('/assets/galgalatz/rank-02.png'), rotate: 3, z: 2 },

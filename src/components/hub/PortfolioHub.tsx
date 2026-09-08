@@ -246,7 +246,7 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
               within itself (see below), which visibly dragged the
               character/floating-icon cluster toward the far right edge of
               the container instead of sitting centered over its own half. */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-5 lg:gap-8 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-5 lg:gap-4 w-full">
             {/* Left — copy. Left-aligned, compact, premium; no project art
                 duplicated here (that used to live in the old centered
                 hero) — the diorama on the right carries the "this is a
