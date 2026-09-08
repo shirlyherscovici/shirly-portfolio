@@ -267,15 +267,21 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
                 transition={{ duration: 0.6, delay: 0.05 }}
                 className="mt-1.5 sm:mt-3 lg:mt-2 font-display font-black text-[2.1rem] sm:text-4xl lg:text-[2.5rem] xl:text-[2.85rem] leading-[1.05] tracking-tight"
               >
-                {/* A subtle white-to-silver gradient fill (a soft metallic
+                {/* Rewritten for the "5-second HR scan": the four real
+                    disciplines named directly (Graphic Design, Motion &
+                    Animation, UI/UX, AI) rather than evocative-but-vague
+                    phrasing — same 3-line rhythm/gradient treatment as
+                    before (2 lines silver, 1 line accent), so the visual
+                    weight/height is unchanged, only the words are. A
+                    subtle white-to-silver gradient fill (a soft metallic
                     sheen) instead of flat white, matching the mockup. */}
                 <span className="bg-gradient-to-b from-white via-[#e6e6ee] to-[#9d9dae] bg-clip-text text-transparent">
-                  Playable Interfaces.
+                  Graphic Design.
                   <br />
-                  Motion Systems.
+                  Motion &amp; Animation.
                 </span>
                 <br />
-                <span className="text-gradient-cine">Cinematic Experiences.</span>
+                <span className="text-gradient-cine">UI/UX. Creative AI.</span>
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, y: 8 }}
@@ -283,7 +289,13 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="mt-2 sm:mt-3 text-sm sm:text-base font-medium max-w-md mx-auto lg:mx-0 text-white/60"
               >
-                Game UI/UX · Motion Design · Interactive Prototyping · Creative AI
+                {/* Carries the "real professional/broadcast experience"
+                    signal — "8+ years" and "live broadcast" are both
+                    already-established facts elsewhere on this page (the
+                    eyebrow line above, and the Galgalatz/AI Rescue
+                    projects' own real N12/prime-time broadcast work), not
+                    new claims. */}
+                8+ years designing for live broadcast, product &amp; campaign teams.
               </motion.p>
 
               <motion.div

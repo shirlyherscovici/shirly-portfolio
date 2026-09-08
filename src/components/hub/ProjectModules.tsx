@@ -219,6 +219,25 @@ function WorldCard({ id, discipline, caption, metrics, description, accent, onCl
             <ArrowRight size={14} className="text-white" />
           </span>
         </div>
+
+        {/* Glass frame overlay — a real transparent PNG (bright rounded-
+            rect border + soft diagonal sheen, alpha-transparent through
+            its own center, confirmed by sampling its actual pixel alpha
+            values before using it) laid over the WHOLE card, on top of
+            every zone. object-fit:fill so it always matches this card's
+            own box exactly regardless of viewport/breakpoint, rather than
+            cropping (object-cover) or leaving letterboxed gaps
+            (object-contain) — the source image's own 2.25:1 aspect has no
+            natural match to a 9:14 card. pointer-events-none so it never
+            intercepts clicks meant for the card underneath it. */}
+        <img
+          src={asset('/assets/hub/glass.png')}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full pointer-events-none select-none"
+          style={{ objectFit: 'fill' }}
+          draggable={false}
+        />
       </motion.div>
     </motion.button>
   )
@@ -237,48 +256,26 @@ function WorldCard({ id, discipline, caption, metrics, description, accent, onCl
  *  study itself, nothing invented. */
 function GalgalatzHero() {
   return (
-    // The shared info panel below is a real translucent glass layer sized
-    // to its own content, not a fixed zone, but in practice it covers
-    // roughly the bottom 45% of the card — these objects are bottom-
-    // anchored well clear of that (bottom-[48%]/[46%], not bottom-0),
-    // otherwise they render underneath the panel instead of above it,
-    // invisible despite `absolute inset-0` on this whole wrapper (which
-    // is intentional: the artwork still needs to reach the card's full
-    // height for the photographic cards' own bottom fade to read
-    // correctly through the glass).
-    // Bottom-anchoring no longer needs to dodge an overlapping info panel
-    // (that used to sit on top of this full-bleed art; the card is now
-    // zoned into separate header/media/metrics/footer areas instead, see
-    // WorldCard), so both objects simply sit at the media box's own
-    // bottom edge.
-    <div className="absolute inset-0 flex items-end justify-center overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#1b1730] via-[#141222] to-[#0a0914]" />
-      <div className="absolute left-[-3%] bottom-0 w-[34%] opacity-95">
-        <img src={asset('/assets/galgalatz/neon-box-tight.png')} alt="" aria-hidden className="w-full h-auto object-contain drop-shadow-2xl" />
-      </div>
-      <motion.div
-        className="absolute right-[-3%] bottom-0 w-[58%]"
-        style={{ aspectRatio: '941 / 1672', perspective: 1200 }}
-        animate={{ y: [0, -6, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-      >
-        <div className="relative w-full h-full transition-transform duration-500 group-hover:scale-[1.04]" style={{ transformStyle: 'preserve-3d', transform: 'rotateY(-8deg) rotateX(3deg)' }}>
-          <img
-            src={asset('/assets/galgalatz/1_galgaltz_front.png')}
-            alt="Phone showing the Galgalatz key art — the neon 'Music From The Screen' campaign, next to its real 3D glass display case"
-            className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none drop-shadow-2xl"
-            draggable={false}
-          />
-        </div>
-      </motion.div>
+    // Homepage-only poster swap (explicit request) — the earlier glass-
+    // display-case + phone composite is replaced with the new dedicated
+    // poster render. The case study modal (GalgalatzCaseStudy.tsx) keeps
+    // its own original display-case/phone treatment untouched — this
+    // component only ever renders on the homepage card.
+    <div className="absolute inset-0 overflow-hidden">
+      <img
+        src={asset('/assets/galgalatz/poster_galgalts.jpg')}
+        alt="Galgalatz × N12 key art on a 3D neon display frame"
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
 
       {/* A small fanned stack of real chart-ranking thumbnails — the
           project's own actual leaderboard assets (rank-01/02, the real #1
           and #2 chart entries, plus the full 31–50 leaderboard sheet),
-          not invented decoration. Sits top-left of the media box, clear of
-          the display case below, so it reads as a quiet supporting detail
-          — "this card is a real chart countdown" — without competing with
-          the phone as the card's main visual. */}
+          not invented decoration. Sits top-left of the media box, so it
+          reads as a quiet supporting detail — "this card is a real chart
+          countdown" — without competing with the poster as the card's
+          main visual. */}
       <div className="absolute left-2 top-2 sm:left-3 sm:top-3 flex" aria-hidden>
         {[
           { src: asset('/assets/galgalatz/rank-01.png'), rotate: -8, z: 3 },
@@ -304,52 +301,41 @@ function GalgalatzHero() {
   )
 }
 
-/** 02 — Motion / After Effects — the real "ACA ANASHIM" motion-piece
- *  poster (the People-in-Motion project's own asset — deliberately NOT
- *  the AI/Navigator visual, a distinct real frame). Left architected as a
- *  single named constant precisely so this can be swapped for the exact
- *  final After Effects frame later without touching anything else. */
-const MOTION_HERO_SRC = asset('/assets/motion/aca-anashim-poster.jpg')
+/** 02 — Motion / After Effects — the new dedicated homepage poster
+ *  (explicit request). The case study modal (PeopleMotionCaseStudy.tsx)
+ *  keeps its own real "ACA ANASHIM" campaign footage untouched — this
+ *  component only ever renders on the homepage card. */
+const MOTION_HERO_SRC = asset('/assets/motion/poster.jpg')
 
 function MotionHero() {
   return (
     <div className="absolute inset-0 overflow-hidden">
       <img
         src={MOTION_HERO_SRC}
-        alt="A still from the After Effects 'People in Motion' playable ad — a desert scene with client logos rising on light beams"
+        alt="Motion & animation poster art"
         className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
     </div>
   )
 }
 
-/** 03 — AI / Navigator — a real extracted frame from the actual film
- *  (main-film.mp4, t=39s: a symmetric, dramatically red-lit troop-transport
- *  interior) instead of the generic illustrated poster card that stood in
- *  for it before — plus the real pilot cutout, exactly the assets already
- *  used for this project elsewhere on the homepage. This is the one place
- *  the cinematic-AI imagery belongs — kept clearly apart from the Motion
- *  card above. */
+/** 03 — AI / Navigator — the new dedicated homepage poster (explicit
+ *  request). The earlier pilot-cutout overlay is dropped here — it's the
+ *  same figure already present in this new poster art, and layering it
+ *  again on top duplicated it. The case study modal
+ *  (AiRescueCaseStudy.tsx) keeps its own real broadcast footage and
+ *  pilot-cutout breakout untouched — this component only ever renders on
+ *  the homepage card. */
 function AiHero() {
   return (
     <div className="absolute inset-0 overflow-hidden">
       <img
-        src={asset('/assets/navigator/main-film-frame.jpg')}
-        alt=""
-        aria-hidden
+        src={asset('/assets/navigator/poster_navigator.jpg')}
+        alt="AI / generative visuals poster art"
         className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-black/35" />
-      <motion.img
-        src={asset('/assets/navigator/pilot-cutout-tight.png')}
-        alt=""
-        aria-hidden
-        animate={{ y: [0, -5, 0] }}
-        transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute right-[2%] bottom-0 h-[68%] w-auto max-w-none object-contain transition-transform duration-500 group-hover:-translate-y-1"
-        style={{ filter: 'contrast(1.15) brightness(1.08) drop-shadow(0 12px 20px rgba(0,0,0,0.65)) drop-shadow(0 2px 6px rgba(0,0,0,0.8))' }}
-      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
     </div>
   )
 }

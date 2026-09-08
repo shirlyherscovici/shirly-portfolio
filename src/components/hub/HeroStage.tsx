@@ -3,7 +3,17 @@ import { useReducedMotion } from 'framer-motion'
 import HeroCharacter from './HeroCharacter'
 import HeroWorlds from './HeroWorlds'
 import { useCanHover } from '../../lib/useCanHover'
+import { asset } from '../../lib/asset'
 import type { ProjectId } from '../../types'
+
+// A real sci-fi landing-pad render (transparent PNG, 2.25:1) — sits behind
+// the character's feet so it reads as something the character is standing
+// on, not floating in empty space (explicit request). Positioned as a %
+// of the stage rather than the character's own box, since the character
+// itself is a plain absolutely-centered sprite with no exposed "feet
+// coordinate" to hook into — tuned by eye against the character's actual
+// rendered stance (checked via screenshot, not just left at a guess).
+const PLATFORM_SRC = asset('/assets/hub/platform.png')
 
 /** Character + stage size, tuned per viewport so the character reads as
  *  the dominant centerpiece everywhere — not one fixed px number reused
@@ -103,6 +113,18 @@ export default function HeroStage({ onOpen }: { onOpen: (id: ProjectId) => void 
       className="relative w-full aspect-square"
       style={{ maxWidth: stageSize }}
     >
+      {/* Platform — behind the character (earlier in DOM order, no
+          explicit z-index needed since both are plain absolute children
+          of this same stack). pointer-events-none: it's set dressing, not
+          a World icon — clicks must pass through to whatever's beneath. */}
+      <img
+        src={PLATFORM_SRC}
+        alt=""
+        aria-hidden
+        className="absolute left-1/2 pointer-events-none select-none"
+        style={{ top: '68%', width: '92%', transform: 'translate(-50%, -50%)' }}
+        draggable={false}
+      />
       <div className="absolute inset-0 flex items-center justify-center">
         <HeroCharacter
           pointerX={pointerX}
