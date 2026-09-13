@@ -28,15 +28,14 @@ export const WORLDS: World[] = [
     accent: '#ff9f45',
     x: 8,
     y: 10,
-    // Sizes bumped again on top of two earlier enlargement passes (was
-    // 138/126/150/132) — checked directly against the approved mockup,
-    // where these floating props read as large, weighty objects with real
-    // presence, not small decoration. Nudged a couple percent further
-    // toward the stage edges/corners to compensate and keep the same real
-    // clearance from the character's own larger opaque sprite (see
-    // HeroStage's own bumped size) — re-checked at both the 640px and
-    // 560px stage tiers, not just 1440's.
-    size: 168,
+    // Sizes cut ~20% (was 168/154/182/160, after two earlier enlargement
+    // passes before that) — per explicit direction, Task 8: closer to
+    // mockup.png's own smaller, quieter floating props, so they read as
+    // supporting detail around Amy rather than competing with her for
+    // attention. Positions unchanged — still clear of the character's own
+    // larger opaque sprite (see HeroStage's CHARACTER_RATIO) at every
+    // stage tier.
+    size: 134,
     delay: 0,
     duration: 4.6,
   },
@@ -48,7 +47,7 @@ export const WORLDS: World[] = [
     accent: '#c084fc',
     x: 91,
     y: 6,
-    size: 154,
+    size: 123,
     delay: 0.9,
     duration: 5.2,
   },
@@ -60,7 +59,7 @@ export const WORLDS: World[] = [
     accent: '#4fd8ff',
     x: 95,
     y: 74,
-    size: 182,
+    size: 146,
     delay: 0.4,
     duration: 4.9,
   },
@@ -72,7 +71,7 @@ export const WORLDS: World[] = [
     accent: '#ff5f7a',
     x: 5,
     y: 82,
-    size: 160,
+    size: 128,
     delay: 1.3,
     duration: 5.5,
   },
@@ -137,6 +136,19 @@ function WorldOrb({ world, reducedMotion, canHover, onOpen }: { world: World; re
           whileTap={{ scale: 0.94 }}
           transition={{ type: 'spring', stiffness: 260, damping: 18 }}
         >
+          {/* Idle pulse — a soft glow that keeps breathing even at rest
+              (Task 8: so a visitor understands these are interactive
+              before their cursor ever reaches one, not only on hover).
+              Reuses the site's existing pulse-soft keyframe (same one the
+              Starfield twinkle uses) rather than inventing a new
+              animation, and already respects prefers-reduced-motion
+              through the global CSS override in index.css — no extra
+              gating needed here. Sits under the hover-glow below it. */}
+          <div
+            aria-hidden
+            className="absolute inset-[-22%] rounded-full pointer-events-none animate-pulse-soft"
+            style={{ background: `radial-gradient(closest-side, ${world.accent}40, transparent 70%)`, filter: 'blur(8px)' }}
+          />
           {/* Glow — quiet at rest, blooms brighter on hover in the world's
               own accent, the same restrained language the rest of the site
               already uses for its per-project accents. */}

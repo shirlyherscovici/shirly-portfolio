@@ -40,9 +40,17 @@ const VID_IDLE_FRAME = 0
 // Confirmed with an exaggerated ±80/±50 debug pass (real getBoundingClientRect
 // deltas + screenshots against a fixed on-screen marker) that the single
 // positioning-wrapper structure below genuinely moves the rendered character.
-// This is the polished, dialed-back range.
-const FOLLOW_RANGE_X = 30
-const FOLLOW_RANGE_Y = 20
+// Bumped from 30/20 (Task 4, gaze-target fix): a contact-sheet check of the
+// underlying 96-frame sprite found it's an idle blink/breathing loop, not a
+// clean left-to-right gaze sweep — frame index alone can't reliably signal
+// "looking toward" a given corner (confirmed non-monotonic: e.g. the
+// pupils read further right at x≈0.3 than at x≈0.7). Physical
+// position/tilt (this file's own transforms, real math, not sprite
+// content) is the one signal that's reliably correct for every direction
+// including the top-left music-note target, so it's now doing more of
+// the actual "look toward" work instead of the frame scrub.
+const FOLLOW_RANGE_X = 42
+const FOLLOW_RANGE_Y = 28
 
 interface HeroCharacterProps {
   /** Normalized pointer x/y (0..1 each) across the whole stage the
@@ -120,22 +128,34 @@ export default function HeroCharacter({ pointerX, pointerY, reducedMotion, inter
     my.set(pointerY)
   }, [interactive, pointerX, pointerY, mx, my])
 
-  // Frame target — x is the primary driver (0..1 maps directly across the
-  // full 121-frame range); y only ever nudges it by a few frames either
-  // way, per "vertical movement may create a VERY subtle secondary
-  // response... do not allow it to change the main animation state
-  // dramatically." Idle target (pointer absent, or not interactive) is
-  // the confirmed idle frame, not frame 0's raw index coincidentally —
-  // they're the same value here, but named separately so the intent
-  // reads clearly.
+  // Frame target — x is the primary driver; y only ever nudges it by a
+  // few frames either way, per "vertical movement may create a VERY
+  // subtle secondary response... do not allow it to change the main
+  // animation state dramatically." Idle target (pointer absent, or not
+  // interactive) is the confirmed idle frame, not frame 0's raw index
+  // coincidentally — they're the same value here, but named separately
+  // so the intent reads clearly.
+  //
+  // x is eased (pow 0.6), not mapped linearly, — Task 7 fix. Frame 0 IS
+  // the idle frame, which sits at the pointerX=0 end of the raw linear
+  // range; the top-left World (the music-note/Galgalatz target, x≈8%)
+  // sat close enough to that end that its raw frame landed only a few
+  // frames off idle — visually almost no reaction, while the two
+  // right-side Worlds (x≈91–95%) sat far enough from 0 to read as a
+  // clear turn. A concave easing curve lifts low-end x values (0.08 →
+  // ~0.22 eased) so a target near the left edge still reaches a frame
+  // meaningfully distinct from idle, while barely moving the already
+  // fine high-end values (0.95 → ~0.97 eased) — checked against all four
+  // Worlds' actual x positions, not just the one that surfaced this.
   const frameTarget = useMotionValue(VID_IDLE_FRAME)
   useEffect(() => {
     if (!interactive || pointerX === null || pointerY === null) {
       frameTarget.set(VID_IDLE_FRAME)
       return
     }
+    const easedX = Math.pow(pointerX, 0.6)
     const verticalNudge = (pointerY - 0.5) * 6
-    const raw = pointerX * VID_LAST_FRAME + verticalNudge
+    const raw = easedX * VID_LAST_FRAME + verticalNudge
     frameTarget.set(Math.min(VID_LAST_FRAME, Math.max(0, raw)))
   }, [interactive, pointerX, pointerY, frameTarget])
   // A touch heavier than the position spring (lower stiffness) — reads as
@@ -175,12 +195,17 @@ export default function HeroCharacter({ pointerX, pointerY, reducedMotion, inter
   const followX = useTransform(springX, [0, 1], [-FOLLOW_RANGE_X, FOLLOW_RANGE_X])
   const followY = useTransform(springY, [0, 1], [-FOLLOW_RANGE_Y, FOLLOW_RANGE_Y])
 
-  // Visual wrapper — restrained tilt + a hair of scale that grows with how
-  // far off-center the cursor is. Lives on a *different* element than
+  // Visual wrapper — tilt + a hair of scale that grows with how far
+  // off-center the cursor is. Lives on a *different* element than
   // followX/Y so it composes with the positioning wrapper's transform
-  // instead of competing for the same style keys.
-  const tiltY = useTransform(springX, [0, 1], [-5, 5])
-  const tiltX = useTransform(springY, [0, 1], [4, -4])
+  // instead of competing for the same style keys. Range widened from
+  // ±5/±4 (Task 4, gaze-target fix, same reasoning as FOLLOW_RANGE above)
+  // — at the old range the head-turn was too subtle to read as "looking
+  // toward" anything; this is the actual vector-based cue doing that job
+  // now, computed straight from pointer position rather than depending on
+  // the sprite's own (non-monotonic) frame content.
+  const tiltY = useTransform(springX, [0, 1], [-15, 15])
+  const tiltX = useTransform(springY, [0, 1], [11, -11])
   const depthScale = useTransform([springX, springY], ([sx, sy]: number[]) => {
     const dx = sx - 0.5
     const dy = sy - 0.5

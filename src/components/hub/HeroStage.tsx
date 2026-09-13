@@ -15,13 +15,21 @@ import type { ProjectId } from '../../types'
 // rendered stance (checked via screenshot, not just left at a guess).
 const PLATFORM_SRC = asset('/assets/hub/platform.png')
 
+// Character:stage ratio — was 0.56, then 0.7, now 0.85 (explicit direction,
+// re-checked against mockup.png: Amy's absolute on-screen height there is
+// roughly a third of the full viewport height, well beyond what 0.7 was
+// producing). Kept as one constant (not a magic number repeated at both
+// breakpoints below) since the platform position, contact shadow and the
+// four Worlds' own hand-placed % clearance all implicitly depend on it.
+const CHARACTER_RATIO = 0.85
+
 /** Character + stage size, tuned per viewport so the character reads as
  *  the dominant centerpiece everywhere — not one fixed px number reused
- *  at every breakpoint. The character:stage ratio (~0.56) is kept roughly
- *  constant so the four Worlds' existing hand-placed % positions (see
- *  HeroWorlds' WORLDS array) stay clear of the character's actual opaque
- *  sprite at every size — only the character's own soft halo is meant to
- *  bleed toward them. */
+ *  at every breakpoint. The character:stage ratio (CHARACTER_RATIO) is
+ *  kept roughly constant so the four Worlds' existing hand-placed %
+ *  positions (see HeroWorlds' WORLDS array) stay clear of the character's
+ *  actual opaque sprite at every size — only the character's own soft
+ *  halo is meant to bleed toward them. */
 function useHeroSizes() {
   const [size, setSize] = useState(computeHeroSizes)
   useEffect(() => {
@@ -53,14 +61,16 @@ function computeHeroSizes() {
     // ones that happened to get tested.
     const heroBudget = (height - 56) * 0.52 - 40
     const stage = Math.round(Math.min(420, Math.max(260, heroBudget)))
-    return { character: Math.round(stage * 0.56), stage }
+    return { character: Math.round(stage * CHARACTER_RATIO), stage }
   }
   // Below `lg` the layout stacks (copy above, stage centered below), so
   // the stage's width is no longer set by the 52% column — it scales with
-  // the viewport itself, clamped to the ~220–260px range that fits a phone
-  // without crowding it.
-  const character = Math.round(Math.min(260, Math.max(220, width * 0.58)))
-  return { character, stage: Math.round(character / 0.56) }
+  // the viewport itself, clamped to a range that fits a phone without
+  // crowding it, scaled up by the same factor CHARACTER_RATIO moved by
+  // (0.56 → 0.85) so mobile grows in step with desktop instead of hitting
+  // its old, now comparatively tiny, cap.
+  const character = Math.round(Math.min(395, Math.max(330, width * 0.58 * (CHARACTER_RATIO / 0.56))))
+  return { character, stage: Math.round(character / CHARACTER_RATIO) }
 }
 
 /** The hero's right-side composition: one character, four Worlds arranged
@@ -116,13 +126,23 @@ export default function HeroStage({ onOpen }: { onOpen: (id: ProjectId) => void 
       {/* Platform — behind the character (earlier in DOM order, no
           explicit z-index needed since both are plain absolute children
           of this same stack). pointer-events-none: it's set dressing, not
-          a World icon — clicks must pass through to whatever's beneath. */}
+          a World icon — clicks must pass through to whatever's beneath.
+          Deliberately wider than the stage box itself (was 96%, capped to
+          the stage's own width) — mockup.png's platform reads as a big,
+          wide turntable Amy stands on, not a disc sized to match her own
+          footprint; letting it overflow the (otherwise-square) stage
+          horizontally is what gets that same "she's standing on something
+          much bigger than her" read without inflating the stage box
+          itself (which would eat into the text column's own room). The
+          hero section's own horizontal padding still has enough margin on
+          both sides at every breakpoint this was checked against for the
+          overflow not to visibly clip. */}
       <img
         src={PLATFORM_SRC}
         alt=""
         aria-hidden
         className="absolute left-1/2 pointer-events-none select-none"
-        style={{ top: '68%', width: '92%', transform: 'translate(-50%, -50%)' }}
+        style={{ top: '74%', width: '150%', transform: 'translate(-50%, -50%)' }}
         draggable={false}
       />
       <div className="absolute inset-0 flex items-center justify-center">

@@ -3,7 +3,6 @@ import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } fro
 import { ArrowRight } from 'lucide-react'
 import { asset } from '../../lib/asset'
 import { useCanHover } from '../../lib/useCanHover'
-import { PROJECT_NUMBER } from '../../lib/projectMeta'
 import type { ProjectId } from '../../types'
 
 /* ---------------------------------------------------------------------- */
@@ -157,87 +156,103 @@ function WorldCard({ id, discipline, caption, metrics, description, accent, onCl
     >
       <motion.div
         style={{ rotateX: interactive ? t.rotateX : 0, rotateY: interactive ? t.rotateY : 0, transformStyle: 'preserve-3d' }}
-        className="project-card-glass relative flex flex-col w-full h-full rounded-[26px] overflow-hidden p-3.5 sm:p-4 gap-2.5 sm:gap-3"
+        className="project-card-glass relative flex flex-col w-full h-full rounded-[26px] overflow-hidden p-3.5 sm:p-4"
       >
-        {/* Header — number, title, caption. The number badge (bright
-            purple, #8b5cf6, per explicit spec) is back after an earlier
-            round explicitly removed it from these cards ("do not replace
-            it with anything") — reintroduced deliberately this round per
-            an equally explicit, specific instruction (exact color +
-            position given), not an oversight. */}
-        <div className="shrink-0">
-          <span className="block font-display font-black leading-none text-2xl sm:text-3xl" style={{ color: '#8b5cf6' }}>
-            {PROJECT_NUMBER[id]}
-          </span>
-          <h3
-            className="mt-1.5 font-display font-extrabold leading-[1.05] text-lg sm:text-xl text-white tracking-tight uppercase"
-            style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}
-          >
-            {discipline}
-          </h3>
-          <p className="mt-1 text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wide text-white/55 leading-snug">{caption}</p>
-        </div>
-
-        {/* Media — the project's own real artwork, boxed and bordered
-            rather than full-bleed behind the text (previous treatment) —
-            grows to fill whatever space the header/metrics/footer around
-            it don't need. */}
-        <div className="relative flex-1 min-h-0 rounded-xl overflow-hidden border border-white/[0.08]">
-          {heroVisual}
-        </div>
-
-        {/* Metrics — ONE unified glass pill (not three separate chips),
-            split into equal columns by thin internal dividers. `value` is
-            a real figure from that project's own case study where one
-            exists; a project without a clean number gets label-only
-            columns instead (matching the AI card). */}
-        <div
-          className="shrink-0 grid rounded-xl overflow-hidden"
-          style={{ background: 'rgba(10, 8, 22, 0.6)', gridTemplateColumns: `repeat(${metrics.length}, minmax(0, 1fr))` }}
-        >
-          {metrics.map((m, i) => (
-            <div key={m.label} className={`px-1.5 py-2 sm:py-2.5 text-center ${i > 0 ? 'border-l border-white/[0.06]' : ''}`}>
-              {m.value && (
-                <p className="font-display font-black text-[13px] sm:text-sm leading-none tabular-nums" style={{ color: '#a78bfa' }}>
-                  {m.value}
-                </p>
-              )}
-              <p className={`text-[7.5px] sm:text-[8px] font-bold uppercase tracking-wide leading-tight ${m.value ? 'mt-1 text-white/60' : 'text-white/80'}`}>{m.label}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Footer — left-aligned description, right-aligned circular
-            arrow button (36×36). */}
-        <div className="shrink-0 hidden sm:flex items-center justify-between gap-3">
-          <p className="text-[10.5px] leading-snug text-white/60 max-w-[80%]">{description}</p>
-          <span
-            aria-hidden
-            className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full border transition-colors group-hover:bg-white/10"
-            style={{ borderColor: 'rgba(255,255,255,0.3)' }}
-          >
-            <ArrowRight size={14} className="text-white" />
-          </span>
-        </div>
-
-        {/* Glass frame overlay — a real transparent PNG (bright rounded-
-            rect border + soft diagonal sheen, alpha-transparent through
-            its own center, confirmed by sampling its actual pixel alpha
-            values before using it) laid over the WHOLE card, on top of
-            every zone. object-fit:fill so it always matches this card's
-            own box exactly regardless of viewport/breakpoint, rather than
-            cropping (object-cover) or leaving letterboxed gaps
-            (object-contain) — the source image's own 2.25:1 aspect has no
-            natural match to a 9:14 card. pointer-events-none so it never
-            intercepts clicks meant for the card underneath it. */}
+        {/* Glass frame — a real transparent PNG (bright rounded-rect
+            border + soft diagonal sheen, alpha-transparent through its own
+            center) painted BEHIND the content stack below (z-0 vs the
+            content's z-10) so it can never occlude text by stacking order
+            alone. That alone wasn't the full fix, though: the title/
+            caption in the header zone have no opaque box behind them (the
+            metrics row and media box do), so the glass sheen's own soft
+            glow was still visibly bleeding through in the gaps around
+            those glyphs — technically "behind" the text but still
+            visually crossing it. Masked out over exactly that header
+            band now (a CSS mask-image, not a crop of the source PNG) so
+            the glass has zero visible presence there — the border/sheen
+            still reads normally over the media box, metrics and footer
+            below it, where opaque content already fully covers it either
+            way. object-fit:fill so it always matches this card's own box
+            exactly regardless of viewport/breakpoint. pointer-events-none
+            so it never intercepts clicks either way. */}
         <img
           src={asset('/assets/hub/glass.png')}
           alt=""
           aria-hidden
-          className="absolute inset-0 w-full h-full pointer-events-none select-none"
-          style={{ objectFit: 'fill' }}
+          className="absolute inset-0 w-full h-full pointer-events-none select-none z-0"
+          style={{
+            objectFit: 'fill',
+            maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 16%, black 26%, black 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 16%, black 26%, black 100%)',
+          }}
           draggable={false}
         />
+
+        {/* Content stack — everything that used to be direct flex children
+            of the card now lives one level down, in its own relative/z-10
+            stacking context above the glass image, so title/metrics/
+            description are always painted on top of the frame, never
+            fighting its sheen for legibility. Same flex-column/gap/padding
+            rhythm as before (this wrapper just fills the padded box the
+            glass sits inside). */}
+        <div className="relative z-10 flex flex-col w-full h-full gap-2.5 sm:gap-3">
+          {/* Header — title, caption. The "01/02/03/04" number badge that
+              used to sit above the title stays removed per standing
+              direction. `PROJECT_NUMBER[id]` stays wired into the
+              case-study modals' own breadcrumb/stage label (see
+              projectMeta.ts) — only the homepage card's badge goes. */}
+          <div className="shrink-0">
+            <h3
+              className="font-display font-extrabold leading-[1.05] text-lg sm:text-xl text-white tracking-tight uppercase"
+              style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}
+            >
+              {discipline}
+            </h3>
+            <p className="mt-1 text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wide text-white/55 leading-snug">{caption}</p>
+          </div>
+
+          {/* Media — the project's own real artwork, boxed and bordered
+              rather than full-bleed behind the text (previous treatment) —
+              grows to fill whatever space the header/metrics/footer around
+              it don't need. */}
+          <div className="relative flex-1 min-h-0 rounded-xl overflow-hidden border border-white/[0.08]">
+            {heroVisual}
+          </div>
+
+          {/* Metrics — ONE unified glass pill (not three separate chips),
+              split into equal columns by thin internal dividers. `value` is
+              a real figure from that project's own case study where one
+              exists; a project without a clean number gets label-only
+              columns instead (matching the AI card). */}
+          <div
+            className="shrink-0 grid rounded-xl overflow-hidden"
+            style={{ background: 'rgba(10, 8, 22, 0.6)', gridTemplateColumns: `repeat(${metrics.length}, minmax(0, 1fr))` }}
+          >
+            {metrics.map((m, i) => (
+              <div key={m.label} className={`px-1.5 py-2 sm:py-2.5 text-center ${i > 0 ? 'border-l border-white/[0.06]' : ''}`}>
+                {m.value && (
+                  <p className="font-display font-black text-[13px] sm:text-sm leading-none tabular-nums" style={{ color: '#a78bfa' }}>
+                    {m.value}
+                  </p>
+                )}
+                <p className={`text-[7.5px] sm:text-[8px] font-bold uppercase tracking-wide leading-tight ${m.value ? 'mt-1 text-white/60' : 'text-white/80'}`}>{m.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Footer — left-aligned description, right-aligned circular
+              arrow button (36×36). */}
+          <div className="shrink-0 hidden sm:flex items-center justify-between gap-3">
+            <p className="text-[10.5px] leading-snug text-white/60 max-w-[80%]">{description}</p>
+            <span
+              aria-hidden
+              className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full border transition-colors group-hover:bg-white/10"
+              style={{ borderColor: 'rgba(255,255,255,0.3)' }}
+            >
+              <ArrowRight size={14} className="text-white" />
+            </span>
+          </div>
+        </div>
       </motion.div>
     </motion.button>
   )
@@ -261,6 +276,11 @@ function GalgalatzHero() {
     // poster render. The case study modal (GalgalatzCaseStudy.tsx) keeps
     // its own original display-case/phone treatment untouched — this
     // component only ever renders on the homepage card.
+    // The fanned rank-01/02/31-50 thumbnail stack that used to sit in the
+    // top-left corner is removed per explicit direction — the homepage
+    // card shows ONLY the strong vertical poster now, nothing layered on
+    // top of it. Those same real leaderboard assets still appear inside
+    // the actual case study (GalgalatzCaseStudy.tsx), untouched.
     <div className="absolute inset-0 overflow-hidden">
       <img
         src={asset('/assets/galgalatz/poster_galgalts.jpg')}
@@ -268,44 +288,18 @@ function GalgalatzHero() {
         className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
-
-      {/* A small fanned stack of real chart-ranking thumbnails — the
-          project's own actual leaderboard assets (rank-01/02, the real #1
-          and #2 chart entries, plus the full 31–50 leaderboard sheet),
-          not invented decoration. Sits top-left of the media box, so it
-          reads as a quiet supporting detail — "this card is a real chart
-          countdown" — without competing with the poster as the card's
-          main visual. */}
-      <div className="absolute left-2 top-2 sm:left-3 sm:top-3 flex" aria-hidden>
-        {[
-          { src: asset('/assets/galgalatz/rank-01.png'), rotate: -8, z: 3 },
-          { src: asset('/assets/galgalatz/rank-02.png'), rotate: 3, z: 2 },
-          { src: asset('/assets/galgalatz/rank-31-50.jpg'), rotate: 13, z: 1 },
-        ].map((r, i) => (
-          <div
-            key={r.src}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg overflow-hidden border shadow-lg"
-            style={{
-              marginLeft: i === 0 ? 0 : -14,
-              transform: `rotate(${r.rotate}deg)`,
-              zIndex: r.z,
-              borderColor: 'rgba(255,255,255,0.35)',
-              boxShadow: '0 4px 10px rgba(0,0,0,0.5)',
-            }}
-          >
-            <img src={r.src} alt="" className="w-full h-full object-cover" />
-          </div>
-        ))}
-      </div>
     </div>
   )
 }
 
-/** 02 — Motion / After Effects — the new dedicated homepage poster
- *  (explicit request). The case study modal (PeopleMotionCaseStudy.tsx)
- *  keeps its own real "ACA ANASHIM" campaign footage untouched — this
- *  component only ever renders on the homepage card. */
-const MOTION_HERO_SRC = asset('/assets/motion/poster.jpg')
+/** 02 — Motion / After Effects — the real "ACA ANASHIM" campaign poster
+ *  (Task 9: a strong Motion/After Effects frame, never an AI-looking one
+ *  — was the cartoon illustration poster.jpg, which read as generic
+ *  clip-art rather than motion-design work). Same client-logos-in-desert
+ *  key art already used inside the case study itself (PeopleMotionCaseStudy.tsx,
+ *  untouched) — real shipped work for Waze, Teva, WIX & Mobileye, not a
+ *  new asset invented for this card. */
+const MOTION_HERO_SRC = asset('/assets/motion/aca-anashim-poster.jpg')
 
 function MotionHero() {
   return (
@@ -320,19 +314,27 @@ function MotionHero() {
   )
 }
 
-/** 03 — AI / Navigator — the new dedicated homepage poster (explicit
- *  request). The earlier pilot-cutout overlay is dropped here — it's the
- *  same figure already present in this new poster art, and layering it
- *  again on top duplicated it. The case study modal
- *  (AiRescueCaseStudy.tsx) keeps its own real broadcast footage and
- *  pilot-cutout breakout untouched — this component only ever renders on
- *  the homepage card. */
+/** 03 — AI / Navigator — a real still pulled directly from the actual
+ *  Navigator film — not the separately generated poster render, and not
+ *  the aircraft-interior frame used before this pass either. Two rounds
+ *  of real feedback on this one card: poster_navigator.jpg (a lone
+ *  astronaut against a starfield) read as generic stock AI art; the
+ *  aircraft-interior frame that replaced it then read as "airplane/
+ *  transport," not distinctly AI. pilot-terrain-frame.jpg is a different
+ *  moment from that exact same real film (main-film.mp4, t=21s — same
+ *  extraction technique the project's own main-film-frame.jpg already
+ *  used at t=39s, just a different timestamp, not a new/generated asset):
+ *  the rescued pilot alone on the mountainside, no aircraft, no crowded
+ *  interior — the clearest single "AI cinematic pipeline" shot the real
+ *  footage has. The case study modal (AiRescueCaseStudy.tsx) keeps its
+ *  own real broadcast footage, poster and pilot-cutout breakout
+ *  untouched — this component only ever renders on the homepage card. */
 function AiHero() {
   return (
     <div className="absolute inset-0 overflow-hidden">
       <img
-        src={asset('/assets/navigator/poster_navigator.jpg')}
-        alt="AI / generative visuals poster art"
+        src={asset('/assets/navigator/pilot-terrain-frame.jpg')}
+        alt="AI Rescue Navigator — the rescued pilot on the mountainside, a still from the actual production film"
         className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />

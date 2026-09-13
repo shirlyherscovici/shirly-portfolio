@@ -109,12 +109,16 @@ function TacticalMap({ compact = false, time = 0 }: { compact?: boolean; time?: 
         <span className={`font-bold uppercase tracking-widest text-cine-cyan ${compact ? 'text-[7px]' : 'text-[8.5px]'}`}>Landing Coords</span>
       </div>
       <div className="relative w-full aspect-square rounded-lg bg-[#0a1a1f] overflow-hidden border border-cine-cyan/20">
+        {/* Grid + sweep both dimmed a notch (Task 11 — less "bright HUD",
+            same tactical-map content/behavior) — was opacity-50 grid lines
+            at 0.15 alpha and a full-strength radar sweep; still clearly a
+            radar readout, just not the brightest thing in the panel. */}
         <div
-          className="absolute inset-0 opacity-50"
-          style={{ backgroundImage: 'repeating-linear-gradient(0deg, rgba(79,216,255,0.15) 0 1px, transparent 1px 12px), repeating-linear-gradient(90deg, rgba(79,216,255,0.15) 0 1px, transparent 1px 12px)' }}
+          className="absolute inset-0 opacity-40"
+          style={{ backgroundImage: 'repeating-linear-gradient(0deg, rgba(79,216,255,0.12) 0 1px, transparent 1px 12px), repeating-linear-gradient(90deg, rgba(79,216,255,0.12) 0 1px, transparent 1px 12px)' }}
         />
         <motion.div
-          className="absolute inset-0 origin-center radar-sweep"
+          className="absolute inset-0 origin-center radar-sweep opacity-70"
           animate={{ rotate: 360 }}
           transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
         />
@@ -296,17 +300,25 @@ export default function AiRescueCaseStudy({ onClose }: { onClose: () => void }) 
       />
 
       <div className="relative px-5 sm:px-8 pb-6 pt-2">
-        {/* Background atmosphere — the panel read as visually empty behind
-            the video. Two large, very soft blurred glows (cyan + magenta,
-            this case study's own accent pair) sitting behind everything,
-            plus a faint dot-grid texture reading as "generative/AI lab"
-            rather than a flat black void. */}
+        {/* Background atmosphere — Task 11 pass: softened from the earlier
+            version, which leaned more "HUD/cyberpunk" than intended (a
+            bright, tight dot-grid at 0.15 opacity plus two fairly strong
+            glows read as busy behind the video rather than atmospheric).
+            Same layering idea, turned down: a soft central vignette for
+            real depth (new), the two accent glows lower-opacity and more
+            diffused (wider blur radius), and the grid texture muted to a
+            faint, desaturated hint of detail rather than a visible HUD
+            overlay. */}
         <div className="absolute inset-0 overflow-hidden rounded-[28px] pointer-events-none -z-10" aria-hidden>
-          <div className="absolute -top-24 -left-16 w-72 h-72 rounded-full bg-cine-cyan/20 blur-[90px]" />
-          <div className="absolute -bottom-20 -right-10 w-80 h-80 rounded-full bg-cine-magenta/15 blur-[100px]" />
           <div
-            className="absolute inset-0 opacity-[0.15]"
-            style={{ backgroundImage: 'radial-gradient(rgba(79,216,255,0.6) 1px, transparent 1px)', backgroundSize: '22px 22px' }}
+            className="absolute inset-0"
+            style={{ background: 'radial-gradient(ellipse 65% 55% at 50% 32%, rgba(79,216,255,0.10), transparent 72%)' }}
+          />
+          <div className="absolute -top-24 -left-16 w-72 h-72 rounded-full bg-cine-cyan/10 blur-[110px]" />
+          <div className="absolute -bottom-20 -right-10 w-80 h-80 rounded-full bg-cine-magenta/8 blur-[120px]" />
+          <div
+            className="absolute inset-0 opacity-[0.05]"
+            style={{ backgroundImage: 'radial-gradient(rgba(190,205,255,0.6) 1px, transparent 1px)', backgroundSize: '26px 26px' }}
           />
         </div>
 

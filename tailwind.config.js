@@ -63,6 +63,7 @@ export default {
         shimmer: 'shimmer 3s linear infinite',
         'pulse-soft': 'pulse-soft 2.4s ease-in-out infinite',
         'sweep-radar': 'sweep-radar 4s linear infinite',
+        'draw-stroke': 'draw-stroke 1.4s ease-in-out infinite alternate',
       },
       keyframes: {
         float: {
@@ -80,6 +81,14 @@ export default {
         'sweep-radar': {
           '0%': { transform: 'rotate(0deg)' },
           '100%': { transform: 'rotate(360deg)' },
+        },
+        // Draws the arrow's stroke in (and, via the `alternate` direction
+        // on the animation itself, back out) — relies on the SVG's own
+        // `pathLength="1"` attribute so dasharray/dashoffset work in
+        // normalized 0–1 units regardless of the path's real geometry.
+        'draw-stroke': {
+          '0%': { strokeDashoffset: '1' },
+          '100%': { strokeDashoffset: '0' },
         },
       },
     },

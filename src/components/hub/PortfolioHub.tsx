@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Download, Mail, PenTool, Film, Code2, Sparkles, Gamepad2, ArrowRight, TrendingUp, Menu, X } from 'lucide-react'
+import { Download, Mail, PenTool, Film, Code2, Sparkles, ArrowRight, TrendingUp, Menu, X } from 'lucide-react'
 import { AmyModule, GalgalatzModule, AiModule, MotionModule, CardArrival } from './ProjectModules'
 import HeroStage from './HeroStage'
 import type { ProjectId } from '../../types'
@@ -139,7 +139,7 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
           the one-screen budget exact instead of an approximation that can
           drift as copy/spacing changes. */}
       <header className="shrink-0 sticky top-0 z-50 lg:h-14 backdrop-blur-xl border-b bg-[#0e0f18]/25 border-white/10">
-        <div className="mx-auto max-w-[1280px] h-full px-4 sm:px-6 lg:px-10 py-2.5 sm:py-3 lg:py-0 flex items-center justify-between">
+        <div className="mx-auto max-w-[1440px] h-full px-4 sm:px-6 lg:px-10 py-2.5 sm:py-3 lg:py-0 flex items-center justify-between">
           <a href="#top" className="flex items-center gap-2.5 group">
             {/* Purple accent (was pearl-red) — matches this site's own
                 cinematic purple identity rather than the old light-theme
@@ -198,7 +198,7 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
               transition={{ duration: 0.2 }}
               className="md:hidden overflow-hidden border-t border-white/10"
             >
-              <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-2 flex flex-col">
+              <div className="mx-auto max-w-[1440px] px-4 sm:px-6 py-2 flex flex-col">
                 {HEADER_LINKS.map(({ label, href }) => (
                   <a
                     key={label}
@@ -229,7 +229,7 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
       <div className="relative z-10 flex flex-col lg:h-[calc(100vh-56px)] lg:overflow-hidden">
         <section
           id="top"
-          className="mx-auto max-w-[1280px] w-full px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-0 pb-4 sm:pb-6 lg:pb-0 scroll-mt-20 shrink-0 lg:h-[52%] lg:flex lg:items-center lg:overflow-hidden"
+          className="mx-auto max-w-[1440px] w-full px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-0 pb-4 sm:pb-6 lg:pb-0 scroll-mt-20 shrink-0 lg:h-[52%] lg:flex lg:items-center lg:overflow-hidden"
         >
           {/* Mobile's own vertical rhythm was compressed here (gap-10→gap-5,
               trimmed mt- steps below) — measured at 863px tall against an
@@ -252,36 +252,23 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
                 hero) — the diorama on the right carries the "this is a
                 game-world designer" signal instead. */}
             <div className="min-w-0 text-center lg:text-left">
-              <motion.p
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="flex items-center justify-center lg:justify-start gap-1.5 text-[11px] sm:text-xs font-semibold uppercase tracking-[0.22em] text-white/60"
-              >
-                <Gamepad2 size={13} className="text-cine-magenta" />
-                Shirly Herscovici · {PROFESSIONAL_TITLE} · 8+ Years
-              </motion.p>
               <motion.h1
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.05 }}
-                className="mt-1.5 sm:mt-3 lg:mt-2 font-display font-black text-[2.1rem] sm:text-4xl lg:text-[2.5rem] xl:text-[2.85rem] leading-[1.05] tracking-tight"
+                className="font-display font-black text-[2.1rem] sm:text-4xl lg:text-[2.5rem] xl:text-[2.85rem] leading-[1.05] tracking-tight"
               >
-                {/* Rewritten for the "5-second HR scan": the four real
-                    disciplines named directly (Graphic Design, Motion &
-                    Animation, UI/UX, AI) rather than evocative-but-vague
-                    phrasing — same 3-line rhythm/gradient treatment as
-                    before (2 lines silver, 1 line accent), so the visual
-                    weight/height is unchanged, only the words are. A
-                    subtle white-to-silver gradient fill (a soft metallic
-                    sheen) instead of flat white, matching the mockup. */}
+                {/* Latest copy pass — exact copy per explicit direction,
+                    repositioned toward Marketing Video & Motion work
+                    specifically (was "Motion & Interactive UI Designer.").
+                    Same 2-line silver/accent-gradient treatment as before
+                    so the hero's visual weight is unchanged, only the
+                    words are. */}
                 <span className="bg-gradient-to-b from-white via-[#e6e6ee] to-[#9d9dae] bg-clip-text text-transparent">
-                  Graphic Design.
-                  <br />
-                  Motion &amp; Animation.
+                  Marketing Video &amp;
                 </span>
                 <br />
-                <span className="text-gradient-cine">UI/UX. Creative AI.</span>
+                <span className="text-gradient-cine">Motion Designer.</span>
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, y: 8 }}
@@ -289,13 +276,7 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="mt-2 sm:mt-3 text-sm sm:text-base font-medium max-w-md mx-auto lg:mx-0 text-white/60"
               >
-                {/* Carries the "real professional/broadcast experience"
-                    signal — "8+ years" and "live broadcast" are both
-                    already-established facts elsewhere on this page (the
-                    eyebrow line above, and the Galgalatz/AI Rescue
-                    projects' own real N12/prime-time broadcast work), not
-                    new claims. */}
-                8+ years designing for live broadcast, product &amp; campaign teams.
+                Graphic designer &amp; motion artist creating high-impact promo, animation, visual systems and AI-driven content.
               </motion.p>
 
               <motion.div
@@ -323,13 +304,11 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
                 </motion.a>
               </motion.div>
 
-              {/* Credibility line — surfaces the one hard number on the whole
-                  site (+700%, already shown inside the Galgalatz card) and
-                  the real client names visible in the Motion card's own
-                  artwork, right in the first 5 seconds instead of only below
-                  the fold. Deliberately small/quiet — a trust line, not a
-                  second headline — so it doesn't compete with the hero copy
-                  above it. */}
+              {/* Credibility line — seniority + real shipped work, named
+                  directly, right in the first 5 seconds instead of only
+                  below the fold. Deliberately small/quiet — a trust line,
+                  not a second headline — so it doesn't compete with the
+                  hero copy above it. Exact copy per explicit direction. */}
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -337,10 +316,9 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
                 className="mt-2.5 sm:mt-4 lg:mt-3 flex items-center justify-center lg:justify-start gap-2 flex-wrap text-[11px] font-medium text-white/55"
               >
                 <span className="inline-flex items-center gap-1 font-display font-extrabold text-cine-cyan">
-                  <TrendingUp size={13} /> +700% Engagement
+                  <TrendingUp size={13} /> 8+ Years
                 </span>
-                <span aria-hidden className="opacity-50">·</span>
-                <span>Real shipped work for Waze, Teva, WIX &amp; Mobileye</span>
+                <span>• N12 News • Keshet Broadcasting</span>
               </motion.div>
             </div>
 
@@ -373,7 +351,7 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
             entirely. */}
         <main
           id="work"
-          className="mx-auto max-w-[1280px] w-full px-4 sm:px-6 lg:px-10 pb-4 sm:pb-6 lg:pb-2 shrink-0 lg:h-[48%] lg:flex lg:items-center lg:overflow-hidden scroll-mt-20"
+          className="mx-auto max-w-[1440px] w-full px-4 sm:px-6 lg:px-10 pb-4 sm:pb-6 lg:pb-2 shrink-0 lg:h-[48%] lg:flex lg:items-center lg:overflow-hidden scroll-mt-20"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-5 lg:w-full lg:h-full">
             <CardArrival index={0} accent="#8b5cf6">
@@ -396,13 +374,17 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
           wrapper above (not squeezed into its viewport budget, matching
           the approved mockup, which doesn't fit a footer into its own
           one-screen composition either) — reachable with a small scroll
-          past the four projects, never required to see them. A plain top
-          border instead of a hard color break, so it still reads as the
-          tail end of the same dark interface rather than a separate
-          section; semi-transparent so the starfield/background above
-          keeps showing straight through it. */}
-      <footer id="contact" className="shrink-0 relative z-30 border-t border-white/[0.06] scroll-mt-20 bg-[#0B0C10]/55 backdrop-blur-sm">
-        <div className="mx-auto max-w-[1280px] px-5 sm:px-8 py-4 sm:py-5 flex flex-col lg:flex-row items-center lg:items-center justify-between gap-3">
+          past the four projects, never required to see them. No fill/
+          blur of its own (was bg-[#0B0C10]/55 + backdrop-blur-sm) — that
+          combination read as a visible hard seam right at the card row's
+          bottom edge (Task 1: the continuous .bg-cine gradient + starfield
+          on the page's own outer wrapper already carries all the way down
+          behind the footer, same as behind the cards above it; the footer
+          just sits on it directly now instead of laying a second, flatter
+          dark panel on top). Border softened to match (was white/[0.06]) —
+          a hairline, not a divider. */}
+      <footer id="contact" className="shrink-0 relative z-30 border-t border-white/[0.03] scroll-mt-20">
+        <div className="mx-auto max-w-[1440px] px-5 sm:px-8 py-4 sm:py-5 flex flex-col lg:flex-row items-center lg:items-center justify-between gap-3">
           <div className="text-center lg:text-left">
             <p className="font-display font-extrabold text-base sm:text-lg text-white tracking-tight">SHIRLY HERSCOVICI</p>
             <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60 mt-0.5">{PROFESSIONAL_TITLE}</p>

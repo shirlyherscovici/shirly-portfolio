@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion'
-import { Users, TrendingUp, Heart, PenTool, Palette, ExternalLink, ChevronLeft } from 'lucide-react'
+import { Users, TrendingUp, Heart, PenTool, Palette, ExternalLink } from 'lucide-react'
 import CaseStudyHeader from './CaseStudyHeader'
 import StatStrip from '../ui/StatStrip'
 import FloatingElement from '../ui/FloatingElement'
@@ -396,19 +396,33 @@ export function AmyCaseStudyBreakout() {
       </FloatingElement>
 
       {/* "This is interactive, play with it" cue — enlarged again and
-          given a bigger, more obvious bounce (was still easy to miss). */}
+          given a bigger, more obvious bounce (was still easy to miss).
+          Task 10: the filled circular badge behind the chevron is gone —
+          just a clean stroke-drawn arrow now (no shape fill, no drop-
+          shadow button chrome), animated via the SVG's own
+          stroke-dasharray/stroke-dashoffset (see the `draw-stroke`
+          keyframe in tailwind.config.js) rather than a solid icon, for a
+          lighter, more premium hint than a button-like circle. */}
       <motion.div
         aria-hidden
         animate={{ x: [0, -16, 0], scale: [1, 1.08, 1] }}
         transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
         className="absolute top-[54%] -right-12 sm:-right-16 z-30 hidden sm:flex flex-col items-center gap-1.5"
       >
-        <span
-          className="flex items-center justify-center w-14 h-14 rounded-full text-white"
-          style={{ background: 'linear-gradient(135deg, #c9576b, #8f1f2d)', boxShadow: '0 4px 0 #5e1319, 0 10px 22px -2px rgba(143,31,45,0.65)' }}
+        <svg
+          width="34"
+          height="34"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="white"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="drop-shadow-[0_4px_10px_rgba(143,31,45,0.65)] animate-draw-stroke"
+          style={{ strokeDasharray: 1 }}
         >
-          <ChevronLeft size={30} strokeWidth={3.5} />
-        </span>
+          <path d="M15 5 L8 12 L15 19" pathLength={1} />
+        </svg>
         <span className="text-[9px] font-display font-black uppercase tracking-widest text-pearl-red bg-white px-2 py-1 rounded-full shadow-md">
           Play
         </span>

@@ -150,8 +150,14 @@ body {
   color: transparent;
 }
 
+/* Task 12 — was a cyan-to-pink sweep (#4fd8ff → #b98cff → #ff5fa0); the
+   accent gradient this whole site's shared token, used by the hero H1's
+   accent line and every case study's breadcrumb number, is restrained
+   to the site's own white/violet/indigo palette instead (#ffffff /
+   #c084fc / #818cf8) — still a real gradient, just no longer pulling in
+   colors (cyan, hot pink) that sit outside that palette. */
 .text-gradient-cine {
-  background: linear-gradient(90deg, #4fd8ff, #b98cff 55%, #ff5fa0);
+  background: linear-gradient(90deg, #ffffff, #c084fc 50%, #818cf8);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
