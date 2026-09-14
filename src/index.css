@@ -64,12 +64,19 @@ body {
      fading to a flat near-black by the time you reach the cards. The base
      tone (#0b0a14) matches the hero-background photo's own fade target
      exactly, so there's no visible seam between "the photo" and "the CSS
-     gradient" underneath it. */
+     gradient" underneath it. Glow opacities trimmed (was 0.4/0.09/0.2/0.08)
+     — real feedback on a large external desktop monitor found the purple
+     read noticeably oversaturated there versus a laptop panel; toned down
+     across the board rather than only for large screens specifically
+     (color-managed displays vary in how they render saturated purple/
+     magenta, and a single restrained value looks right on both instead of
+     needing a media-query branch). Same dark base tone underneath, so the
+     "darker" character stays intact — only the glow itself is quieter. */
   background:
-    radial-gradient(ellipse 70% 50% at 15% -10%, rgba(75, 46, 131, 0.4), transparent),
-    radial-gradient(ellipse 60% 45% at 100% 10%, rgba(79, 216, 255, 0.09), transparent),
-    radial-gradient(ellipse 70% 55% at 85% 95%, rgba(139, 92, 246, 0.2), transparent),
-    radial-gradient(ellipse 55% 45% at 15% 95%, rgba(255, 95, 160, 0.08), transparent),
+    radial-gradient(ellipse 70% 50% at 15% -10%, rgba(75, 46, 131, 0.28), transparent),
+    radial-gradient(ellipse 60% 45% at 100% 10%, rgba(79, 216, 255, 0.06), transparent),
+    radial-gradient(ellipse 70% 55% at 85% 95%, rgba(139, 92, 246, 0.13), transparent),
+    radial-gradient(ellipse 55% 45% at 15% 95%, rgba(255, 95, 160, 0.05), transparent),
     linear-gradient(180deg, #14101f 0%, #0f0d1c 35%, #0b0a14 70%, #0b0a14 100%);
 }
 

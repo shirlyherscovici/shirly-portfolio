@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { Play, Pause, Crosshair, Zap, Eye, Users2, Captions } from 'lucide-react'
+import { Play, Pause, Zap, Eye, Users2, Captions } from 'lucide-react'
 import CaseStudyHeader from './CaseStudyHeader'
 import VideoControlBar, { toggleFullscreen } from '../ui/VideoControlBar'
 import { asset } from '../../lib/asset'
@@ -23,9 +23,7 @@ const VIDEO_POSTER_SRC = asset('/assets/navigator/main-film-frame.jpg')
 /** Caps the video panel's rendered width so a 16:9 box never exceeds 52% of
  *  the viewport's height — applied via an explicit calc() (not an
  *  inline-block shrink-wrap) so it can't create a circular width
- *  dependency between a `w-full` child and a shrink-to-fit parent. Shared
- *  with the wrapper below so the tactical map / badge, positioned relative
- *  to that wrapper, always align to the video's true edges. */
+ *  dependency between a `w-full` child and a shrink-to-fit parent. */
 const VIDEO_MAX_WIDTH = { maxWidth: 'calc(52vh * 16 / 9)' }
 
 /* ------------------------------------ Subtitles ------------------------------------ */
@@ -59,9 +57,7 @@ function SubtitleOverlay({ time, visible }: { time: number; visible: boolean }) 
           fade-in instead of a hard, no-transition swap. This is the single
           most "real project content" data point in the case study (actual
           timestamped mission dialogue), so it's the moment worth giving a
-          considered beat, rather than the tactical map's own radar sweep,
-          which loops unconditionally with no tie to the narrative at all.
-          Deliberately NOT wrapped in AnimatePresence/exit — cues change
+          considered beat. Deliberately NOT wrapped in AnimatePresence/exit — cues change
           every few seconds, and this project already hit a confirmed bug
           where AnimatePresence's exit-completion tracking can stall
           indefinitely under this environment's reduced-motion handling
@@ -83,61 +79,6 @@ function SubtitleOverlay({ time, visible }: { time: number; visible: boolean }) 
       >
         {cue.text}
       </motion.p>
-    </div>
-  )
-}
-
-/* -------------------------------- Tactical map panel -------------------------------- */
-
-function TacticalMap({ compact = false, time = 0 }: { compact?: boolean; time?: number }) {
-  // The one "living" reaction in this case study tied to real data: the
-  // radar blip intensifies while the broadcast is narrating an actual
-  // mission beat (reusing the same CUES the subtitles already sync to),
-  // and settles back between them — the tactical HUD answering to the
-  // real timeline instead of looping identically regardless of what's
-  // happening in the footage. A plain CSS transition (not Framer) drives
-  // the change: it's a simple two-state interpolation that already
-  // participates in this project's existing global reduced-motion CSS
-  // override, no extra gating needed.
-  const activeCue = CUES.find((c) => time >= c.start && time < c.end)
-  return (
-    <div
-      className={`rounded-xl bg-black/60 backdrop-blur-md border border-cine-cyan/30 shadow-cine-lg ${compact ? 'px-2.5 py-2 w-[124px]' : 'px-3.5 py-3 w-[168px]'}`}
-    >
-      <div className="flex items-center gap-1.5 mb-1.5">
-        <Crosshair size={compact ? 9 : 11} className="text-cine-cyan" />
-        <span className={`font-bold uppercase tracking-widest text-cine-cyan ${compact ? 'text-[7px]' : 'text-[8.5px]'}`}>Landing Coords</span>
-      </div>
-      <div className="relative w-full aspect-square rounded-lg bg-[#0a1a1f] overflow-hidden border border-cine-cyan/20">
-        {/* Grid + sweep both dimmed a notch (Task 11 — less "bright HUD",
-            same tactical-map content/behavior) — was opacity-50 grid lines
-            at 0.15 alpha and a full-strength radar sweep; still clearly a
-            radar readout, just not the brightest thing in the panel. */}
-        <div
-          className="absolute inset-0 opacity-40"
-          style={{ backgroundImage: 'repeating-linear-gradient(0deg, rgba(79,216,255,0.12) 0 1px, transparent 1px 12px), repeating-linear-gradient(90deg, rgba(79,216,255,0.12) 0 1px, transparent 1px 12px)' }}
-        />
-        <motion.div
-          className="absolute inset-0 origin-center radar-sweep opacity-70"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-        />
-        <span
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cine-magenta transition-all duration-500"
-          style={{
-            width: activeCue ? 8 : 6,
-            height: activeCue ? 8 : 6,
-            boxShadow: activeCue ? '0 0 10px 3px rgba(255,95,160,0.75)' : '0 0 4px 1px rgba(255,95,160,0.45)',
-          }}
-        />
-      </div>
-      {!compact && (
-        <p className="mt-2 text-[8.5px] font-mono text-cine-sub leading-snug">
-          34.02°N 118.45°W
-          <br />
-          ALT 1,240FT · HDG 074°
-        </p>
-      )}
     </div>
   )
 }
@@ -266,9 +207,9 @@ export default function AiRescueCaseStudy({ onClose }: { onClose: () => void }) 
   const wrapperRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const [playing, setPlaying] = useState(false)
-  // Lifted out of VideoPanel (previously local there) so the tactical map
-  // below — a sibling, not a child, of the video — can also read the real
-  // playback position and react to it. See TacticalMap's own comment.
+  // Lifted out of VideoPanel (previously local there) so SubtitleOverlay,
+  // a sibling of the video rather than a child of it, can also read the
+  // real playback position.
   const [time, setTime] = useState(0)
 
   const togglePlay = () => {
@@ -324,20 +265,10 @@ export default function AiRescueCaseStudy({ onClose }: { onClose: () => void }) 
 
         {/* Shares VIDEO_MAX_WIDTH with the video panel itself (rather than
             an inline-block shrink-wrap, which created a circular width
-            dependency and collapsed the video to 0px) so the tactical map
-            & badge — deliberately positioned outside the video — always
-            align to its true edges. */}
+            dependency and collapsed the video to 0px). */}
         <div className="flex justify-center">
           <div style={VIDEO_MAX_WIDTH} className="relative w-full">
             <VideoPanel wrapperRef={wrapperRef} videoRef={videoRef} playing={playing} setPlaying={setPlaying} togglePlay={togglePlay} time={time} setTime={setTime} />
-
-            {/* Tactical map — OFF the video surface entirely (not an inset
-                overlay on top of the footage), breaking the video's own
-                bottom-left corner instead so it reads as an adjacent HUD
-                panel rather than something competing with the picture. */}
-            <div className="absolute -bottom-8 sm:-bottom-10 left-2 sm:left-4 z-20 hidden sm:block">
-              <TacticalMap compact time={time} />
-            </div>
           </div>
         </div>
 
@@ -358,12 +289,6 @@ export default function AiRescueCaseStudy({ onClose }: { onClose: () => void }) 
             </span>
             {playing ? 'Pause Broadcast' : 'Watch Prime-Time Broadcast'}
           </button>
-        </div>
-
-        {/* Tactical map — mobile only (the breakout desktop version lives
-            beside the video itself, hidden below sm:). */}
-        <div className="sm:hidden mt-4 flex justify-center">
-          <TacticalMap time={time} />
         </div>
 
         <div className="grid sm:grid-cols-3 gap-3.5 mt-8 sm:mt-7">

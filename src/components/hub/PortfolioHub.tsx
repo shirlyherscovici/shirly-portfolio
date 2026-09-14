@@ -119,11 +119,22 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
           The supplied hero-background artwork anchors the top and fades
           out gradually over a long stretch (not a hard cutoff) into
           .bg-cine's own matching dark tone beneath, so there's no visible
-          seam where "the photo" ends and "the gradient" begins. */}
+          seam where "the photo" ends and "the gradient" begins. Box
+          shrunk (was h-[70%] min-h-[520px]) and the fade pulled earlier
+          (was transparent-to-40%, opaque-by-90%) — the photo's own
+          content includes a lit sci-fi floor-grid pattern near its
+          bottom edge that the old, later fade left only partially
+          obscured right where the box's hard edge cut it off, reading as
+          a visible seam against the flatter procedural gradient beneath
+          on large/wide viewports (confirmed at 1920×1080 — not visible
+          at every size, but a real seam, not a display quirk). The
+          photo's own visible content is now fully faded to the shared
+          dark tone well before its box ends, so there's nothing left at
+          that edge for a seam to form from. */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden>
-        <div className="absolute inset-x-0 top-0 h-[70%] min-h-[520px]">
+        <div className="absolute inset-x-0 top-0 h-[58%] min-h-[460px]">
           <img src={asset('/assets/hub/hero-background.png')} alt="" className="absolute inset-0 w-full h-full object-cover object-top" />
-          <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, #0b0a14 90%)' }} />
+          <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(to bottom, transparent 0%, transparent 28%, #0b0a14 72%)' }} />
         </div>
         <Starfield />
       </div>

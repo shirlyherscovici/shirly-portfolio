@@ -111,75 +111,31 @@ function GlassDisplayCase({ highlighted }: { highlighted: boolean }) {
   )
 }
 
-/* ------------------------------------ Screen tiles ------------------------------------ */
-
-// FRAMES' own source files are baked phone mockups (frame + screen
-// composited together by the designer, 941×1672) — there's no separate
-// "raw screen, no bezel" export to swap in instead. Per explicit
-// direction these now show as clean flat tiles, not inside a phone: this
-// crop window (pixel-measured off the actual PNG — sampled rows/columns
-// to find where the black bezel ends and real screen content starts,
-// same rect on every frame since they share one frame template) cuts the
-// bezel/notch/home-indicator away, leaving just the screen content.
-const SCREEN_CROP = { left: 0.12, top: 0.09, width: 0.76, height: 0.87 }
-const SCREEN_CROP_ASPECT = `${SCREEN_CROP.width * 941} / ${SCREEN_CROP.height * 1672}`
-// A shorter preview crop for the filmstrip's own small grid tiles — same
-// left/width (same horizontal screen bounds) but only the top ~45% of
-// the screen's height. The full-height crop's own aspect (~0.49, a tall
-// phone-screen shape) made each grid tile tall enough that the filmstrip
-// column's natural height — and with it the artboard beside it, which
-// sizes itself FROM that height (see its own comment below) — grew well
-// past the modal's right edge. A near-square preview keeps the grid (and
-// everything that scales off it) close to its original footprint.
-const SCREEN_CROP_THUMB = { ...SCREEN_CROP, height: 0.45 }
-
-/** Crops one FRAMES image down to just its screen content (see
- *  SCREEN_CROP) and shows it as a flat rounded tile — no phone bezel,
- *  notch or home indicator. Pure CSS crop (absolute-positioned,
- *  oversized img inside an overflow-hidden box sized to the crop's own
- *  aspect ratio), not a second set of image assets. `crop` defaults to
- *  the full-screen rect; pass SCREEN_CROP_THUMB for the shorter preview
- *  used in the filmstrip grid. */
-function ScreenTile({ src, alt, className, crop = SCREEN_CROP }: { src: string; alt: string; className?: string; crop?: typeof SCREEN_CROP }) {
-  const aspect = `${crop.width * 941} / ${crop.height * 1672}`
-  return (
-    <div className={`relative overflow-hidden ${className ?? ''}`} style={{ aspectRatio: aspect }}>
-      <img
-        src={src}
-        alt={alt}
-        draggable={false}
-        className="absolute select-none"
-        style={{
-          width: `${100 / crop.width}%`,
-          maxWidth: 'none',
-          left: `${-(crop.left / crop.width) * 100}%`,
-          top: `${-(crop.top / crop.height) * 100}%`,
-        }}
-      />
-    </div>
-  )
-}
-
 /* ------------------------------------ Phone ------------------------------------ */
 
-/** The active screen, shown as a clean flat tile (see ScreenTile) — was a
- *  tilted, photographed-looking phone mockup; per explicit direction this
- *  is now presented as a plain design asset, not "inside a phone screen".
- *  Still crossfades between the 5 frames and keeps the same "tuning
- *  channels" scanline beat the old synthetic screens had. */
+/** The real phone mockup, already fully composited (frame + screen
+ *  artwork) by the designer — see FRAMES above. Restored per explicit
+ *  direction (a later pass had cropped this down to a bezel-less flat
+ *  tile; the phone frame is back, screens shown inside it as originally
+ *  built). This just crossfades between the 5 flat images and keeps the
+ *  same "tuning channels" scanline beat. No separate frame layer, no
+ *  clip-path, no corner calibration: it's one flat image, so whatever 3D
+ *  tilt the parent applies to it, frame and screen tilt together,
+ *  pixel-locked, by construction. */
 function PhoneShot({ frame }: { frame: (typeof FRAMES)[number] }) {
   const prefersReduced = useReducedMotion()
   return (
     <div className="relative w-full h-full">
-      <motion.div
+      <motion.img
         key={frame.key}
+        src={frame.src}
+        alt={frame.alt}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
-        className="absolute inset-0"
-      >
-        <ScreenTile src={frame.src} alt={frame.alt} className="w-full h-full rounded-2xl border border-white/15 shadow-cine-lg" />
-      </motion.div>
+        className="absolute inset-0 w-full h-full object-contain"
+        draggable={false}
+      />
       {/* A bright scanline sweeps down as the frame changes — this is a
           radio station's own voting chart, so switching frames should feel
           like tuning between channels, not a slideshow crossfade. Keyed by
@@ -193,7 +149,7 @@ function PhoneShot({ frame }: { frame: (typeof FRAMES)[number] }) {
           initial={{ top: '-15%', opacity: 0.9 }}
           animate={{ top: '115%', opacity: 0 }}
           transition={{ duration: 0.32, ease: 'easeIn' }}
-          className="absolute inset-x-[6%] h-[8%] pointer-events-none z-20"
+          className="absolute inset-x-[13%] h-[8%] pointer-events-none z-20"
           style={{ background: 'linear-gradient(180deg, transparent, rgba(255,255,255,0.35) 45%, rgba(79,216,255,0.25) 55%, transparent)' }}
         />
       )}
@@ -236,16 +192,13 @@ function FilmStrip({ active, onSelect }: { active: number; onSelect: (i: number)
                   : 'border-white/15 hover:border-white/40 opacity-70 hover:opacity-100'
               }`}
             >
-              {/* Clean cropped screen tile (see ScreenTile) — was the full
-                  phone mockup letterboxed into a 4:3 box, showing mostly
-                  bezel at thumbnail size. */}
-              <ScreenTile src={f.src} alt="" crop={SCREEN_CROP_THUMB} className="w-full" />
-              <div className={`absolute inset-0 transition-opacity ${active === i ? 'bg-gradient-to-t from-black/75 to-transparent' : 'bg-gradient-to-t from-black/90 to-black/20'}`} />
-              <div className="absolute bottom-1 left-1.5 right-1.5">
-                <p className={`text-[8.5px] font-bold leading-tight ${active === i ? 'text-cine-cyan' : 'text-white'}`}>{f.label}</p>
-                <p className="text-[7.5px] text-white/60 leading-tight truncate">{f.sub}</p>
-              </div>
-              <span className="absolute top-1 left-1.5 text-[7px] font-mono text-white/50">{String(i + 1).padStart(2, '0')}</span>
+              {/* Full phone mockup thumbnail, restored (was a cropped
+                  bezel-less tile). Per explicit direction the per-frame
+                  "Key Art / Victory Story / ..." caption overlay is gone
+                  too — invented labels, not real project copy — the
+                  selection ring plus the mockup's own on-screen content
+                  already identify each chapter. */}
+              <img src={f.src} alt="" aria-hidden className="w-full aspect-[4/3] object-contain bg-black/30" />
             </button>
           ))}
         </div>
@@ -365,17 +318,18 @@ export default function GalgalatzCaseStudy({ onClose }: { onClose: () => void })
                 child to roughly half the intended size (a real
                 flexbox+aspect-ratio sizing interaction, confirmed via
                 DOM measurement: 112px rendered vs 221px available). */}
-            <div className="relative h-full">
-              {/* Clean flat tile now (was a tilted, photographed-looking
-                  phone render, 3D perspective/rotateY/rotateX included) —
-                  per explicit direction this is a plain design asset, not
-                  a phone screen, so the "held device" perspective tilt
-                  goes with it. A small hover lift is the only motion left,
-                  just enough to signal it's interactive. */}
+            <div className="relative h-full" style={{ perspective: 1400 }}>
+              {/* Phone mockup restored to its original tilted, photographed
+                  look (a later pass had flattened this to a plain
+                  perspective-free tile) — the 5 screen mockups are already
+                  fully composited onto the phone frame at its own native
+                  canvas size (941×1672), so there's no separate frame +
+                  content overlay to keep aligned: it's one flat image, and
+                  the 3D tilt below is applied to that whole image at once. */}
               <motion.div
                 className="relative w-full"
-                style={{ aspectRatio: SCREEN_CROP_ASPECT }}
-                whileHover={{ scale: 1.015 }}
+                style={{ aspectRatio: '941 / 1672', transformStyle: 'preserve-3d', rotateY: -9, rotateX: 3 }}
+                whileHover={{ rotateY: -5, rotateX: 1.5, scale: 1.015 }}
                 transition={{ type: 'spring', stiffness: 220, damping: 22 }}
               >
                 <PhoneShot frame={FRAMES[active]} />
@@ -405,8 +359,11 @@ export default function GalgalatzCaseStudy({ onClose }: { onClose: () => void })
         </div>
         </div>
 
+        {/* Added heading text above the strip is gone per explicit
+            direction — just the film strip itself, restored to its
+            original prominence (the added copy previously pushed a
+            little visual weight onto text instead of the assets). */}
         <div className="mt-5 lg:mt-0">
-          <p className="text-[11px] font-display font-bold uppercase tracking-[0.18em] text-cine-cyan mb-1.5">Campaign Chapters</p>
           <FilmStrip active={active} onSelect={setActive} />
         </div>
         </div>

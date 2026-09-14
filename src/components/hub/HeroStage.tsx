@@ -142,7 +142,7 @@ export default function HeroStage({ onOpen }: { onOpen: (id: ProjectId) => void 
         alt=""
         aria-hidden
         className="absolute left-1/2 pointer-events-none select-none"
-        style={{ top: '74%', width: '150%', transform: 'translate(-50%, -50%)' }}
+        style={{ top: '80%', width: '150%', transform: 'translate(-50%, -50%)' }}
         draggable={false}
       />
       <div className="absolute inset-0 flex items-center justify-center">

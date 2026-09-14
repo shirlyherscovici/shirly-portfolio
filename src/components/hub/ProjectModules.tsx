@@ -162,17 +162,14 @@ function WorldCard({ id, discipline, caption, metrics, description, accent, onCl
             border + soft diagonal sheen, alpha-transparent through its own
             center) painted BEHIND the content stack below (z-0 vs the
             content's z-10) so it can never occlude text by stacking order
-            alone. That alone wasn't the full fix, though: the title/
-            caption in the header zone have no opaque box behind them (the
-            metrics row and media box do), so the glass sheen's own soft
-            glow was still visibly bleeding through in the gaps around
-            those glyphs — technically "behind" the text but still
-            visually crossing it. Masked out over exactly that header
-            band now (a CSS mask-image, not a crop of the source PNG) so
-            the glass has zero visible presence there — the border/sheen
-            still reads normally over the media box, metrics and footer
-            below it, where opaque content already fully covers it either
-            way. object-fit:fill so it always matches this card's own box
+            alone. That alone isn't the full fix: any text with no opaque
+            box of its own behind it still has the glass sheen's soft glow
+            bleeding through in the gaps around its glyphs — "behind" in
+            z-order, but still visually crossing the text. The real fix
+            (not a mask over the glass — every text zone below now carries
+            its own opaque backing, the same way the metrics row already
+            did) lives on the header and footer wrappers further down.
+            object-fit:fill so it always matches this card's own box
             exactly regardless of viewport/breakpoint. pointer-events-none
             so it never intercepts clicks either way. */}
         <img
@@ -180,11 +177,7 @@ function WorldCard({ id, discipline, caption, metrics, description, accent, onCl
           alt=""
           aria-hidden
           className="absolute inset-0 w-full h-full pointer-events-none select-none z-0"
-          style={{
-            objectFit: 'fill',
-            maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 16%, black 26%, black 100%)',
-            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 16%, black 26%, black 100%)',
-          }}
+          style={{ objectFit: 'fill' }}
           draggable={false}
         />
 
@@ -200,8 +193,12 @@ function WorldCard({ id, discipline, caption, metrics, description, accent, onCl
               used to sit above the title stays removed per standing
               direction. `PROJECT_NUMBER[id]` stays wired into the
               case-study modals' own breadcrumb/stage label (see
-              projectMeta.ts) — only the homepage card's badge goes. */}
-          <div className="shrink-0">
+              projectMeta.ts) — only the homepage card's badge goes. Same
+              opaque backing as the metrics row below (rgba(10,8,22,0.6),
+              rounded) — not a mask over the glass, an actual background
+              this text sits on, so the glass sheen has nothing to bleed
+              through regardless of where its own bright band lands. */}
+          <div className="shrink-0 rounded-xl px-2.5 py-2" style={{ background: 'rgba(10, 8, 22, 0.6)' }}>
             <h3
               className="font-display font-extrabold leading-[1.05] text-lg sm:text-xl text-white tracking-tight uppercase"
               style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}
@@ -241,9 +238,17 @@ function WorldCard({ id, discipline, caption, metrics, description, accent, onCl
           </div>
 
           {/* Footer — left-aligned description, right-aligned circular
-              arrow button (36×36). */}
-          <div className="shrink-0 hidden sm:flex items-center justify-between gap-3">
-            <p className="text-[10.5px] leading-snug text-white/60 max-w-[80%]">{description}</p>
+              arrow button (36×36). Same opaque backing as the header/
+              metrics above (was floating directly on the translucent
+              card with nothing behind it — the least readable text on
+              the card, and the one most visibly crossed by the glass
+              sheen). Text size bumped too (was 10.5px, genuinely too
+              small to read comfortably at a glance). */}
+          <div
+            className="shrink-0 hidden sm:flex items-center justify-between gap-3 rounded-xl px-2.5 py-2"
+            style={{ background: 'rgba(10, 8, 22, 0.6)' }}
+          >
+            <p className="text-[12px] leading-snug text-white/70 max-w-[80%]">{description}</p>
             <span
               aria-hidden
               className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full border transition-colors group-hover:bg-white/10"
