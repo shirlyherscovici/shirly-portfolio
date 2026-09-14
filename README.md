@@ -1,36 +1,30 @@
-# Shirly Herscovici — Interactive Portfolio
+# Shirly Herscovici — Marketing Video & Motion Designer
 
-A portfolio built with **React + TypeScript + Tailwind CSS + Framer Motion**: a homepage hub of four project cards that each open into a full-screen case-study modal.
+Graphic & Motion Designer with 8+ years of experience creating broadcast graphics, promo content, motion design, visual systems and AI-assisted creative work.
 
-## Run it
+Currently working at N12 / News 12 (Keshet Broadcasting), creating fast-turnaround broadcast graphics, Photoshop templates, After Effects animation, promo visuals and visual systems for editorial and entertainment projects.
 
-```bash
-npm install
-npm run dev
-```
+## Specialties
+- Marketing Video & Motion Graphics
+- Motion Design & Animation
+- After Effects
+- Broadcast & Promo Design
+- Graphic Design & Visual Systems
+- AI-Assisted Creative Production
+- Typography & Visual Storytelling
+- Interactive / UI Visual Design
 
-Then open the printed local URL (default `http://localhost:5173`).
+## Selected Work
+- Galgalatz — Interactive Broadcast / UI
+- Motion — Animation & Motion Design
+- AI Navigator — AI-assisted Creative Project
+- Amy Winehouse — Graphic Design / Visual System
 
-```bash
-npm run build    # production build to dist/
-npm run preview  # preview the production build
-```
+## Career Goal
+Seeking Marketing Video Designer, Motion Graphics Designer and Creative Designer opportunities in gaming, entertainment and creative technology companies.
 
-## Structure
+## Portfolio
+https://shirlyherscovici.github.io/shirly-portfolio/
 
-- `src/components/hub/PortfolioHub.tsx` — the homepage hub: header, nav, and the four project cards.
-- `src/components/hub/ProjectModules.tsx` — the card content for each of the four disciplines (Amy, Galgalatz, AI Rescue, People In Motion).
-- `src/components/modal/` — one full-screen case-study component per project:
-  - `AmyCaseStudy.tsx` / `AmyRosterGrid.tsx` / `AmyBeforeAfterPhone.tsx` — album art restoration case study.
-  - `GalgalatzCaseStudy.tsx` — radio station key-art & UX case study.
-  - `AiRescueCaseStudy.tsx` — AI-assisted rescue-film case study.
-  - `PeopleMotionCaseStudy.tsx` — motion/rigging case study.
-- `src/lib/asset.ts` — prefixes `/public` asset paths with Vite's configured `base`, since `base` only rewrites bundler-processed imports, not plain string-literal `src`/`href` values.
-
-## Deployment
-
-Pushing to `main` triggers [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), which builds the site and deploys `dist/` to GitHub Pages at `https://shirlyherscovici.github.io/shirly-portfolio/`. This requires the repo's **Settings → Pages → Build and deployment → Source** to be set to **GitHub Actions**.
-
-## Notes
-
-- All public assets referenced via string literals (not bundler imports) must be wrapped in the `asset()` helper from `src/lib/asset.ts` so they resolve correctly under the `/shirly-portfolio/` base path on GitHub Pages.
+## LinkedIn
+https://www.linkedin.com/in/shirly-herscovici-a93766278/
