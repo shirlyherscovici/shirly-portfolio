@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Play, Pause, Smartphone, Layers, Scissors, UserCircle2, Layers3 } from 'lucide-react'
+import { Play, Pause, Smartphone, Layers, Scissors, UserCircle2, Layers3, ExternalLink } from 'lucide-react'
 import CaseStudyHeader from './CaseStudyHeader'
 import FloatingElement from '../ui/FloatingElement'
 import VideoControlBar, { toggleFullscreen } from '../ui/VideoControlBar'
@@ -8,8 +8,12 @@ import ComputerMonitorFrame from '../ui/ComputerMonitorFrame'
 import { asset } from '../../lib/asset'
 import { PROJECT_NUMBER } from '../../lib/projectMeta'
 
-const VIDEO_SRC = asset('/assets/motion/aca-anashim.mp4')
+// Primary reel — the new ~42s highlight cut (was the full ~4:38 spot
+// itself). The full version stays reachable, just not the thing that
+// autoplays/loads by default, via the FULL_VIDEO_SRC button below.
+const VIDEO_SRC = asset('/assets/motion/gameplay_highlight_final.mp4')
 const POSTER_SRC = asset('/assets/motion/aca-anashim-poster.jpg')
+const FULL_VIDEO_SRC = asset('/assets/motion/aca-anashim.mp4')
 
 const SPECS = [
   { icon: Smartphone, label: 'Responsive Format: Mobile 9:16 & Desktop 16:9' },
@@ -146,7 +150,7 @@ export default function PeopleMotionCaseStudy({ onClose, dark = false }: { onClo
             ))}
           </div>
 
-          <div className="mt-5 flex justify-center">
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
             {/* Light lavender/white glass pill with dark text — matches the
                 mockup's "Watch Playable Demo" CTA exactly (same family as
                 AI Rescue's button), not the gold gradient this used to be. */}
@@ -158,6 +162,22 @@ export default function PeopleMotionCaseStudy({ onClose, dark = false }: { onClo
               {playing ? <Pause size={13} className="fill-current" /> : <Play size={13} className="fill-current" />}
               {playing ? 'Pause Reel' : 'Watch Playable Demo'} <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
             </button>
+
+            {/* The video above is now the short ~42s highlight cut, not the
+                full spot — this is how the full ~4:38 original stays
+                reachable. Deliberately the bolder of the two buttons here
+                (solid gold→red gradient vs. the reel button's soft white
+                pill) so it can't read as a minor secondary link; opens the
+                real file directly in a new tab, same asset the case study
+                always had, nothing re-cut or regenerated. */}
+            <a
+              href={FULL_VIDEO_SRC}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-2 px-6 py-3 rounded-full font-display font-bold text-xs sm:text-sm tracking-wide uppercase text-white bg-gradient-to-b from-pearl-gold to-pearl-red border border-white/20 shadow-[0_4px_0_rgba(0,0,0,0.35),0_10px_24px_-4px_rgba(176,42,58,0.55)] transition-transform hover:scale-[1.04]"
+            >
+              <Play size={13} className="fill-current" /> Watch Full Project <ExternalLink size={14} />
+            </a>
           </div>
         </div>
 

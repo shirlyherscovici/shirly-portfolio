@@ -113,28 +113,42 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
     // flow throughout, since forcing "one screen" there would crush the
     // cards unreadably small.
     <div className="relative bg-cine overflow-x-clip flex flex-col">
-      {/* Immersive dark/purple environment — spans the ENTIRE page (not a
-          capped region behind the Hero), so the Hero, the project cards
-          and the footer all read as one continuous cinematic environment.
-          The supplied hero-background artwork anchors the top and fades
-          out gradually over a long stretch (not a hard cutoff) into
-          .bg-cine's own matching dark tone beneath, so there's no visible
-          seam where "the photo" ends and "the gradient" begins. Box
-          shrunk (was h-[70%] min-h-[520px]) and the fade pulled earlier
-          (was transparent-to-40%, opaque-by-90%) — the photo's own
-          content includes a lit sci-fi floor-grid pattern near its
-          bottom edge that the old, later fade left only partially
-          obscured right where the box's hard edge cut it off, reading as
-          a visible seam against the flatter procedural gradient beneath
-          on large/wide viewports (confirmed at 1920×1080 — not visible
-          at every size, but a real seam, not a display quirk). The
-          photo's own visible content is now fully faded to the shared
-          dark tone well before its box ends, so there's nothing left at
-          that edge for a seam to form from. */}
+      {/* Immersive dark/purple environment — .bg-cine on this outer div is
+          the ONE continuous source of the page's dark atmosphere, full
+          document height, Hero through footer, no seams possible within
+          it since it's a single gradient with no discrete steps. The
+          hero-background photo is a purely decorative accent layer on
+          top of that — not a second "background," just set dressing for
+          the top of the page.
+          Two real bugs, now both fixed:
+          (1) The box used to be sized as a % of the outer wrapper's
+          height — i.e. the full DOCUMENT height, which grows with
+          content. At some document/viewport combinations that put the
+          box's bottom edge (and the photo's own visible content near it —
+          a lit sci-fi floor-grid pattern) at a point that read as a
+          visible seam against the page beneath, confirmed at both
+          1920×1080 and 2560×1440 despite earlier fade tuning. Sized off
+          the VIEWPORT (vh) now instead, so it's a fixed decorative
+          flourish behind the Hero specifically — it no longer "reaches
+          for" the document's actual height at all, and can't drift into
+          card territory as content length changes.
+          (2) The fade used to paint a second, separately-colored opaque
+          rectangle (`transparent → #0b0a14`) on top of the photo — an
+          approximation of .bg-cine's own color that only matched it at
+          one specific point, not along its whole curve, which is exactly
+          what produced the seam mathematically. Switched to a CSS mask
+          on the photo itself (fading its own alpha to 0), so the tail of
+          the box reveals .bg-cine directly rather than painting a second
+          guess at its color over it — nothing left to mismatch. */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden>
-        <div className="absolute inset-x-0 top-0 h-[58%] min-h-[460px]">
+        <div
+          className="absolute inset-x-0 top-0 h-[65vh] min-h-[420px] max-h-[640px]"
+          style={{
+            maskImage: 'linear-gradient(to bottom, black 0%, black 30%, transparent 88%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 30%, transparent 88%)',
+          }}
+        >
           <img src={asset('/assets/hub/hero-background.png')} alt="" className="absolute inset-0 w-full h-full object-cover object-top" />
-          <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(to bottom, transparent 0%, transparent 28%, #0b0a14 72%)' }} />
         </div>
         <Starfield />
       </div>

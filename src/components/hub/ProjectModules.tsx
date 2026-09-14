@@ -104,9 +104,6 @@ interface WorldCardProps {
    *  couple of words each line. */
   caption: string
   metrics: Metric[]
-  /** One short, true sentence about the work — not a claim, just what the
-   *  card's own case study actually covers. */
-  description: string
   /** Hex accent — no longer used inside WorldCard itself (the number,
    *  metric values and glass border/glow are all fixed colors now, per
    *  explicit spec), kept only because CardArrival (the wrapper each
@@ -116,11 +113,11 @@ interface WorldCardProps {
   onClick: () => void
   hidden: boolean
   /** The project's own real artwork — unique per card, everything else
-   *  (glass, title, metrics, description, motion) is the shared system. */
+   *  (glass, title, metrics, motion) is the shared system. */
   heroVisual: React.ReactNode
 }
 
-function WorldCard({ id, discipline, caption, metrics, description, accent, onClick, hidden, heroVisual }: WorldCardProps) {
+function WorldCard({ id, discipline, caption, metrics, accent, onClick, hidden, heroVisual }: WorldCardProps) {
   const canHover = useCanHover()
   const prefersReduced = useReducedMotion()
   const t = useTiltRef()
@@ -237,18 +234,12 @@ function WorldCard({ id, discipline, caption, metrics, description, accent, onCl
             ))}
           </div>
 
-          {/* Footer — left-aligned description, right-aligned circular
-              arrow button (36×36). Same opaque backing as the header/
-              metrics above (was floating directly on the translucent
-              card with nothing behind it — the least readable text on
-              the card, and the one most visibly crossed by the glass
-              sheen). Text size bumped too (was 10.5px, genuinely too
-              small to read comfortably at a glance). */}
-          <div
-            className="shrink-0 hidden sm:flex items-center justify-between gap-3 rounded-xl px-2.5 py-2"
-            style={{ background: 'rgba(10, 8, 22, 0.6)' }}
-          >
-            <p className="text-[12px] leading-snug text-white/70 max-w-[80%]">{description}</p>
+          {/* Footer — just the circular arrow button now (was
+              description text + arrow). The small per-card description
+              is removed per explicit direction — the card relies on
+              title + real visual + metrics to carry the pitch, not a
+              caption sentence. */}
+          <div className="shrink-0 hidden sm:flex items-center justify-end">
             <span
               aria-hidden
               className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full border transition-colors group-hover:bg-white/10"
@@ -380,7 +371,6 @@ export function GalgalatzModule({ onClick, hidden = false }: { onClick: () => vo
         { value: '700%', label: 'Mobile Boost' },
         { value: '100%', label: 'Custom Craft' },
       ]}
-      description="Designing intuitive game UI and interactive voting for a live N12 broadcast."
       accent="#8b5cf6"
       onClick={onClick}
       hidden={hidden}
@@ -399,7 +389,6 @@ export function MotionModule({ onClick, hidden = false }: { onClick: () => void;
       // label-only chips instead, same treatment as the mockup's own AI
       // card where a number isn't the point either.
       metrics={[{ label: 'Motion Design' }, { label: 'After Effects' }, { label: 'Cinematic Motion' }]}
-      description="Bringing stories to life through cinematic motion, VFX and captivating animation."
       accent="#ffb454"
       onClick={onClick}
       hidden={hidden}
@@ -415,7 +404,6 @@ export function AiModule({ onClick, hidden = false }: { onClick: () => void; hid
       discipline="AI"
       caption="Generative AI & Visual Systems"
       metrics={[{ label: 'Generative AI' }, { label: 'AI Visuals' }, { label: 'Cinematic AI' }]}
-      description="Exploring AI tools and generative workflows to create new visual worlds."
       accent="#4fd8ff"
       onClick={onClick}
       hidden={hidden}
@@ -437,7 +425,6 @@ export function AmyModule({ onClick, hidden = false }: { onClick: () => void; hi
         { value: '+2.3M', label: 'Impressions' },
         { value: '+85%', label: 'Positive Feedback' },
       ]}
-      description="Crafting bold visual identities, campaigns and key art with strong visual language."
       accent="#ff5fa0"
       onClick={onClick}
       hidden={hidden}

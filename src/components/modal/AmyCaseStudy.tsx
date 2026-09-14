@@ -278,19 +278,26 @@ export default function AmyCaseStudy({ onClose, dark = false }: { onClose: () =>
           </div>
         </div>
 
-        {/* Link to the real, live N12 project — restyled as a solid red
-            "gaming block" (same gradient/bevel language as the arcade
-            close button and the joystick badge) so it actually reads as
-            a real button, not a faint pill easy to miss. */}
+      </div>
+
+      {/* Link to the real, live N12 project — pulled out of the cramped
+          summary row above (was a small ml-auto pill squeezed between the
+          role tags, easy to miss) into its own full-width, unmistakably
+          clickable CTA, matching the scale/language of this site's other
+          primary case-study buttons (e.g. AI Rescue's "Watch Prime-Time
+          Broadcast"). Same destination, same red "gaming block"
+          gradient/bevel identity as before — just sized to actually read
+          as the important button it is. */}
+      <div className="px-5 sm:px-8 pb-4 flex justify-center">
         <motion.a
           href="https://special.n12.co.il/AmyWinehouse"
           target="_blank"
           rel="noopener noreferrer"
           whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.97 }}
-          className="ml-auto flex items-center gap-1.5 text-[10px] font-display font-bold uppercase tracking-wide text-white px-3.5 py-2 rounded-lg bg-gradient-to-b from-[#d34f4f] to-[#8f1f2d] border border-white/20 shadow-[0_3px_0_#5e1319,0_6px_14px_-2px_rgba(143,31,45,0.55)] transition-shadow"
+          className="group inline-flex items-center gap-2 px-6 sm:px-7 py-3 sm:py-3.5 rounded-full font-display font-bold text-xs sm:text-sm tracking-wide uppercase text-white bg-gradient-to-b from-[#d34f4f] to-[#8f1f2d] border border-white/20 shadow-[0_4px_0_#5e1319,0_10px_24px_-4px_rgba(143,31,45,0.65)] transition-shadow"
         >
-          View Live Project <ExternalLink size={12} />
+          View Live Project on N12 <ExternalLink size={15} />
         </motion.a>
       </div>
 

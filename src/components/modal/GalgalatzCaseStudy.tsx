@@ -11,19 +11,20 @@ const ASSETS = {
   neonBox: asset('/assets/galgalatz/neon-box-tight.png'),
 }
 
-// Each of these is a real, already-composited phone mockup — the actual
-// screen artwork placed inside the real phone frame by the designer, at
-// the frame's own native canvas size (941×1672, matching
-// glaglatz-phones-front.png exactly). No separate compositing needed on
-// this end: the 3D tilt below is applied to the whole flat image, frame
-// and screen moving together as one surface, so nothing can drift out of
-// alignment the way the old hand-measured overlay could.
+// `src` — the real, already-composited phone mockup (actual screen
+// artwork inside the real phone frame), used by the big artboard viewer.
+// `filmstripSrc` — the ORIGINAL raw campaign asset behind that same
+// screen (public/galgalts/, the real Instagram-post-shaped graphics
+// before they were composited into the phone frame), used by the film
+// strip specifically per explicit direction: the strip shows the actual
+// source assets directly, not the baked phone-screen versions.
 const FRAMES = [
   {
     key: 'key-art',
     label: 'Key Art',
     sub: '3D Neon Logo',
     src: asset('/assets/galgalatz/1_galgaltz_front.png'),
+    filmstripSrc: asset('/galgalts/img_1.jpg'),
     alt: 'Galgalatz app splash screen — the neon "Music From The Screen" key art',
   },
   {
@@ -31,6 +32,7 @@ const FRAMES = [
     label: 'Victory Story',
     sub: 'A Star Is Born (#1)',
     src: asset('/assets/galgalatz/3_galgaltz_front.png'),
+    filmstripSrc: asset('/galgalts/img_4.png'),
     alt: 'Chart position #1 — A Star Is Born, "Shallow"',
   },
   {
@@ -38,6 +40,7 @@ const FRAMES = [
     label: 'Victory Story',
     sub: 'Titanic (#2)',
     src: asset('/assets/galgalatz/4_galgaltz_front.png'),
+    filmstripSrc: asset('/galgalts/img_2.png'),
     alt: 'Chart position #2 — Titanic, "My Heart Will Go On"',
   },
   {
@@ -45,6 +48,7 @@ const FRAMES = [
     label: 'Victory Story',
     sub: 'Rocky III (#3)',
     src: asset('/assets/galgalatz/5_galgaltz_front.png'),
+    filmstripSrc: asset('/galgalts/img_3.png'),
     alt: 'Chart position #3 — Rocky III, "Eye of the Tiger"',
   },
   {
@@ -52,6 +56,7 @@ const FRAMES = [
     label: 'Full Top 50',
     sub: 'Leaderboard',
     src: asset('/assets/galgalatz/2_galgaltz_front.png'),
+    filmstripSrc: asset('/galgalts/img_7.jpg'),
     alt: 'Full leaderboard, chart positions 31–50',
   },
 ] as const
@@ -192,13 +197,15 @@ function FilmStrip({ active, onSelect }: { active: number; onSelect: (i: number)
                   : 'border-white/15 hover:border-white/40 opacity-70 hover:opacity-100'
               }`}
             >
-              {/* Full phone mockup thumbnail, restored (was a cropped
-                  bezel-less tile). Per explicit direction the per-frame
-                  "Key Art / Victory Story / ..." caption overlay is gone
-                  too — invented labels, not real project copy — the
-                  selection ring plus the mockup's own on-screen content
-                  already identify each chapter. */}
-              <img src={f.src} alt="" aria-hidden className="w-full aspect-[4/3] object-contain bg-black/30" />
+              {/* The film strip shows the real ORIGINAL campaign asset
+                  (public/galgalts/) per explicit direction — not the
+                  baked phone-screen mockup the big viewer uses (see
+                  FRAMES' own comment). No caption overlay either — an
+                  earlier "Key Art / Victory Story / ..." text layer was
+                  invented copy, not real project content; the selection
+                  ring plus each asset's own on-screen text already
+                  identify it. */}
+              <img src={f.filmstripSrc} alt="" aria-hidden className="w-full aspect-square object-cover bg-black/30" />
             </button>
           ))}
         </div>

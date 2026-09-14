@@ -246,16 +246,20 @@ export default function HeroCharacter({ pointerX, pointerY, reducedMotion, inter
             above); `interactive` alone (device capability) still gates
             whether there's any live pointer signal to follow at all. */}
         <motion.div className="absolute inset-0 hero-character-live" style={{ x: followX, y: followY }}>
-          {/* Contact shadow */}
+          {/* Contact shadow — darkened/widened a touch (was 0.4 opacity,
+              0.62×size wide) so it actually reads against the platform's
+              own busy, glowing surface underneath it (Task 6: a believable
+              contact shadow is one of the things that sells "standing on",
+              not floating above). */}
           <div
             className="absolute left-1/2 rounded-[50%] pointer-events-none"
             style={{
-              bottom: size * -0.06,
-              width: size * 0.62,
-              height: size * 0.14,
+              bottom: size * -0.05,
+              width: size * 0.68,
+              height: size * 0.15,
               transform: 'translateX(-50%)',
-              background: 'radial-gradient(closest-side, rgba(20,14,38,0.4), transparent 75%)',
-              filter: 'blur(6px)',
+              background: 'radial-gradient(closest-side, rgba(10,7,22,0.6), transparent 75%)',
+              filter: 'blur(7px)',
             }}
           />
 
