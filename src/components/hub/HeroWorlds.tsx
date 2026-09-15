@@ -35,7 +35,7 @@ export const WORLDS: World[] = [
     // attention. Positions unchanged — still clear of the character's own
     // larger opaque sprite (see HeroStage's CHARACTER_RATIO) at every
     // stage tier.
-    size: 134,
+    size: 104,
     delay: 0,
     duration: 4.6,
   },
@@ -47,7 +47,7 @@ export const WORLDS: World[] = [
     accent: '#c084fc',
     x: 91,
     y: 6,
-    size: 123,
+    size: 96,
     delay: 0.9,
     duration: 5.2,
   },
@@ -59,22 +59,15 @@ export const WORLDS: World[] = [
     accent: '#4fd8ff',
     x: 95,
     y: 74,
-    size: 146,
+    size: 114,
     delay: 0.4,
     duration: 4.9,
   },
-  {
-    id: 'amy',
-    label: 'World 02',
-    name: 'Visual / Graphic Design',
-    src: asset('/assets/hub/amy-hero.png'),
-    accent: '#ff5f7a',
-    x: 5,
-    y: 82,
-    size: 128,
-    delay: 1.3,
-    duration: 5.5,
-  },
+  // The "amy" World (a floating vinyl record reading "AMY") is removed
+  // per explicit direction — unnecessary clutter next to the character,
+  // and Amy's project is still fully reachable via its own card in the
+  // grid below (AmyModule in PortfolioHub.tsx), so no navigation path is
+  // lost, just this one redundant hero hotspot.
 ]
 
 function WorldOrb({ world, reducedMotion, canHover, onOpen }: { world: World; reducedMotion: boolean; canHover: boolean; onOpen: (id: ProjectId) => void }) {

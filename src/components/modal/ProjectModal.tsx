@@ -191,7 +191,7 @@ export default function ProjectModal({
     // even during the brief fade-out window (see `mounted` above) nothing
     // here can intercept a click meant for the page behind it.
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 lg:p-10"
+      className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto p-3 sm:p-6 lg:p-10"
       style={{ pointerEvents: open ? 'auto' : 'none' }}
       aria-hidden={!open}
     >
@@ -234,7 +234,7 @@ export default function ProjectModal({
               boxShadow: '0 0 50px rgba(0,0,0,0.5), 0 40px 90px -20px rgba(0,0,0,0.6)',
               pointerEvents: open ? 'auto' : 'none',
             }}
-            className={`relative w-full ${maxWidthClass} max-h-[90vh] rounded-[28px] sm:rounded-[32px] border outline-none ${
+            className={`relative w-full ${maxWidthClass} my-auto rounded-[28px] sm:rounded-[32px] border outline-none ${
               theme === 'light' ? 'bg-white/25 backdrop-blur-xl border-white/60' : 'bg-slate-900/40 backdrop-blur-xl border-white/15'
             }`}
           >
@@ -338,7 +338,7 @@ export default function ProjectModal({
               </motion.button>
             )}
 
-            <div className="relative max-h-[90vh] overflow-y-auto overflow-x-clip no-scrollbar rounded-[28px] sm:rounded-[32px]">
+            <div className="relative overflow-x-clip rounded-[28px] sm:rounded-[32px]">
               {children}
             </div>
 

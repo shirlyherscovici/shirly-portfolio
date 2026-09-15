@@ -222,10 +222,10 @@ export default function HeroCharacter({ pointerX, pointerY, reducedMotion, inter
       <div
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
         style={{
-          width: size * 1.55,
-          height: size * 1.55,
-          background: 'radial-gradient(closest-side, rgba(196,162,255,0.35), rgba(139,92,246,0.12) 55%, transparent 75%)',
-          filter: 'blur(28px)',
+          width: size * 1.72,
+          height: size * 1.72,
+          background: 'radial-gradient(closest-side, rgba(181, 164, 238, 0.28), rgba(95, 83, 164, 0.1) 57%, transparent 76%)',
+          filter: 'blur(32px)',
         }}
       />
 
@@ -246,20 +246,23 @@ export default function HeroCharacter({ pointerX, pointerY, reducedMotion, inter
             above); `interactive` alone (device capability) still gates
             whether there's any live pointer signal to follow at all. */}
         <motion.div className="absolute inset-0 hero-character-live" style={{ x: followX, y: followY }}>
-          {/* Contact shadow — darkened/widened a touch (was 0.4 opacity,
-              0.62×size wide) so it actually reads against the platform's
-              own busy, glowing surface underneath it (Task 6: a believable
-              contact shadow is one of the things that sells "standing on",
-              not floating above). */}
+          {/* Contact shadow — strengthened again (was 0.6 opacity, 0.68×size
+              wide; before that, 0.4/0.62×size) — at smaller Hero sizes
+              (shorter laptop viewports, where the whole stage scales down)
+              it was still reading as ambiguous against the cape, which
+              covers most of the legs down to right where the platform
+              starts. Darker, a little wider/flatter so it plants clearly
+              on the platform's own surface right at the cape's hem,
+              instead of just hinting at contact. */}
           <div
             className="absolute left-1/2 rounded-[50%] pointer-events-none"
             style={{
-              bottom: size * -0.05,
-              width: size * 0.68,
-              height: size * 0.15,
+              bottom: size * -0.04,
+              width: size * 0.74,
+              height: size * 0.16,
               transform: 'translateX(-50%)',
-              background: 'radial-gradient(closest-side, rgba(10,7,22,0.6), transparent 75%)',
-              filter: 'blur(7px)',
+              background: 'radial-gradient(closest-side, rgba(6,4,16,0.75), transparent 78%)',
+              filter: 'blur(6px)',
             }}
           />
 

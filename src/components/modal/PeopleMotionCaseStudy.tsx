@@ -25,6 +25,8 @@ const SPECS = [
 
 export default function PeopleMotionCaseStudy({ onClose, dark = false }: { onClose: () => void; dark?: boolean }) {
   const [playing, setPlaying] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [duration, setDuration] = useState(0)
   const videoRef = useRef<HTMLVideoElement>(null)
   const screenRef = useRef<HTMLDivElement>(null)
 
@@ -38,6 +40,13 @@ export default function PeopleMotionCaseStudy({ onClose, dark = false }: { onClo
       v.pause()
       setPlaying(false)
     }
+  }
+
+  const seek = (nextTime: number) => {
+    const v = videoRef.current
+    if (!v || !Number.isFinite(nextTime)) return
+    v.currentTime = nextTime
+    setProgress(nextTime)
   }
 
   return (
@@ -57,11 +66,20 @@ export default function PeopleMotionCaseStudy({ onClose, dark = false }: { onClo
       />
 
       <div className="relative px-5 sm:px-8 pb-6">
-        {/* Background atmosphere — matches the treatment AI Rescue got:
-            the panel otherwise reads as visually empty behind the video.
-            Warm gold/rose glows (this case study's own palette) instead
-            of AI Rescue's cyan/magenta, plus the same faint dot texture. */}
+        {/* Background atmosphere — was just color blobs + a dot texture,
+            same generic treatment AI Rescue got; real feedback wanted
+            something more "character-driven" here specifically. The
+            campaign's own poster art (the walking-crowd silhouettes under
+            the desert sunset — the exact same real key art the video
+            itself opens on, not a new asset) now sits behind everything,
+            heavily blurred/faded, so the backdrop reads as "this scene
+            has real people/content in it" instead of a flat color wash,
+            while staying quiet enough not to compete with the actual
+            video. Same warm gold/rose glows and dot texture layered on
+            top of it as before. */}
         <div className="absolute inset-0 overflow-hidden rounded-[28px] pointer-events-none -z-10" aria-hidden>
+          <img src={POSTER_SRC} alt="" className="absolute inset-0 w-full h-full object-cover object-top opacity-[0.3] blur-[3px] scale-110" />
+          <div className={`absolute inset-0 ${dark ? 'bg-[#160f16]/55' : 'bg-pearl-bg/70'}`} />
           <div className="absolute -top-24 -right-16 w-72 h-72 rounded-full bg-pearl-gold/20 blur-[90px]" />
           <div className="absolute -bottom-20 -left-10 w-80 h-80 rounded-full bg-pearl-red/10 blur-[100px]" />
           <div
@@ -73,12 +91,15 @@ export default function PeopleMotionCaseStudy({ onClose, dark = false }: { onClo
         <div className="relative">
           <div style={{ maxWidth: 'calc(52vh * 16 / 9)' }} className="relative mx-auto w-full">
             <ComputerMonitorFrame ref={screenRef}>
+              <div className="absolute inset-0 group/video">
               <video
                 ref={videoRef}
                 src={VIDEO_SRC}
                 poster={POSTER_SRC}
                 playsInline
                 preload="metadata"
+                onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
+                onTimeUpdate={(e) => setProgress(e.currentTarget.currentTime)}
                 onEnded={() => setPlaying(false)}
                 className="absolute inset-0 w-full h-full object-cover"
               />
@@ -116,6 +137,20 @@ export default function PeopleMotionCaseStudy({ onClose, dark = false }: { onClo
                   above, so these buttons' own bounds win the click instead
                   of also triggering play/pause underneath them. */}
               <VideoControlBar videoRef={videoRef} fullscreenRef={screenRef} className="absolute top-3 left-3 z-20" />
+              <div className={`absolute inset-x-0 bottom-0 z-30 px-3 pb-2 pt-6 bg-gradient-to-t from-black/80 to-transparent transition-opacity duration-200 ${playing ? 'opacity-0 group-hover/video:opacity-100 group-focus-within/video:opacity-100' : 'opacity-100'}`}>
+                <input
+                  type="range"
+                  min="0"
+                  max={duration || 0}
+                  step="0.05"
+                  value={Math.min(progress, duration || 0)}
+                  onChange={(e) => seek(Number(e.currentTarget.value))}
+                  onClick={(e) => e.stopPropagation()}
+                  aria-label="Video progress"
+                  className="block w-full h-1.5 cursor-pointer accent-white"
+                />
+              </div>
+              </div>
             </ComputerMonitorFrame>
           </div>
 

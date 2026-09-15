@@ -100,9 +100,6 @@ interface Metric {
 interface WorldCardProps {
   id: ProjectId
   discipline: string
-  /** Short caption under the title — what the discipline covers, in a
-   *  couple of words each line. */
-  caption: string
   metrics: Metric[]
   /** Hex accent — no longer used inside WorldCard itself (the number,
    *  metric values and glass border/glow are all fixed colors now, per
@@ -117,7 +114,7 @@ interface WorldCardProps {
   heroVisual: React.ReactNode
 }
 
-function WorldCard({ id, discipline, caption, metrics, accent, onClick, hidden, heroVisual }: WorldCardProps) {
+function WorldCard({ id, discipline, metrics, accent, onClick, hidden, heroVisual }: WorldCardProps) {
   const canHover = useCanHover()
   const prefersReduced = useReducedMotion()
   const t = useTiltRef()
@@ -146,14 +143,14 @@ function WorldCard({ id, discipline, caption, metrics, accent, onClick, hidden, 
       // second fixed guess that could just as easily overflow a shorter
       // panel. The glass styling itself (.project-card-glass) is
       // untouched at every size.
-      className="group relative block w-full aspect-[9/14] min-h-[480px] lg:aspect-auto lg:min-h-0 lg:h-full rounded-[26px] text-left outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+      className="group relative block w-full aspect-[9/14] min-h-[480px] lg:aspect-[4/5] lg:min-h-[400px] lg:h-auto rounded-[26px] text-left outline-none focus-visible:ring-2 focus-visible:ring-white/70"
       aria-label={`Open case study — ${discipline}`}
       aria-hidden={hidden}
       tabIndex={hidden ? -1 : 0}
     >
       <motion.div
         style={{ rotateX: interactive ? t.rotateX : 0, rotateY: interactive ? t.rotateY : 0, transformStyle: 'preserve-3d' }}
-        className="project-card-glass relative flex flex-col w-full h-full rounded-[26px] overflow-hidden p-3.5 sm:p-4"
+        className="project-card-glass relative flex flex-col w-full h-full rounded-[26px] overflow-hidden p-3 sm:p-3.5"
       >
         {/* Glass frame — a real transparent PNG (bright rounded-rect
             border + soft diagonal sheen, alpha-transparent through its own
@@ -173,7 +170,7 @@ function WorldCard({ id, discipline, caption, metrics, accent, onClick, hidden, 
           src={asset('/assets/hub/glass.png')}
           alt=""
           aria-hidden
-          className="absolute inset-0 w-full h-full pointer-events-none select-none z-0"
+          className="absolute inset-0 w-full h-full pointer-events-none select-none z-0 opacity-45"
           style={{ objectFit: 'fill' }}
           draggable={false}
         />
@@ -185,7 +182,7 @@ function WorldCard({ id, discipline, caption, metrics, accent, onClick, hidden, 
             fighting its sheen for legibility. Same flex-column/gap/padding
             rhythm as before (this wrapper just fills the padded box the
             glass sits inside). */}
-        <div className="relative z-10 flex flex-col w-full h-full gap-2.5 sm:gap-3">
+        <div className="relative z-10 flex flex-col w-full h-full gap-2 sm:gap-2.5">
           {/* Header — title, caption. The "01/02/03/04" number badge that
               used to sit above the title stays removed per standing
               direction. `PROJECT_NUMBER[id]` stays wired into the
@@ -195,21 +192,20 @@ function WorldCard({ id, discipline, caption, metrics, accent, onClick, hidden, 
               rounded) — not a mask over the glass, an actual background
               this text sits on, so the glass sheen has nothing to bleed
               through regardless of where its own bright band lands. */}
-          <div className="shrink-0 rounded-xl px-2.5 py-2" style={{ background: 'rgba(10, 8, 22, 0.6)' }}>
+          <div className="shrink-0 rounded-xl px-2 py-1.5" style={{ background: 'linear-gradient(90deg, rgba(8, 10, 18, 0.34), rgba(8, 10, 18, 0.08))' }}>
             <h3
-              className="font-display font-extrabold leading-[1.05] text-lg sm:text-xl text-white tracking-tight uppercase"
+              className="font-display font-extrabold leading-[1.05] text-base sm:text-lg text-white tracking-tight uppercase"
               style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}
             >
               {discipline}
             </h3>
-            <p className="mt-1 text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wide text-white/55 leading-snug">{caption}</p>
           </div>
 
           {/* Media — the project's own real artwork, boxed and bordered
               rather than full-bleed behind the text (previous treatment) —
               grows to fill whatever space the header/metrics/footer around
               it don't need. */}
-          <div className="relative flex-1 min-h-0 rounded-xl overflow-hidden border border-white/[0.08]">
+          <div className="relative flex-1 min-h-0 rounded-xl overflow-hidden border border-white/[0.12]">
             {heroVisual}
           </div>
 
@@ -220,10 +216,10 @@ function WorldCard({ id, discipline, caption, metrics, accent, onClick, hidden, 
               columns instead (matching the AI card). */}
           <div
             className="shrink-0 grid rounded-xl overflow-hidden"
-            style={{ background: 'rgba(10, 8, 22, 0.6)', gridTemplateColumns: `repeat(${metrics.length}, minmax(0, 1fr))` }}
+            style={{ background: 'rgba(7, 9, 17, 0.3)', gridTemplateColumns: `repeat(${metrics.length}, minmax(0, 1fr))` }}
           >
             {metrics.map((m, i) => (
-              <div key={m.label} className={`px-1.5 py-2 sm:py-2.5 text-center ${i > 0 ? 'border-l border-white/[0.06]' : ''}`}>
+              <div key={m.label} className={`px-1.5 py-1.5 sm:py-2 text-center ${i > 0 ? 'border-l border-white/[0.10]' : ''}`}>
                 {m.value && (
                   <p className="font-display font-black text-[13px] sm:text-sm leading-none tabular-nums" style={{ color: '#a78bfa' }}>
                     {m.value}
@@ -239,10 +235,10 @@ function WorldCard({ id, discipline, caption, metrics, accent, onClick, hidden, 
               is removed per explicit direction — the card relies on
               title + real visual + metrics to carry the pitch, not a
               caption sentence. */}
-          <div className="shrink-0 hidden sm:flex items-center justify-end">
+          <div className="shrink-0 hidden sm:flex items-center justify-end h-7">
             <span
               aria-hidden
-              className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full border transition-colors group-hover:bg-white/10"
+              className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full border transition-colors group-hover:bg-white/10"
               style={{ borderColor: 'rgba(255,255,255,0.3)' }}
             >
               <ArrowRight size={14} className="text-white" />
@@ -281,7 +277,7 @@ function GalgalatzHero() {
       <img
         src={asset('/assets/galgalatz/poster_galgalts.jpg')}
         alt="Galgalatz × N12 key art on a 3D neon display frame"
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        className="absolute inset-0 w-full h-full object-cover object-center scale-[1.08] transition-transform duration-700 group-hover:scale-[1.14]"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
     </div>
@@ -295,7 +291,7 @@ function GalgalatzHero() {
  *  key art already used inside the case study itself (PeopleMotionCaseStudy.tsx,
  *  untouched) — real shipped work for Waze, Teva, WIX & Mobileye, not a
  *  new asset invented for this card. */
-const MOTION_HERO_SRC = asset('/assets/motion/aca-anashim-poster.jpg')
+const MOTION_HERO_SRC = asset('/assets/motion/poster.jpg')
 
 function MotionHero() {
   return (
@@ -329,9 +325,9 @@ function AiHero() {
   return (
     <div className="absolute inset-0 overflow-hidden">
       <img
-        src={asset('/assets/navigator/pilot-terrain-frame.jpg')}
-        alt="AI Rescue Navigator — the rescued pilot on the mountainside, a still from the actual production film"
-        className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+        src={asset('/assets/navigator/poster_navigator.jpg')}
+        alt="AI Navigator project poster"
+        className="absolute inset-0 w-full h-full object-cover object-center scale-[1.06] opacity-95 group-hover:opacity-100 group-hover:scale-[1.12] transition-all duration-700"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
     </div>
@@ -344,11 +340,11 @@ function AiHero() {
  *  image itself — no separate floating decoration needed on top of it). */
 function AmyHero() {
   return (
-    <div className="absolute inset-0 flex items-end justify-center overflow-hidden">
+    <div className="absolute inset-0 flex items-start justify-center overflow-hidden">
       <img
         src={asset('/assets/amy/amy-figure-birds-gems.png')}
         alt="AMY — Amy Winehouse tribute character emerging from a gift box, with a golden swallow, roses and a vinyl record"
-        className="w-[92%] h-auto max-h-[96%] object-contain drop-shadow-2xl transition-transform duration-500 group-hover:-translate-y-2 group-hover:scale-105"
+        className="h-[118%] max-h-none w-auto max-w-none -translate-y-[1%] object-contain drop-shadow-2xl transition-transform duration-500 group-hover:-translate-y-2 group-hover:scale-105"
       />
     </div>
   )
@@ -362,8 +358,7 @@ export function GalgalatzModule({ onClick, hidden = false }: { onClick: () => vo
   return (
     <WorldCard
       id="galgalatz"
-      discipline="UI / UX"
-      caption="Game Interfaces & Interactive UX"
+      discipline="UI DESIGN"
       // Real figures, straight from this project's own case study (its
       // Impact/Engagement/Visuals summary row) — not invented for the card.
       metrics={[
@@ -383,8 +378,7 @@ export function MotionModule({ onClick, hidden = false }: { onClick: () => void;
   return (
     <WorldCard
       id="people-motion"
-      discipline="MOTION"
-      caption="Cinematic Motion & After Effects"
+      discipline="AE"
       // This project's own case study doesn't surface one clean number —
       // label-only chips instead, same treatment as the mockup's own AI
       // card where a number isn't the point either.
@@ -402,7 +396,6 @@ export function AiModule({ onClick, hidden = false }: { onClick: () => void; hid
     <WorldCard
       id="ai-rescue"
       discipline="AI"
-      caption="Generative AI & Visual Systems"
       metrics={[{ label: 'Generative AI' }, { label: 'AI Visuals' }, { label: 'Cinematic AI' }]}
       accent="#4fd8ff"
       onClick={onClick}
@@ -417,7 +410,6 @@ export function AmyModule({ onClick, hidden = false }: { onClick: () => void; hi
     <WorldCard
       id="amy"
       discipline="GRAPHIC DESIGN"
-      caption="Visual Systems & Art Direction"
       // Real figures from this project's own "Campaign Impact" row in its
       // case study — not invented for the card.
       metrics={[

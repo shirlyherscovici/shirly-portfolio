@@ -71,11 +71,11 @@ body {
      same #0b0a14 floor. Purple is meant to read as ambient atmosphere at
      the edges, not the page's main color. */
   background:
-    radial-gradient(ellipse 70% 50% at 15% -10%, rgba(75, 46, 131, 0.18), transparent),
-    radial-gradient(ellipse 60% 45% at 100% 10%, rgba(79, 216, 255, 0.04), transparent),
-    radial-gradient(ellipse 70% 55% at 85% 95%, rgba(139, 92, 246, 0.08), transparent),
-    radial-gradient(ellipse 55% 45% at 15% 95%, rgba(255, 95, 160, 0.03), transparent),
-    linear-gradient(180deg, #100e18 0%, #0d0c16 35%, #0b0a14 70%, #0b0a14 100%);
+    radial-gradient(ellipse 68% 48% at 15% -10%, rgba(75, 46, 131, 0.12), transparent),
+    radial-gradient(ellipse 60% 45% at 100% 10%, rgba(79, 216, 255, 0.025), transparent),
+    radial-gradient(ellipse 68% 50% at 85% 95%, rgba(139, 92, 246, 0.04), transparent),
+    radial-gradient(ellipse 55% 45% at 15% 95%, rgba(255, 95, 160, 0.018), transparent),
+    linear-gradient(180deg, #0c0d15 0%, #090a12 42%, #080910 100%);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -121,17 +121,17 @@ body {
    modals/EasterEgg also use) so this exact spec only ever touches the
    four project cards. */
 .project-card-glass {
-  background: rgba(18, 16, 38, 0.45);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(138, 116, 249, 0.35);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(138, 116, 249, 0.1);
+  background: linear-gradient(145deg, rgba(30, 31, 48, 0.3), rgba(9, 11, 20, 0.2));
+  backdrop-filter: blur(13px);
+  -webkit-backdrop-filter: blur(13px);
+  border: 1px solid rgba(214, 222, 255, 0.24);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .project-card-glass:hover {
-  border-color: rgba(168, 130, 255, 0.7);
-  box-shadow: 0 12px 40px 0 rgba(112, 66, 248, 0.35), inset 0 0 20px rgba(168, 130, 255, 0.2);
+  border-color: rgba(221, 228, 255, 0.46);
+  box-shadow: 0 16px 40px rgba(40, 35, 83, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 /* Glossy top-highlight sheen shared by both glass families */

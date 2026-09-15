@@ -21,7 +21,7 @@ const PLATFORM_SRC = asset('/assets/hub/platform.png')
 // producing). Kept as one constant (not a magic number repeated at both
 // breakpoints below) since the platform position, contact shadow and the
 // four Worlds' own hand-placed % clearance all implicitly depend on it.
-const CHARACTER_RATIO = 0.85
+const CHARACTER_RATIO = 0.96
 
 /** Character + stage size, tuned per viewport so the character reads as
  *  the dominant centerpiece everywhere — not one fixed px number reused
@@ -59,8 +59,8 @@ function computeHeroSizes() {
     // own padding/gap) so the stage is guaranteed to fit whatever that
     // share actually resolves to, on any laptop height, not just the
     // ones that happened to get tested.
-    const heroBudget = (height - 56) * 0.52 - 40
-    const stage = Math.round(Math.min(420, Math.max(260, heroBudget)))
+    const heroBudget = (height - 56) * 0.52 - 18
+    const stage = Math.round(Math.min(460, Math.max(290, heroBudget)))
     return { character: Math.round(stage * CHARACTER_RATIO), stage }
   }
   // Below `lg` the layout stacks (copy above, stage centered below), so
@@ -137,15 +137,20 @@ export default function HeroStage({ onOpen }: { onOpen: (id: ProjectId) => void 
           hero section's own horizontal padding still has enough margin on
           both sides at every breakpoint this was checked against for the
           overflow not to visibly clip. */}
+      <div
+        aria-hidden
+        className="absolute left-1/2 top-[77%] w-[112%] h-[20%] -translate-x-1/2 -translate-y-1/2 rounded-[50%] pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse, rgba(125, 103, 207, 0.2) 0%, rgba(35, 29, 68, 0.18) 42%, transparent 74%)', filter: 'blur(16px)' }}
+      />
       <img
         src={PLATFORM_SRC}
         alt=""
         aria-hidden
         className="absolute left-1/2 pointer-events-none select-none"
-        style={{ top: '80%', width: '150%', transform: 'translate(-50%, -50%)' }}
+        style={{ top: '76%', width: '172%', transform: 'translate(-50%, -50%)', zIndex: 10, filter: 'drop-shadow(0 18px 22px rgba(0,0,0,0.45))' }}
         draggable={false}
       />
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="absolute inset-0 z-20 flex items-center justify-center">
         <HeroCharacter
           pointerX={pointerX}
           pointerY={pointerY}

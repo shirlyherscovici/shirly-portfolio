@@ -251,10 +251,10 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
           reclaiming that height is what let the cards grow back to the
           mockup's own generous size. Below `lg` this is entirely inert
           (plain natural-height flow, scrollable). */}
-      <div className="relative z-10 flex flex-col lg:h-[calc(100vh-56px)] lg:overflow-hidden">
+      <div className="relative z-10 flex flex-col">
         <section
           id="top"
-          className="mx-auto max-w-[1440px] w-full px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-0 pb-4 sm:pb-6 lg:pb-0 scroll-mt-20 shrink-0 lg:h-[52%] lg:flex lg:items-center lg:overflow-hidden"
+          className="mx-auto max-w-[1440px] w-full px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-8 pb-4 sm:pb-6 lg:pb-6 scroll-mt-20 shrink-0 lg:flex lg:items-center"
         >
           {/* Mobile's own vertical rhythm was compressed here (gap-10→gap-5,
               trimmed mt- steps below) — measured at 863px tall against an
@@ -376,9 +376,9 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
             entirely. */}
         <main
           id="work"
-          className="mx-auto max-w-[1440px] w-full px-4 sm:px-6 lg:px-10 pb-4 sm:pb-6 lg:pb-2 shrink-0 lg:h-[48%] lg:flex lg:items-center lg:overflow-hidden scroll-mt-20"
+          className="mx-auto max-w-[1440px] w-full px-4 sm:px-6 lg:px-10 pb-8 sm:pb-10 lg:pb-12 shrink-0 lg:flex lg:items-center scroll-mt-20"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-5 lg:w-full lg:h-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-5 lg:w-full">
             <CardArrival index={0} accent="#8b5cf6">
               <GalgalatzModule onClick={() => onOpen('galgalatz')} hidden={openId === 'galgalatz'} />
             </CardArrival>
