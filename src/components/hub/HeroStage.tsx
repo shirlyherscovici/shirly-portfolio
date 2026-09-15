@@ -139,7 +139,7 @@ export default function HeroStage({ onOpen }: { onOpen: (id: ProjectId) => void 
           overflow not to visibly clip. */}
       <div
         aria-hidden
-        className="absolute left-1/2 top-[77%] w-[112%] h-[20%] -translate-x-1/2 -translate-y-1/2 rounded-[50%] pointer-events-none"
+        className="absolute left-1/2 top-[82%] w-[96%] h-[16%] -translate-x-1/2 -translate-y-1/2 rounded-[50%] pointer-events-none z-10"
         style={{ background: 'radial-gradient(ellipse, rgba(125, 103, 207, 0.2) 0%, rgba(35, 29, 68, 0.18) 42%, transparent 74%)', filter: 'blur(16px)' }}
       />
       <img
@@ -147,9 +147,10 @@ export default function HeroStage({ onOpen }: { onOpen: (id: ProjectId) => void 
         alt=""
         aria-hidden
         className="absolute left-1/2 pointer-events-none select-none"
-        style={{ top: '76%', width: '172%', transform: 'translate(-50%, -50%)', zIndex: 10, filter: 'drop-shadow(0 18px 22px rgba(0,0,0,0.45))' }}
+        style={{ top: '82%', width: '150%', transform: 'translate(-50%, -50%)', zIndex: 10, filter: 'drop-shadow(0 18px 22px rgba(0,0,0,0.45))' }}
         draggable={false}
       />
+      <div aria-hidden className="absolute left-1/2 top-[76%] z-20 h-[4%] w-[28%] -translate-x-1/2 -translate-y-1/2 rounded-[50%] pointer-events-none" style={{ background: 'radial-gradient(ellipse, rgba(5,4,14,0.7), transparent 72%)', filter: 'blur(5px)' }} />
       <div className="absolute inset-0 z-20 flex items-center justify-center">
         <HeroCharacter
           pointerX={pointerX}
@@ -159,7 +160,9 @@ export default function HeroStage({ onOpen }: { onOpen: (id: ProjectId) => void 
           size={characterSize}
         />
       </div>
-      <HeroWorlds reducedMotion={!!prefersReduced} canHover={canHover} onOpen={onOpen} />
+      <div className="absolute inset-0 z-30 pointer-events-auto">
+        <HeroWorlds reducedMotion={!!prefersReduced} canHover={canHover} onOpen={onOpen} />
+      </div>
     </div>
   )
 }

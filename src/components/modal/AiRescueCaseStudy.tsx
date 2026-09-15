@@ -251,6 +251,8 @@ export default function AiRescueCaseStudy({ onClose }: { onClose: () => void }) 
             full panel so the edges don't fall flat to near-black beside
             the video. */}
         <div className="absolute inset-0 overflow-hidden rounded-[28px] pointer-events-none -z-10" aria-hidden>
+          <img src={asset('/assets/navigator/poster_navigator.jpg')} alt="" className="absolute inset-0 h-full w-full scale-110 object-cover object-center opacity-[0.16] blur-[8px]" />
+          <div className="absolute inset-0 bg-[#090a16]/70" />
           <div
             className="absolute inset-0"
             style={{ background: 'radial-gradient(ellipse 90% 75% at 50% 40%, rgba(139,92,246,0.14), transparent 78%)' }}

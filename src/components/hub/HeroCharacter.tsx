@@ -246,26 +246,6 @@ export default function HeroCharacter({ pointerX, pointerY, reducedMotion, inter
             above); `interactive` alone (device capability) still gates
             whether there's any live pointer signal to follow at all. */}
         <motion.div className="absolute inset-0 hero-character-live" style={{ x: followX, y: followY }}>
-          {/* Contact shadow — strengthened again (was 0.6 opacity, 0.68×size
-              wide; before that, 0.4/0.62×size) — at smaller Hero sizes
-              (shorter laptop viewports, where the whole stage scales down)
-              it was still reading as ambiguous against the cape, which
-              covers most of the legs down to right where the platform
-              starts. Darker, a little wider/flatter so it plants clearly
-              on the platform's own surface right at the cape's hem,
-              instead of just hinting at contact. */}
-          <div
-            className="absolute left-1/2 rounded-[50%] pointer-events-none"
-            style={{
-              bottom: size * -0.04,
-              width: size * 0.74,
-              height: size * 0.16,
-              transform: 'translateX(-50%)',
-              background: 'radial-gradient(closest-side, rgba(6,4,16,0.75), transparent 78%)',
-              filter: 'blur(6px)',
-            }}
-          />
-
           {/* VISUAL WRAPPER — idle float, tilt, scale. A separate element
               from the positioning wrapper above so its own `y` (the idle
               bob) can't be silently overridden by — or override — the

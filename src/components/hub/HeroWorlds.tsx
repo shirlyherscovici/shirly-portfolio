@@ -63,11 +63,18 @@ export const WORLDS: World[] = [
     delay: 0.4,
     duration: 4.9,
   },
-  // The "amy" World (a floating vinyl record reading "AMY") is removed
-  // per explicit direction — unnecessary clutter next to the character,
-  // and Amy's project is still fully reachable via its own card in the
-  // grid below (AmyModule in PortfolioHub.tsx), so no navigation path is
-  // lost, just this one redundant hero hotspot.
+  {
+    id: 'amy',
+    label: 'World 02',
+    name: 'Amy Winehouse',
+    src: asset('/assets/hub/amy-hero.png'),
+    accent: '#ff5fa0',
+    x: 7,
+    y: 74,
+    size: 110,
+    delay: 1.3,
+    duration: 5.1,
+  },
 ]
 
 function WorldOrb({ world, reducedMotion, canHover, onOpen }: { world: World; reducedMotion: boolean; canHover: boolean; onOpen: (id: ProjectId) => void }) {

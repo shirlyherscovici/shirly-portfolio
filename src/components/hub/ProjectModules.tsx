@@ -277,7 +277,7 @@ function GalgalatzHero() {
       <img
         src={asset('/assets/galgalatz/poster_galgalts.jpg')}
         alt="Galgalatz × N12 key art on a 3D neon display frame"
-        className="absolute inset-0 w-full h-full object-contain object-center transition-transform duration-700 group-hover:scale-[1.04]"
+        className="absolute inset-0 w-full h-full object-cover object-[50%_30%] scale-[1.12] transition-transform duration-700 group-hover:scale-[1.16]"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
     </div>
@@ -299,7 +299,7 @@ function MotionHero() {
       <img
         src={MOTION_HERO_SRC}
         alt="Motion & animation poster art"
-        className="absolute inset-0 w-full h-full object-contain object-center transition-transform duration-700 group-hover:scale-[1.04]"
+        className="absolute inset-0 w-full h-full object-cover object-[50%_22%] scale-[1.1] transition-transform duration-700 group-hover:scale-[1.14]"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
     </div>
@@ -327,7 +327,7 @@ function AiHero() {
       <img
         src={asset('/assets/navigator/poster_navigator.jpg')}
         alt="AI Navigator project poster"
-        className="absolute inset-0 w-full h-full object-contain object-center opacity-95 group-hover:opacity-100 group-hover:scale-[1.04] transition-all duration-700"
+        className="absolute inset-0 w-full h-full object-cover object-[50%_28%] scale-[1.1] opacity-95 group-hover:opacity-100 group-hover:scale-[1.14] transition-all duration-700"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
     </div>
@@ -344,7 +344,7 @@ function AmyHero() {
       <img
         src={asset('/assets/amy/amy-figure-birds-gems.png')}
         alt="AMY — Amy Winehouse tribute character emerging from a gift box, with a golden swallow, roses and a vinyl record"
-        className="w-full h-full max-h-[94%] object-contain object-center drop-shadow-2xl transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-[1.04]"
+        className="w-full h-full object-contain object-[50%_44%] scale-[1.24] drop-shadow-2xl transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-[1.28]"
       />
     </div>
   )
