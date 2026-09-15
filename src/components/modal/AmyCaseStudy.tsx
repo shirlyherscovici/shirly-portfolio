@@ -1,9 +1,9 @@
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Users, TrendingUp, Heart, PenTool, Palette, ExternalLink } from 'lucide-react'
 import CaseStudyHeader from './CaseStudyHeader'
 import StatStrip from '../ui/StatStrip'
 import FloatingElement from '../ui/FloatingElement'
-import { MusicNote, TreasureChest, VinylRecord } from '../ui/decor'
+import { MusicNote, TreasureChest } from '../ui/decor'
 import AmyRosterGrid from './AmyRosterGrid'
 import AmyBeforeAfterPhone from './AmyBeforeAfterPhone'
 import { useCountUp } from '../../lib/useCountUp'
@@ -92,22 +92,6 @@ function ChestBadge({ dark }: { dark: boolean }) {
  *  ~1.8s/rotation; deliberately much slower (7s) so it reads as ambience
  *  — "the campaign this case study is about is a music tribute" — rather
  *  than a literal turntable-speed gimmick. */
-function SpinningVinyl({ className = '' }: { className?: string }) {
-  const prefersReduced = useReducedMotion()
-  if (prefersReduced) {
-    return (
-      <div className={className} aria-hidden>
-        <VinylRecord size={40} className="opacity-90 drop-shadow-lg" />
-      </div>
-    )
-  }
-  return (
-    <motion.div aria-hidden className={className} animate={{ rotate: 360 }} transition={{ duration: 7, repeat: Infinity, ease: 'linear' }}>
-      <VinylRecord size={40} className="opacity-90 drop-shadow-lg" />
-    </motion.div>
-  )
-}
-
 function RingBadge({ dark }: { dark: boolean }) {
   const pct = useCountUp('+40%')
   return (
@@ -318,7 +302,6 @@ export default function AmyCaseStudy({ onClose, dark = false }: { onClose: () =>
         <div className="relative flex gap-3">
           <ChestBadge dark={dark} />
           <RingBadge dark={dark} />
-          <SpinningVinyl className="absolute -top-3 -right-2 z-10" />
         </div>
         <div className="h-[200px]">
           <AmyBeforeAfterPhone dark={dark} />
@@ -346,7 +329,6 @@ export default function AmyCaseStudy({ onClose, dark = false }: { onClose: () =>
             <div className="relative flex gap-2.5 sm:gap-3.5">
               <ChestBadge dark={dark} />
               <RingBadge dark={dark} />
-              <SpinningVinyl className="absolute -top-3 -right-2 z-10" />
             </div>
             <div className="flex-1 min-h-0">
               <AmyBeforeAfterPhone dark={dark} />

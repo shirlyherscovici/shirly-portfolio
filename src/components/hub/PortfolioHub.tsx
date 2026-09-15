@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Download, Mail, PenTool, Film, Code2, Sparkles, ArrowRight, TrendingUp, Menu, X } from 'lucide-react'
+import { Download, Mail, Linkedin, PenTool, Film, Code2, Sparkles, ArrowRight, TrendingUp, Menu, X } from 'lucide-react'
 import { AmyModule, GalgalatzModule, AiModule, MotionModule, CardArrival } from './ProjectModules'
 import HeroStage from './HeroStage'
 import type { ProjectId } from '../../types'
@@ -82,7 +82,7 @@ function Starfield() {
 // downloads the real resume file directly instead of scrolling.
 const HEADER_LINKS = [
   { label: 'Work', href: '#work' },
-  { label: 'About', href: '#top' },
+  { label: 'About', href: '#about' },
   { label: 'Contact', href: '#contact' },
 ]
 
@@ -395,6 +395,32 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
         </main>
       </div>
 
+      <section id="about" className="relative z-10 mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-10 py-8 sm:py-10 scroll-mt-20">
+        <div className="rounded-[24px] border border-white/10 bg-white/[0.035] backdrop-blur-sm px-5 py-6 sm:px-8 sm:py-7">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cine-cyan">About</p>
+          <div className="mt-2 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-white">Marketing Video &amp; Motion Designer</h2>
+            <p className="max-w-2xl text-sm leading-relaxed text-white/65">Graphic designer and motion artist creating high-impact promo, animation, visual systems and AI-driven content for broadcast and digital experiences.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" className="relative z-10 mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-10 pb-8 sm:pb-10 scroll-mt-20">
+        <div className="rounded-[28px] border border-violet-300/20 bg-gradient-to-br from-violet-500/15 via-[#111422]/65 to-cyan-400/10 px-6 py-8 sm:px-10 sm:py-10 text-center shadow-[0_0_60px_rgba(139,92,246,0.14)]">
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-cine-cyan">Contact</p>
+          <h2 className="mt-2 font-display text-3xl sm:text-4xl font-black tracking-tight text-white">GET IN TOUCH</h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-white/65">Have a project, campaign, or story worth bringing to life? Let&apos;s talk.</p>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <motion.a href="mailto:shirly3212@gmail.com" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#6d28d9] px-6 py-3 text-xs font-display font-bold uppercase tracking-wide text-white shadow-[0_0_24px_rgba(139,92,246,0.5)]">
+              <Mail size={14} /> Email Shirly
+            </motion.a>
+            <motion.a href="https://www.linkedin.com/in/shirly-herscovici-a93766278/" target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/[0.06] px-6 py-3 text-xs font-display font-bold uppercase tracking-wide text-white transition-colors hover:bg-white/[0.12]">
+              <Linkedin size={14} /> LinkedIn
+            </motion.a>
+          </div>
+        </div>
+      </section>
+
       {/* Footer — sits in normal flow AFTER the one-screen Hero+grid
           wrapper above (not squeezed into its viewport budget, matching
           the approved mockup, which doesn't fit a footer into its own
@@ -408,7 +434,7 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
           just sits on it directly now instead of laying a second, flatter
           dark panel on top). Border softened to match (was white/[0.06]) —
           a hairline, not a divider. */}
-      <footer id="contact" className="shrink-0 relative z-30 border-t border-white/[0.03] scroll-mt-20">
+      <footer className="shrink-0 relative z-30 border-t border-white/[0.03]">
         <div className="mx-auto max-w-[1440px] px-5 sm:px-8 py-4 sm:py-5 flex flex-col lg:flex-row items-center lg:items-center justify-between gap-3">
           <div className="text-center lg:text-left">
             <p className="font-display font-extrabold text-base sm:text-lg text-white tracking-tight">SHIRLY HERSCOVICI</p>

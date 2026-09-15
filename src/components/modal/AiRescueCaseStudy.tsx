@@ -273,6 +273,15 @@ export default function AiRescueCaseStudy({ onClose }: { onClose: () => void }) 
         <div className="flex justify-center">
           <div style={VIDEO_MAX_WIDTH} className="relative w-full">
             <VideoPanel wrapperRef={wrapperRef} videoRef={videoRef} playing={playing} setPlaying={setPlaying} togglePlay={togglePlay} time={time} setTime={setTime} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.85, x: -16, y: 20 }}
+              animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 20, delay: 0.35 }}
+              className="absolute top-[18%] -left-12 sm:-left-16 lg:-left-24 z-20 w-32 sm:w-40 lg:w-44 pointer-events-none hidden sm:block"
+              style={{ filter: 'drop-shadow(0 10px 18px rgba(0,0,0,0.55)) drop-shadow(0 2px 5px rgba(0,0,0,0.7))' }}
+            >
+              <img src={PILOT_SRC} alt="The rescued F-15E navigator beside the broadcast frame" className="w-full h-auto object-contain" />
+            </motion.div>
           </div>
         </div>
 
@@ -357,28 +366,6 @@ export function AiRescueBreakout() {
         />
       </motion.div>
 
-      {/* Pilot — fully opaque, foregrounded (z-20, comfortably below the
-          header's z-40 joystick badge and the z-[100] close button),
-          anchored to the LEFT side. `top-[36%]` was tuned against this
-          panel's OLD, shorter total height (back when the Hero+grid above
-          the fold was still height-locked); now that the page scrolls
-          naturally the panel is taller, and that same 36% (of the whole
-          panel's height, not just the video) pushed the pilot's own feet
-          down into the info-cards row beneath it — a real, confirmed
-          overlap, not just a close call. Pulled up (36%→20%) and sized
-          down a touch (w-56→w-48 at the sm+ breakpoint) so he stays
-          within the video's own vertical span with real clearance below,
-          checked against the actual measured card position, not just the
-          percentage math. */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.85, x: -16, y: 20 }}
-        animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 20, delay: 0.35 }}
-        className="absolute top-[20%] -left-3 sm:-left-6 z-20 w-36 sm:w-48 opacity-100 hidden sm:block"
-        style={{ filter: 'drop-shadow(0 10px 18px rgba(0,0,0,0.55)) drop-shadow(0 2px 5px rgba(0,0,0,0.7))' }}
-      >
-        <img src={PILOT_SRC} alt="The rescued F-15E navigator, breaking out of the case-study frame" className="w-full h-auto object-contain opacity-100" />
-      </motion.div>
     </>
   )
 }
