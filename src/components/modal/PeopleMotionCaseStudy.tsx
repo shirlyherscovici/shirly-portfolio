@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Play, Pause, Smartphone, Layers, Scissors, UserCircle2, Layers3, ExternalLink } from 'lucide-react'
+import { Play, Pause, Layers, Scissors, UserCircle2, Layers3, ExternalLink } from 'lucide-react'
 import CaseStudyHeader from './CaseStudyHeader'
 import FloatingElement from '../ui/FloatingElement'
 import VideoControlBar, { toggleFullscreen } from '../ui/VideoControlBar'
@@ -16,9 +16,9 @@ const POSTER_SRC = asset('/assets/motion/aca-anashim-poster.jpg')
 const FULL_VIDEO_SRC = asset('/assets/motion/aca-anashim.mp4')
 
 const SPECS = [
-  { icon: Smartphone, label: 'Responsive Format: Mobile 9:16 & Desktop 16:9' },
-  { icon: Layers, label: 'Spine2D & Rigging Pipeline' },
-  { icon: Scissors, label: 'Sprite Sheet Optimization' },
+  { icon: UserCircle2, label: 'Director' },
+  { icon: Scissors, label: 'Scriptwriter' },
+  { icon: Layers, label: 'After Effects' },
 ]
 
 /* ------------------------------------- Export ------------------------------------- */
@@ -60,8 +60,8 @@ export default function PeopleMotionCaseStudy({ onClose, dark = false }: { onClo
         onClose={onClose}
         showBreadcrumb={false}
         meta={[
-          { label: 'Role', value: 'Script, Director & Lead Motion Designer', icon: UserCircle2 },
-          { label: 'Tech Stack', value: 'AE · Illustrator · Rigging', icon: Layers3 },
+          { label: 'Contribution', value: 'Director · Scriptwriter · After Effects', icon: UserCircle2 },
+          { label: 'Craft', value: 'Motion Design', icon: Layers3 },
         ]}
       />
 
@@ -78,10 +78,13 @@ export default function PeopleMotionCaseStudy({ onClose, dark = false }: { onClo
             video. Same warm gold/rose glows and dot texture layered on
             top of it as before. */}
         <div className="absolute inset-0 overflow-hidden rounded-[28px] pointer-events-none -z-10" aria-hidden>
-          <img src={POSTER_SRC} alt="" className="absolute inset-0 w-full h-full object-cover object-top opacity-[0.3] blur-[3px] scale-110" />
-          <div className={`absolute inset-0 ${dark ? 'bg-[#160f16]/55' : 'bg-pearl-bg/70'}`} />
-          <div className="absolute -top-24 -right-16 w-72 h-72 rounded-full bg-pearl-gold/20 blur-[90px]" />
-          <div className="absolute -bottom-20 -left-10 w-80 h-80 rounded-full bg-pearl-red/10 blur-[100px]" />
+          <img src={POSTER_SRC} alt="" className="absolute -inset-16 w-[calc(100%+8rem)] h-[calc(100%+8rem)] object-cover object-center opacity-[0.54] blur-[14px] scale-110" />
+          <div className={`absolute inset-0 ${dark ? 'bg-[#160f16]/62' : 'bg-pearl-bg/72'}`} />
+          <div className="absolute inset-y-0 left-0 w-[30%] bg-gradient-to-r from-[#1b1323]/70 via-[#32172a]/32 to-transparent" />
+          <div className="absolute inset-y-0 right-0 w-[30%] bg-gradient-to-l from-[#231224]/72 via-[#4a1d32]/30 to-transparent" />
+          <div className="absolute -top-24 -right-16 w-80 h-80 rounded-full bg-orange-400/25 blur-[100px]" />
+          <div className="absolute -bottom-20 -left-10 w-96 h-96 rounded-full bg-purple-500/20 blur-[110px]" />
+          <div className="absolute top-[35%] inset-x-[15%] h-36 bg-pearl-gold/12 blur-[70px]" />
           <div
             className="absolute inset-0 opacity-[0.12]"
             style={{ backgroundImage: 'radial-gradient(rgba(176,42,58,0.5) 1px, transparent 1px)', backgroundSize: '22px 22px' }}
@@ -89,7 +92,7 @@ export default function PeopleMotionCaseStudy({ onClose, dark = false }: { onClo
         </div>
 
         <div className="relative">
-          <div style={{ maxWidth: 'calc(52vh * 16 / 9)' }} className="relative mx-auto w-full">
+          <div style={{ maxWidth: 'calc(52vh * 16 / 9)' }} className="relative mx-auto w-full drop-shadow-[0_24px_34px_rgba(10,5,16,0.58)]">
             <ComputerMonitorFrame ref={screenRef}>
               <div className="absolute inset-0 group/video">
               <video

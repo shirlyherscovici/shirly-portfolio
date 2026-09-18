@@ -40,7 +40,7 @@ function AppShell() {
     // check (HeroDiorama) are unaffected — this only fills the gap
     // everywhere else.
     <MotionConfig reducedMotion="user">
-      <PortfolioHub onOpen={setOpenId} openId={openId} />
+      <PortfolioHub onOpen={setOpenId} />
 
       <ProjectModal
         open={openId !== null}

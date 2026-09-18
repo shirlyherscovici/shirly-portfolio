@@ -194,7 +194,7 @@ function WorldCard({ id, discipline, metrics, accent, onClick, hidden, heroVisua
               through regardless of where its own bright band lands. */}
           <div className="shrink-0 rounded-xl px-2 py-1.5" style={{ background: 'linear-gradient(90deg, rgba(8, 10, 18, 0.34), rgba(8, 10, 18, 0.08))' }}>
             <h3
-              className="font-display font-extrabold leading-[1.05] text-base sm:text-lg text-white tracking-tight uppercase"
+              className="font-display font-extrabold leading-[1.05] text-lg sm:text-xl text-white tracking-tight uppercase"
               style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}
             >
               {discipline}
@@ -219,13 +219,13 @@ function WorldCard({ id, discipline, metrics, accent, onClick, hidden, heroVisua
             style={{ background: 'rgba(7, 9, 17, 0.3)', gridTemplateColumns: `repeat(${metrics.length}, minmax(0, 1fr))` }}
           >
             {metrics.map((m, i) => (
-              <div key={m.label} className={`px-1.5 py-1.5 sm:py-2 text-center ${i > 0 ? 'border-l border-white/[0.10]' : ''}`}>
-                {m.value && (
-                  <p className="font-display font-black text-[13px] sm:text-sm leading-none tabular-nums" style={{ color: '#a78bfa' }}>
-                    {m.value}
-                  </p>
-                )}
-                <p className={`text-[7.5px] sm:text-[8px] font-bold uppercase tracking-wide leading-tight ${m.value ? 'mt-1 text-white/60' : 'text-white/80'}`}>{m.label}</p>
+              <div key={`${m.value ?? 'label'}-${m.label}-${i}`} className={`h-[48px] px-1.5 py-1.5 text-center flex flex-col justify-center ${i > 0 ? 'border-l border-white/[0.10]' : ''}`}>
+                <p className="min-h-[27px] flex items-center justify-center font-display font-bold text-[13px] sm:text-sm leading-[1.1] tracking-tight text-white">
+                  {m.value ?? m.label}
+                </p>
+                <p className="min-h-[12px] mt-1 flex items-center justify-center text-[10px] sm:text-[11px] font-semibold uppercase tracking-wide leading-[1.1] text-white/70">
+                  {m.value ? m.label : ''}
+                </p>
               </div>
             ))}
           </div>
@@ -277,7 +277,7 @@ function GalgalatzHero() {
       <img
         src={asset('/assets/galgalatz/poster_galgalts.jpg')}
         alt="Galgalatz × N12 key art on a 3D neon display frame"
-        className="absolute inset-0 w-full h-full object-cover object-[50%_30%] scale-[1.12] transition-transform duration-700 group-hover:scale-[1.16]"
+        className="absolute inset-0 w-full h-full object-cover object-[36%_30%] scale-[1.16] -translate-x-[7%] transition-transform duration-700 group-hover:scale-[1.20]"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
     </div>
@@ -327,7 +327,7 @@ function AiHero() {
       <img
         src={asset('/assets/navigator/poster_navigator.jpg')}
         alt="AI Navigator project poster"
-        className="absolute inset-0 w-full h-full object-cover object-[50%_28%] scale-[1.1] opacity-95 group-hover:opacity-100 group-hover:scale-[1.14] transition-all duration-700"
+        className="absolute inset-0 w-full h-full object-cover object-[50%_62%] opacity-95 group-hover:opacity-100 group-hover:scale-[1.04] transition-all duration-700"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
     </div>
@@ -344,7 +344,7 @@ function AmyHero() {
       <img
         src={asset('/assets/amy/amy-figure-birds-gems.png')}
         alt="AMY — Amy Winehouse tribute character emerging from a gift box, with a golden swallow, roses and a vinyl record"
-        className="w-full h-full object-contain object-[50%_44%] scale-[1.24] drop-shadow-2xl transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-[1.28]"
+        className="w-full h-full object-cover object-[56%_0%] scale-[0.82] drop-shadow-2xl transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-[0.86]"
       />
     </div>
   )
@@ -358,13 +358,11 @@ export function GalgalatzModule({ onClick, hidden = false }: { onClick: () => vo
   return (
     <WorldCard
       id="galgalatz"
-      discipline="UI DESIGN"
-      // Real figures, straight from this project's own case study (its
-      // Impact/Engagement/Visuals summary row) — not invented for the card.
+      discipline="UI"
       metrics={[
-        { value: '+8.5K', label: 'Voters' },
-        { value: '700%', label: 'Mobile Boost' },
-        { value: '100%', label: 'Custom Craft' },
+        { value: 'N12 × GLGLZ', label: 'Collab' },
+        { value: '2022', label: 'Launch' },
+        { value: 'Listen + Vote', label: 'UX Experience' },
       ]}
       accent="#8b5cf6"
       onClick={onClick}
@@ -378,7 +376,7 @@ export function MotionModule({ onClick, hidden = false }: { onClick: () => void;
   return (
     <WorldCard
       id="people-motion"
-      discipline="AE"
+      discipline="MOTION"
       // This project's own case study doesn't surface one clean number —
       // label-only chips instead, same treatment as the mockup's own AI
       // card where a number isn't the point either.
@@ -410,12 +408,10 @@ export function AmyModule({ onClick, hidden = false }: { onClick: () => void; hi
     <WorldCard
       id="amy"
       discipline="GRAPHIC DESIGN"
-      // Real figures from this project's own "Campaign Impact" row in its
-      // case study — not invented for the card.
       metrics={[
-        { value: '+60K', label: 'Engaged Users' },
-        { value: '+2.3M', label: 'Impressions' },
-        { value: '+85%', label: 'Positive Feedback' },
+        { value: '120K → 240K', label: 'Audience' },
+        { value: 'Art Direction', label: '' },
+        { value: 'Visual Design', label: '' },
       ]}
       accent="#ff5fa0"
       onClick={onClick}

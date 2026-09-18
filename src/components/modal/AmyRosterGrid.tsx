@@ -18,6 +18,9 @@ interface RosterMember {
    *  every one of the 10 photos directly against its rendered crop before
    *  adding an override here — this is not a blanket change. */
   backFocus?: string
+  /** The bottom-left phone portrait uses its full source frame so its
+   *  unusually tight face does not read as an accidental zoom. */
+  backFit?: 'cover' | 'contain'
 }
 
 /** Sourced from the real /public/AMY/AMY/Before&After archive — front shows
@@ -38,7 +41,7 @@ const ROSTER: RosterMember[] = [
   { name: 'Cecilia', front: '/assets/amy/before-after/009-after.jpg', back: '/assets/amy/before-after/009-before.jpg' },
   // Same issue as Mia Zapata above — this archive photo is a very tight,
   // small headshot, and a top-crop was cutting into the chin/mouth.
-  { name: 'Alan Wilson', front: '/assets/amy/before-after/010-after.jpg', back: '/assets/amy/before-after/010-before.jpg', backFocus: 'center 30%' },
+  { name: 'Alan Wilson', front: '/assets/amy/before-after/010-after.jpg', back: '/assets/amy/before-after/010-before.jpg', backFocus: 'center 30%', backFit: 'contain' as const },
   { name: 'Kurt Cobain', front: '/assets/amy/before-after/011-after.jpg', back: '/assets/amy/before-after/011-before.jpg' },
 ].map((m) => ({ ...m, front: asset(m.front), back: m.back ? asset(m.back) : undefined }))
 
@@ -119,13 +122,10 @@ function FlipCard({ member }: { member: RosterMember }) {
             src={member.back ?? member.front}
             alt=""
             aria-hidden
-            className={`w-full h-full object-cover ${hasArchive ? '' : 'grayscale sepia contrast-125 brightness-90'}`}
+            className={`w-full h-full ${member.backFit === 'contain' ? 'object-contain' : 'object-cover'} ${hasArchive ? '' : 'grayscale sepia contrast-125 brightness-90'}`}
             style={{ objectPosition: member.backFocus ?? 'top' }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-          <span className="absolute top-1 left-1 text-[6px] font-bold uppercase tracking-widest text-pearl-gold bg-black/50 px-1 py-0.5 rounded">
-            {hasArchive ? 'Archive' : 'Vintage'}
-          </span>
         </div>
       </motion.div>
     </button>

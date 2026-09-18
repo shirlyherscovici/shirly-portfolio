@@ -6,14 +6,8 @@ import { useCanHover } from '../../lib/useCanHover'
 import { asset } from '../../lib/asset'
 import type { ProjectId } from '../../types'
 
-// A real sci-fi landing-pad render (transparent PNG, 2.25:1) — sits behind
-// the character's feet so it reads as something the character is standing
-// on, not floating in empty space (explicit request). Positioned as a %
-// of the stage rather than the character's own box, since the character
-// itself is a plain absolutely-centered sprite with no exposed "feet
-// coordinate" to hook into — tuned by eye against the character's actual
-// rendered stance (checked via screenshot, not just left at a guess).
-const PLATFORM_SRC = asset('/assets/hub/platform.png')
+const PLATFORM_SRC = asset('/assets/hero/hero-platform.png.png')
+const CONTACT_SHADOW_SRC = asset('/assets/hero/hero-contact-shadow.png.png')
 
 // Character:stage ratio — was 0.56, then 0.7, now 0.85 (explicit direction,
 // re-checked against mockup.png: Amy's absolute on-screen height there is
@@ -97,18 +91,19 @@ export default function HeroStage({ onOpen }: { onOpen: (id: ProjectId) => void 
   // Worlds still get the OS-respecting value below, untouched.
   const characterInteractive = canHover
   const { character: characterSize, stage: stageSize } = useHeroSizes()
-
   const stageRef = useRef<HTMLDivElement>(null)
   const [pointerX, setPointerX] = useState<number | null>(null)
   const [pointerY, setPointerY] = useState<number | null>(null)
+  const [gazeTarget, setGazeTarget] = useState<{ x: number; y: number } | null>(null)
 
-  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!characterInteractive) return
+  const handleMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!characterInteractive || gazeTarget) return
     const rect = stageRef.current?.getBoundingClientRect()
     if (!rect) return
-    setPointerX(Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width)))
-    setPointerY(Math.min(1, Math.max(0, (e.clientY - rect.top) / rect.height)))
+    setPointerX(Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width)))
+    setPointerY(Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height)))
   }
+
   const handleLeave = () => {
     if (!characterInteractive) return
     setPointerX(null)
@@ -123,45 +118,35 @@ export default function HeroStage({ onOpen }: { onOpen: (id: ProjectId) => void 
       className="relative w-full aspect-square"
       style={{ maxWidth: stageSize }}
     >
-      {/* Platform — behind the character (earlier in DOM order, no
-          explicit z-index needed since both are plain absolute children
-          of this same stack). pointer-events-none: it's set dressing, not
-          a World icon — clicks must pass through to whatever's beneath.
-          Deliberately wider than the stage box itself (was 96%, capped to
-          the stage's own width) — mockup.png's platform reads as a big,
-          wide turntable Amy stands on, not a disc sized to match her own
-          footprint; letting it overflow the (otherwise-square) stage
-          horizontally is what gets that same "she's standing on something
-          much bigger than her" read without inflating the stage box
-          itself (which would eat into the text column's own room). The
-          hero section's own horizontal padding still has enough margin on
-          both sides at every breakpoint this was checked against for the
-          overflow not to visibly clip. */}
-      <div
-        aria-hidden
-        className="absolute left-1/2 top-[82%] w-[96%] h-[16%] -translate-x-1/2 -translate-y-1/2 rounded-[50%] pointer-events-none z-10"
-        style={{ background: 'radial-gradient(ellipse, rgba(125, 103, 207, 0.2) 0%, rgba(35, 29, 68, 0.18) 42%, transparent 74%)', filter: 'blur(16px)' }}
-      />
+      {/* Fixed hero composition: the platform and shadow never receive
+          pointer-driven transforms; only the mascot changes direction. */}
       <img
         src={PLATFORM_SRC}
         alt=""
         aria-hidden
         className="absolute left-1/2 pointer-events-none select-none"
-        style={{ top: '82%', width: '150%', transform: 'translate(-50%, -50%)', zIndex: 10, filter: 'drop-shadow(0 18px 22px rgba(0,0,0,0.45))' }}
+        style={{ top: '98%', width: '160%', transform: 'translate(-50%, -50%)', zIndex: 10 }}
         draggable={false}
       />
-      <div aria-hidden className="absolute left-1/2 top-[76%] z-20 h-[4%] w-[28%] -translate-x-1/2 -translate-y-1/2 rounded-[50%] pointer-events-none" style={{ background: 'radial-gradient(ellipse, rgba(5,4,14,0.7), transparent 72%)', filter: 'blur(5px)' }} />
-      <div className="absolute inset-0 z-20 flex items-center justify-center">
+      <img
+        src={CONTACT_SHADOW_SRC}
+        alt=""
+        aria-hidden
+        className="absolute left-1/2 pointer-events-none select-none"
+        style={{ top: '90%', width: '140%', transform: 'translate(-50%, -50%)', zIndex: 20, opacity: 0.78 }}
+        draggable={false}
+      />
+      <div className="absolute inset-x-0 bottom-[4%] z-20 flex items-end justify-center pointer-events-none">
         <HeroCharacter
-          pointerX={pointerX}
-          pointerY={pointerY}
+          pointerX={gazeTarget?.x ?? pointerX}
+          pointerY={gazeTarget?.y ?? pointerY}
           reducedMotion={!!prefersReduced}
           interactive={characterInteractive}
           size={characterSize}
         />
       </div>
       <div className="absolute inset-0 z-30 pointer-events-auto">
-        <HeroWorlds reducedMotion={!!prefersReduced} canHover={canHover} onOpen={onOpen} />
+        <HeroWorlds reducedMotion={!!prefersReduced} canHover={canHover} onOpen={onOpen} onGazeTarget={setGazeTarget} />
       </div>
     </div>
   )

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Download, Mail, Linkedin, PenTool, Film, Code2, Sparkles, ArrowRight, TrendingUp, Menu, X } from 'lucide-react'
 import { AmyModule, GalgalatzModule, AiModule, MotionModule, CardArrival } from './ProjectModules'
@@ -8,10 +8,10 @@ import { asset } from '../../lib/asset'
 import { PROFESSIONAL_TITLE } from '../../lib/siteMeta'
 
 const NAV_ITEMS = [
-  { label: 'Design Strategy', icon: PenTool, glow: 'rgba(201,161,90,0.6)' },
-  { label: 'Motion Development', icon: Film, glow: 'rgba(255,95,160,0.6)' },
-  { label: 'Front End Development', icon: Code2, glow: 'rgba(79,216,255,0.6)' },
-  { label: 'AI Creation', icon: Sparkles, glow: 'rgba(185,140,255,0.6)' },
+  { label: 'Visual Design', icon: PenTool, glow: 'rgba(201,161,90,0.6)' },
+  { label: 'Motion Design', icon: Film, glow: 'rgba(255,95,160,0.6)' },
+  { label: 'UI & Interactive', icon: Code2, glow: 'rgba(79,216,255,0.6)' },
+  { label: 'AI Creative', icon: Sparkles, glow: 'rgba(185,140,255,0.6)' },
 ]
 
 // A fixed, deterministic scatter of small twinkling stars — spans the
@@ -88,14 +88,9 @@ const HEADER_LINKS = [
 
 interface PortfolioHubProps {
   onOpen: (id: ProjectId) => void
-  /** The project whose modal is currently open, if any — its own card is
-   *  hidden (not unmounted) while open, so Framer Motion's shared
-   *  `layoutId` can animate the card smoothly morphing into the modal
-   *  panel instead of a generic dialog popping up disconnected from it. */
-  openId: ProjectId | null
 }
 
-export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
+function PortfolioHub({ onOpen }: PortfolioHubProps) {
   // Mobile nav — the same three HEADER_LINKS the desktop header already
   // shows, just reachable below the md breakpoint where that nav is
   // hidden. Closes itself after a link is followed since each link is a
@@ -376,20 +371,20 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
             entirely. */}
         <main
           id="work"
-          className="mx-auto max-w-[1440px] w-full px-4 sm:px-6 lg:px-10 pb-8 sm:pb-10 lg:pb-12 shrink-0 lg:flex lg:items-center scroll-mt-20"
+          className="relative z-20 mx-auto max-w-[1440px] w-full px-4 sm:px-6 lg:px-10 pb-8 sm:pb-10 lg:pb-12 shrink-0 lg:-mt-8 lg:flex lg:items-center scroll-mt-20"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-5 lg:w-full">
             <CardArrival index={0} accent="#8b5cf6">
-              <GalgalatzModule onClick={() => onOpen('galgalatz')} hidden={openId === 'galgalatz'} />
+              <GalgalatzModule onClick={() => onOpen('galgalatz')} />
             </CardArrival>
             <CardArrival index={1} accent="#ffb454">
-              <MotionModule onClick={() => onOpen('people-motion')} hidden={openId === 'people-motion'} />
+              <MotionModule onClick={() => onOpen('people-motion')} />
             </CardArrival>
             <CardArrival index={2} accent="#4fd8ff">
-              <AiModule onClick={() => onOpen('ai-rescue')} hidden={openId === 'ai-rescue'} />
+              <AiModule onClick={() => onOpen('ai-rescue')} />
             </CardArrival>
             <CardArrival index={3} accent="#ff5fa0">
-              <AmyModule onClick={() => onOpen('amy')} hidden={openId === 'amy'} />
+              <AmyModule onClick={() => onOpen('amy')} />
             </CardArrival>
           </div>
         </main>
@@ -399,8 +394,8 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
         <div className="rounded-[24px] border border-white/10 bg-white/[0.035] backdrop-blur-sm px-5 py-6 sm:px-8 sm:py-7">
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cine-cyan">About</p>
           <div className="mt-2 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-            <h2 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-white">Marketing Video &amp; Motion Designer</h2>
-            <p className="max-w-2xl text-sm leading-relaxed text-white/65">Graphic designer and motion artist creating high-impact promo, animation, visual systems and AI-driven content for broadcast and digital experiences.</p>
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-white">Visual storytelling across motion, design &amp; emerging media</h2>
+            <p className="max-w-2xl text-sm leading-relaxed text-white/65">Visual &amp; Motion Designer with 8+ years of experience across broadcast, campaigns, interactive experiences and AI-assisted visual production.<br /><br />Currently at N12 / News 12, creating fast-turnaround motion, promo graphics, visual systems and editorial content for prime-time and digital platforms.</p>
           </div>
         </div>
       </section>
@@ -414,7 +409,7 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
             <motion.a href="mailto:shirly3212@gmail.com" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#6d28d9] px-6 py-3 text-xs font-display font-bold uppercase tracking-wide text-white shadow-[0_0_24px_rgba(139,92,246,0.5)]">
               <Mail size={14} /> Email Shirly
             </motion.a>
-            <motion.a href="https://www.linkedin.com/in/shirly-herscovici-a93766278/" target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/[0.06] px-6 py-3 text-xs font-display font-bold uppercase tracking-wide text-white transition-colors hover:bg-white/[0.12]">
+            <motion.a href="https://www.linkedin.com/in/shirly-herscovici/" target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/[0.06] px-6 py-3 text-xs font-display font-bold uppercase tracking-wide text-white transition-colors hover:bg-white/[0.12]">
               <Linkedin size={14} /> LinkedIn
             </motion.a>
           </div>
@@ -461,10 +456,12 @@ export default function PortfolioHub({ onOpen, openId }: PortfolioHubProps) {
             whileTap={{ scale: 0.97 }}
             className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#6d28d9] text-white text-xs font-display font-bold uppercase tracking-wide shadow-[0_0_24px_rgba(139,92,246,0.55),0_0_50px_rgba(139,92,246,0.25)] shrink-0"
           >
-            <Mail size={13} /> Let&apos;s Create Magic <span aria-hidden>→</span>
+            <Mail size={13} /> Let&apos;s Work Together <span aria-hidden>→</span>
           </motion.a>
         </div>
       </footer>
     </div>
   )
 }
+
+export default memo(PortfolioHub)

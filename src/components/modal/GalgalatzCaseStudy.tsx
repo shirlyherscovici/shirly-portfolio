@@ -177,15 +177,15 @@ function SprocketRow() {
 
 function FilmStrip({ active, onSelect }: { active: number; onSelect: (i: number) => void }) {
   return (
-    <div className="relative rounded-2xl bg-black/40 backdrop-blur-xl border-2 border-white/20 shadow-cine-lg py-2.5 overflow-hidden">
+    <div className="relative h-full rounded-2xl bg-black/40 backdrop-blur-xl border-2 border-white/20 shadow-cine-lg py-2.5 overflow-hidden flex flex-col">
       {/* Transparent 35mm film-strip border — perforation rows top & bottom */}
       <SprocketRow />
       {/* Grid, not a horizontal-scroll row — in the wide shell's two-column
           layout this strip lives in a narrower side column, where 6 items
           in one scrolling row would just hide most of them off-screen.
           A 2-column grid keeps every chapter visible without scrolling. */}
-      <div className="my-2.5 px-3">
-        <div className="grid grid-cols-2 gap-2.5">
+      <div className="my-2.5 px-3 flex-1">
+        <div className="grid h-full grid-cols-2 gap-2.5">
           {FRAMES.map((f, i) => (
             <button
               key={f.key}
@@ -205,7 +205,7 @@ function FilmStrip({ active, onSelect }: { active: number; onSelect: (i: number)
                   invented copy, not real project content; the selection
                   ring plus each asset's own on-screen text already
                   identify it. */}
-              <img src={f.filmstripSrc} alt="" aria-hidden className="w-full aspect-square object-cover bg-black/30" />
+              <img src={f.filmstripSrc} alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover object-center bg-black/30" />
             </button>
           ))}
         </div>
@@ -221,7 +221,11 @@ export default function GalgalatzCaseStudy({ onClose }: { onClose: () => void })
   const [active, setActive] = useState(0)
 
   return (
-    <div className="relative">
+    <div className="relative isolate overflow-hidden">
+      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden>
+        <img src={ASSETS.neonBox} alt="" className="absolute inset-0 h-full w-full scale-125 object-cover object-center opacity-[0.14] blur-[22px]" />
+        <div className="absolute inset-0 bg-black/65" />
+      </div>
       <CaseStudyHeader
         id="modal-galgalatz-title"
         stageLabel={PROJECT_NUMBER.galgalatz}
@@ -255,7 +259,7 @@ export default function GalgalatzCaseStudy({ onClose }: { onClose: () => void })
             { k: 'Challenge', v: 'A cluttered, low-engagement voting flow.' },
             { k: 'UX Idea', v: 'Guide users discover → listen → vote.' },
             { k: 'Execution', v: 'iPhone-first voting UI, real content.' },
-            { k: 'Outcome', v: '+8.5K voters, +700% mobile boost.' },
+            { k: 'Outcome', v: 'Music From The Screen — listen, discover and vote.' },
           ].map((s, i, arr) => (
             <span key={s.k} className="flex items-baseline gap-2">
               <span>
@@ -284,7 +288,7 @@ export default function GalgalatzCaseStudy({ onClose }: { onClose: () => void })
             and phone grow to fill whatever height the film strip needs,
             landing them all visually aligned instead of the scene sitting
             shorter than the strip beside it. */}
-        <div className="lg:grid lg:grid-cols-[1.3fr_1fr] lg:gap-6">
+        <div className="lg:grid lg:h-[520px] lg:grid-cols-[1.3fr_1fr] lg:gap-6">
         <div className="lg:h-full lg:flex lg:flex-col">
         {/* Fixed-aspect artboard (not flex-driven sizing) — cabinet and
             phone zones positioned at percentages pixel-measured directly
@@ -300,7 +304,7 @@ export default function GalgalatzCaseStudy({ onClose }: { onClose: () => void })
             width-driven below lg, where there's no second column to
             match. */}
         <div className="relative w-full max-w-[520px] mx-auto lg:mx-0 lg:w-auto lg:max-w-none lg:h-full" style={{ aspectRatio: '765 / 680' }}>
-          <div className="absolute inset-y-0 left-0" style={{ width: '50%' }}>
+          <div className="absolute left-0" style={{ width: '52%', top: '6%', bottom: '6%' }}>
             <GlassDisplayCase highlighted={active === 0} />
           </div>
 
@@ -319,7 +323,7 @@ export default function GalgalatzCaseStudy({ onClose }: { onClose: () => void })
               is fixed, so it only grows by growing WIDTH; this now reaches
               close to the cabinet's own full height instead of visibly
               stopping short of it. */}
-          <div className="absolute" style={{ left: '60%', right: '0%', top: '0%', bottom: '0%' }}>
+          <div className="absolute" style={{ left: '57%', right: '0%', top: '6%', bottom: '6%' }}>
             {/* Plain block wrapper, NOT flex — a flex row + an
                 aspect-ratio child with width:100% was resolving the
                 child to roughly half the intended size (a real
@@ -376,24 +380,6 @@ export default function GalgalatzCaseStudy({ onClose }: { onClose: () => void })
         </div>
       </div>
 
-      {/* Mockup's bottom bar is plain "LABEL: value" text triplets in one
-          bordered pill — not the icon+big-number StatStrip used elsewhere.
-          Matched exactly (down to reusing the same label/value type scale
-          as the header's own inline meta line) rather than the generic
-          stat-block component. */}
-      <div className="px-5 sm:px-8 py-4 border-t border-white/10">
-        <div className="rounded-2xl glass-cine-soft px-4 py-3.5 flex flex-wrap justify-center gap-x-6 gap-y-1.5 text-[11px] sm:text-xs text-cine-sub">
-          {[
-            { label: 'Impact', value: '+8.5K Voters' },
-            { label: 'Engagement', value: '700% Mobile Boost' },
-            { label: 'Visuals', value: '100% Custom Craft' },
-          ].map((m) => (
-            <p key={m.label}>
-              <span className="font-bold text-white">{m.label}:</span> {m.value}
-            </p>
-          ))}
-        </div>
-      </div>
     </div>
   )
 }

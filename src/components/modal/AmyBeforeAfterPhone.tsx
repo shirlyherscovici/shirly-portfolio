@@ -58,7 +58,6 @@ export default function AmyBeforeAfterPhone({ dark = false }: { dark?: boolean }
         </div>
       </div>
 
-      <p className={`text-center mt-2 text-[9.5px] italic ${dark ? 'text-white/60' : 'text-pearl-sub/80'}`}>From raw archive to iconic game-ready art.</p>
     </div>
   )
 }

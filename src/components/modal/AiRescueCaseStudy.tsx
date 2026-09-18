@@ -196,9 +196,9 @@ function VideoPanel({
 /* --------------------------------------- Info cards --------------------------------------- */
 
 const INFO_CARDS = [
-  { icon: Zap, title: 'Rapid Broadcast Delivery', body: 'Conceived, directed & delivered under live news deadline pressure.' },
-  { icon: Eye, title: 'Tactical Visual Accuracy', body: 'Strict adherence to real-world geographic and military assets (F-15E, rocky terrain).' },
-  { icon: Users2, title: 'Scene & Character Control', body: 'Maintained visual coherence & pilot anonymity across 20+ generated scenes.' },
+  { icon: Zap, title: 'Prime-Time Speed', body: 'Rapid script, frame creation and animation built under a live-news deadline.' },
+  { icon: Eye, title: 'Visual Accuracy', body: 'Event-specific aircraft, Iranian desert environment and non-identifiable U.S. soldiers.' },
+  { icon: Users2, title: 'Continuity Control', body: 'Consistent pilot, characters and environments across the rescue sequence.' },
 ]
 
 /* ------------------------------------------ Export ------------------------------------------ */
@@ -230,13 +230,13 @@ export default function AiRescueCaseStudy({ onClose }: { onClose: () => void }) 
         id="modal-ai-title"
         stageLabel={PROJECT_NUMBER['ai-rescue']}
         title="AI CINEMATIC PIPELINE: PILOT RESCUE"
-        supportLabel="Prime-Time News Broadcast (High-Pressure Delivery)"
+        supportLabel="Prime-Time News · Rapid AI Cinematic Delivery"
         theme="dark"
         onClose={onClose}
         showBreadcrumb={false}
         meta={[
-          { label: 'Role', value: 'AI Director, Prompt Engineer, Compositor' },
-          { label: 'Tech Stack', value: 'Midjourney · Runway Gen-2 · Luma AI' },
+          { label: 'Role', value: 'AI Director · Script / Frame Design · Compositing' },
+          { label: 'Tech Stack', value: 'Flow · GPT' },
         ]}
       />
 
@@ -250,9 +250,10 @@ export default function AiRescueCaseStudy({ onClose }: { onClose: () => void }) 
             stronger, and a third, wider ambient wash was added across the
             full panel so the edges don't fall flat to near-black beside
             the video. */}
-        <div className="absolute inset-0 overflow-hidden rounded-[28px] pointer-events-none -z-10" aria-hidden>
-          <img src={asset('/assets/navigator/poster_navigator.jpg')} alt="" className="absolute inset-0 h-full w-full scale-110 object-cover object-center opacity-[0.16] blur-[8px]" />
-          <div className="absolute inset-0 bg-[#090a16]/70" />
+        <div className="absolute inset-0 z-0 overflow-hidden rounded-[28px] pointer-events-none" aria-hidden>
+          <img src={VIDEO_POSTER_SRC} alt="" className="absolute -inset-12 h-[calc(100%+6rem)] w-[calc(100%+6rem)] object-cover object-center opacity-[0.46] blur-[22px]" />
+          <img src={AIRPLANE_SRC} alt="" className="absolute -right-20 top-[8%] w-[70%] opacity-[0.18] blur-[2px] rotate-[-8deg]" />
+          <div className="absolute inset-0 bg-[#070a14]/72" />
           <div
             className="absolute inset-0"
             style={{ background: 'radial-gradient(ellipse 90% 75% at 50% 40%, rgba(139,92,246,0.14), transparent 78%)' }}
@@ -261,10 +262,11 @@ export default function AiRescueCaseStudy({ onClose }: { onClose: () => void }) 
             className="absolute inset-0"
             style={{ background: 'radial-gradient(ellipse 65% 55% at 50% 32%, rgba(79,216,255,0.18), transparent 72%)' }}
           />
-          <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full bg-cine-cyan/20 blur-[110px]" />
-          <div className="absolute -bottom-20 -right-10 w-96 h-96 rounded-full bg-cine-magenta/16 blur-[120px]" />
+          <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full bg-cine-cyan/26 blur-[110px]" />
+          <div className="absolute -bottom-20 -right-10 w-96 h-96 rounded-full bg-cine-magenta/22 blur-[120px]" />
+          <div className="absolute top-[24%] left-[18%] w-[64%] h-[42%] rounded-full bg-orange-500/15 blur-[90px]" />
           <div
-            className="absolute inset-0 opacity-[0.08]"
+            className="absolute inset-0 opacity-[0.1]"
             style={{ backgroundImage: 'radial-gradient(rgba(190,205,255,0.6) 1px, transparent 1px)', backgroundSize: '26px 26px' }}
           />
         </div>
@@ -272,7 +274,7 @@ export default function AiRescueCaseStudy({ onClose }: { onClose: () => void }) 
         {/* Shares VIDEO_MAX_WIDTH with the video panel itself (rather than
             an inline-block shrink-wrap, which created a circular width
             dependency and collapsed the video to 0px). */}
-        <div className="flex justify-center">
+        <div className="relative z-10 flex justify-center">
           <div style={VIDEO_MAX_WIDTH} className="relative w-full">
             <VideoPanel wrapperRef={wrapperRef} videoRef={videoRef} playing={playing} setPlaying={setPlaying} togglePlay={togglePlay} time={time} setTime={setTime} />
             <motion.div
@@ -293,7 +295,7 @@ export default function AiRescueCaseStudy({ onClose }: { onClose: () => void }) 
             exactly the kind of overlay native/fullscreen video rendering
             can swallow clicks for). Plain in-flow button, always
             clickable regardless of the video's own fullscreen state. */}
-        <div className="mt-4 flex justify-center">
+        <div className="relative z-10 mt-4 flex justify-center">
           <button
             type="button"
             onClick={togglePlay}
@@ -306,7 +308,7 @@ export default function AiRescueCaseStudy({ onClose }: { onClose: () => void }) 
           </button>
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-3.5 mt-8 sm:mt-7">
+        <div className="relative z-10 grid sm:grid-cols-3 gap-3.5 mt-8 sm:mt-7">
           {INFO_CARDS.map(({ icon: Icon, title, body }) => (
             <div key={title} className="rounded-2xl glass-cine-soft p-4">
               <Icon size={16} className="text-cine-cyan mb-2" />
@@ -314,6 +316,9 @@ export default function AiRescueCaseStudy({ onClose }: { onClose: () => void }) 
               <p className="text-[11px] text-cine-sub mt-1 leading-snug">{body}</p>
             </div>
           ))}
+        </div>
+        <div className="relative z-10 mt-4 flex flex-wrap justify-center gap-x-2 gap-y-1 text-[10px] font-bold uppercase tracking-[0.12em] text-cine-cyan/85">
+          <span>Flash Script</span><span>→</span><span>Frame Design</span><span>→</span><span>AI Visuals</span><span>→</span><span>Animation</span><span>→</span><span>Prime-Time Delivery</span>
         </div>
       </div>
     </div>

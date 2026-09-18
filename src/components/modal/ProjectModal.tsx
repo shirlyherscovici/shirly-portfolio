@@ -72,7 +72,7 @@ export default function ProjectModal({
   const previouslyFocusedRef = useRef<HTMLElement | null>(null)
 
   // Whether the panel is actually in the DOM — deliberately NOT the same
-  // thing as `open`. On close we still want the fade/scale-down to play,
+  // thing as `open`. On close we still want the fade/translate exit to play,
   // but removal itself is on a plain timer, not gated on Framer Motion
   // ever reporting the exit animation "complete". That completion signal
   // depends on requestAnimationFrame, which some hosting contexts (a
@@ -90,15 +90,15 @@ export default function ProjectModal({
       setMounted(true)
       return
     }
-    const timer = setTimeout(() => setMounted(false), 320)
+    const timer = setTimeout(() => setMounted(false), 220)
     return () => clearTimeout(timer)
   }, [open])
 
   useEffect(() => {
-    // `mounted` lags `open` by one render on open (see above) — the panel,
-    // and therefore `panelRef.current`, doesn't exist in the DOM until
-    // `mounted` catches up, so this has to wait for both.
-    if (!open || !mounted) return
+    // Keep locking/inertness through the short exit. Releasing it as soon
+    // as `open` becomes false lets the page repaint underneath a still
+    // visible backdrop, which is perceived as a flash on close.
+    if (!mounted) return
 
     previouslyFocusedRef.current = document.activeElement as HTMLElement | null
 
@@ -175,42 +175,54 @@ export default function ProjectModal({
 
     document.addEventListener('keydown', onKey)
     const prevOverflow = document.body.style.overflow
+    const prevPaddingRight = document.body.style.paddingRight
+    // Hiding the document scrollbar otherwise widens the page by its
+    // gutter (10px with this site's scrollbar styling). That shifts the
+    // whole homepage sideways under the modal, which reads as a flicker on
+    // every open/close. Preserve the existing content width while locked.
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
+    if (scrollbarWidth > 0) {
+      const currentPadding = Number.parseFloat(window.getComputedStyle(document.body).paddingRight) || 0
+      document.body.style.paddingRight = `${currentPadding + scrollbarWidth}px`
+    }
     document.body.style.overflow = 'hidden'
     return () => {
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = prevOverflow
+      document.body.style.paddingRight = prevPaddingRight
       invertedSiblings.forEach((el) => el.removeAttribute('inert'))
       previouslyFocusedRef.current?.focus?.()
     }
-  }, [open, mounted, onClose])
+  }, [mounted])
 
   return (
-    // This outer shell is ALWAYS mounted (not conditionally rendered via
-    // `open &&`), and its pointer-events are driven directly from the live
-    // `open` prop — not from Framer's own exit-animation completion — so
-    // even during the brief fade-out window (see `mounted` above) nothing
-    // here can intercept a click meant for the page behind it.
-    <div
-      className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto p-3 sm:p-6 lg:p-10"
-      style={{ pointerEvents: open ? 'auto' : 'none' }}
-      aria-hidden={!open}
-    >
-      {/* Backdrop — a dark frosted glass, but lighter than before (was
-          /60 + blur-2xl, which compounded with the panel's own tint below
-          to read as fully opaque instead of "homepage pushed behind in
-          blur"). Now genuinely translucent — the homepage is still
-          visibly, if softly, there behind every case study. Its own
-          opacity is driven directly from `open` (not an exit animation),
-          so it can't get stuck either. */}
-      <motion.div
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-lg"
-        onClick={onClose}
-        aria-hidden
-        animate={{ opacity: open ? 1 : 0 }}
-        transition={{ duration: 0.25 }}
-      />
-
+    <>
+      {/* Kept outside the scroll layer. The tint and blur are never part
+          of scrolling content, so they cover the viewport at every scroll
+          position in every case study. */}
       {mounted && (
+        <motion.div
+          className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-lg"
+          aria-hidden
+          initial={prefersReduced ? false : { opacity: 0 }}
+          animate={{ opacity: open ? 1 : 0 }}
+          transition={{ duration: prefersReduced ? 0 : 0.18, ease: 'easeOut' }}
+          style={{ pointerEvents: 'none', willChange: 'opacity' }}
+        />
+      )}
+
+      {/* This is the only scroll container. It sits above the fixed
+          backdrop and closes on its own empty area without ever moving the
+          backdrop with it. */}
+      <div
+        className="fixed inset-0 z-[101] flex items-start justify-center overflow-y-auto p-3 sm:p-6 lg:p-10"
+        style={{ pointerEvents: open ? 'auto' : 'none' }}
+        aria-hidden={!open}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) onClose()
+        }}
+      >
+        {mounted && (
           <motion.div
             ref={panelRef}
             tabIndex={-1}
@@ -226,13 +238,14 @@ export default function ProjectModal({
             // skips the entrance reconciliation entirely, sidestepping the
             // stuck state — the same fix already applied elsewhere in this
             // codebase for the identical failure mode.
-            initial={prefersReduced ? false : { opacity: 0, scale: 0.95, y: 12 }}
-            animate={{ opacity: open ? 1 : 0, scale: open ? 1 : 0.96, y: open ? 0 : 8 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 32 }}
+            initial={prefersReduced ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: open ? 1 : 0, y: open ? 0 : 8 }}
+            transition={{ duration: prefersReduced ? 0 : 0.18, ease: 'easeOut' }}
             style={{
               isolation: 'isolate',
               boxShadow: '0 0 50px rgba(0,0,0,0.5), 0 40px 90px -20px rgba(0,0,0,0.6)',
               pointerEvents: open ? 'auto' : 'none',
+              willChange: 'transform, opacity',
             }}
             className={`relative w-full ${maxWidthClass} my-auto rounded-[28px] sm:rounded-[32px] border outline-none ${
               theme === 'light' ? 'bg-white/25 backdrop-blur-xl border-white/60' : 'bg-slate-900/40 backdrop-blur-xl border-white/15'
@@ -344,7 +357,8 @@ export default function ProjectModal({
 
             {breakout}
           </motion.div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   )
 }

@@ -35,7 +35,7 @@ export const WORLDS: World[] = [
     // attention. Positions unchanged — still clear of the character's own
     // larger opaque sprite (see HeroStage's CHARACTER_RATIO) at every
     // stage tier.
-    size: 104,
+    size: 75,
     delay: 0,
     duration: 4.6,
   },
@@ -47,7 +47,7 @@ export const WORLDS: World[] = [
     accent: '#c084fc',
     x: 91,
     y: 6,
-    size: 96,
+    size: 69,
     delay: 0.9,
     duration: 5.2,
   },
@@ -59,7 +59,7 @@ export const WORLDS: World[] = [
     accent: '#4fd8ff',
     x: 95,
     y: 74,
-    size: 114,
+    size: 82,
     delay: 0.4,
     duration: 4.9,
   },
@@ -71,13 +71,13 @@ export const WORLDS: World[] = [
     accent: '#ff5fa0',
     x: 7,
     y: 74,
-    size: 110,
+    size: 79,
     delay: 1.3,
     duration: 5.1,
   },
 ]
 
-function WorldOrb({ world, reducedMotion, canHover, onOpen }: { world: World; reducedMotion: boolean; canHover: boolean; onOpen: (id: ProjectId) => void }) {
+function WorldOrb({ world, reducedMotion, canHover, onOpen, onGazeTarget }: { world: World; reducedMotion: boolean; canHover: boolean; onOpen: (id: ProjectId) => void; onGazeTarget?: (target: { x: number; y: number } | null) => void }) {
   const ref = useRef<HTMLButtonElement>(null)
   const mx = useMotionValue(0.5)
   const my = useMotionValue(0.5)
@@ -119,7 +119,11 @@ function WorldOrb({ world, reducedMotion, canHover, onOpen }: { world: World; re
         type="button"
         onClick={() => onOpen(world.id)}
         onMouseMove={handleMove}
-        onMouseLeave={handleLeave}
+        onMouseLeave={() => {
+          handleLeave()
+          if (world.id === 'galgalatz') onGazeTarget?.(null)
+        }}
+        onMouseEnter={() => world.id === 'galgalatz' && onGazeTarget?.({ x: 0.1, y: 0.12 })}
         aria-label={`${world.label} — ${world.name}. Open case study.`}
         className="group relative block w-full h-full p-3 -m-3 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white/70"
         style={{ perspective: 500 }}
@@ -163,11 +167,11 @@ function WorldOrb({ world, reducedMotion, canHover, onOpen }: { world: World; re
   )
 }
 
-export default function HeroWorlds({ reducedMotion, canHover, onOpen }: { reducedMotion: boolean; canHover: boolean; onOpen: (id: ProjectId) => void }) {
+export default function HeroWorlds({ reducedMotion, canHover, onOpen, onGazeTarget }: { reducedMotion: boolean; canHover: boolean; onOpen: (id: ProjectId) => void; onGazeTarget?: (target: { x: number; y: number } | null) => void }) {
   return (
     <>
       {WORLDS.map((w) => (
-        <WorldOrb key={w.id} world={w} reducedMotion={reducedMotion} canHover={canHover} onOpen={onOpen} />
+        <WorldOrb key={w.id} world={w} reducedMotion={reducedMotion} canHover={canHover} onOpen={onOpen} onGazeTarget={onGazeTarget} />
       ))}
     </>
   )

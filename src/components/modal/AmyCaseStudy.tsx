@@ -195,9 +195,9 @@ function PhoneRosterZone() {
 /* ---------------------------------- Export ---------------------------------- */
 
 export default function AmyCaseStudy({ onClose, dark = false }: { onClose: () => void; dark?: boolean }) {
-  const engaged = useCountUp('+60K')
-  const impressions = useCountUp('+2.3M')
-  const feedback = useCountUp('+85%')
+  const engaged = '120K → 240K'
+  const impressions = 'Art Direction'
+  const feedback = 'Visual Design'
 
   return (
     // Warm, semi-transparent pink-tinted glass in light mode; a deep
@@ -238,9 +238,9 @@ export default function AmyCaseStudy({ onClose, dark = false }: { onClose: () =>
           theme="light"
           labelOnDark={dark}
           stats={[
-            { icon: <Users size={13} />, value: engaged, label: 'Engaged Users' },
-            { icon: <TrendingUp size={13} />, value: impressions, label: 'Impressions' },
-            { icon: <Heart size={13} />, value: feedback, label: 'Positive Feedback' },
+            { icon: <Users size={13} />, value: engaged, label: 'Audience' },
+            { icon: <TrendingUp size={13} />, value: impressions, label: 'Role' },
+            { icon: <Heart size={13} />, value: feedback, label: 'Role' },
           ]}
         />
         <div className={`w-px h-6 hidden sm:block ${dark ? 'bg-white/15' : 'bg-pearl-ink/15'}`} />
@@ -249,15 +249,15 @@ export default function AmyCaseStudy({ onClose, dark = false }: { onClose: () =>
           <div className={`flex items-center gap-3 ${dark ? 'text-white/90' : 'text-pearl-ink'}`}>
             <span className="flex items-center gap-1">
               <PenTool size={14} />
-              <span className={`text-[10px] font-bold uppercase tracking-wide ${dark ? 'text-white/80' : 'text-pearl-ink/80'}`}>Art Direction</span>
+              <span className={`text-[10px] font-bold uppercase tracking-wide ${dark ? 'text-white/80' : 'text-pearl-ink/80'}`} style={{ WebkitTextStroke: '0.25px rgba(255,255,255,0.55)', textShadow: '0 0 4px rgba(255,255,255,0.15)' }}>Art Direction</span>
             </span>
             <span className="flex items-center gap-1">
               <Palette size={14} />
-              <span className={`text-[10px] font-bold uppercase tracking-wide ${dark ? 'text-white/80' : 'text-pearl-ink/80'}`}>Visual Design</span>
+              <span className={`text-[10px] font-bold uppercase tracking-wide ${dark ? 'text-white/80' : 'text-pearl-ink/80'}`} style={{ WebkitTextStroke: '0.25px rgba(255,255,255,0.55)', textShadow: '0 0 4px rgba(255,255,255,0.15)' }}>Visual Design</span>
             </span>
             <span className="flex items-center gap-1">
               <img src={asset('/assets/amy/arrow-amy.png')} alt="" className="w-3.5 h-3.5 object-contain" />
-              <span className={`text-[10px] font-bold uppercase tracking-wide ${dark ? 'text-white/80' : 'text-pearl-ink/80'}`}>Campaign Strategy</span>
+              <span className={`text-[10px] font-bold uppercase tracking-wide ${dark ? 'text-white/80' : 'text-pearl-ink/80'}`} style={{ WebkitTextStroke: '0.25px rgba(255,255,255,0.55)', textShadow: '0 0 4px rgba(255,255,255,0.15)' }}>Campaign Strategy</span>
             </span>
           </div>
         </div>
@@ -272,7 +272,7 @@ export default function AmyCaseStudy({ onClose, dark = false }: { onClose: () =>
           Broadcast"). Same destination, same red "gaming block"
           gradient/bevel identity as before — just sized to actually read
           as the important button it is. */}
-      <div className="px-5 sm:px-8 pb-4 flex justify-center">
+      <div className="px-5 sm:px-8 pb-4 flex justify-center sm:justify-end">
         <motion.a
           href="https://special.n12.co.il/AmyWinehouse"
           target="_blank"

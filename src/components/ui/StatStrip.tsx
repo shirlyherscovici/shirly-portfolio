@@ -31,8 +31,8 @@ export default function StatStrip({ stats, theme, className = '', size = 'sm', l
     : { textShadow: '0 0 16px rgba(79,216,255,0.5), 0 0 32px rgba(79,216,255,0.25)' }
   return (
     <div className={`flex flex-wrap items-center gap-x-6 gap-y-2 ${className}`}>
-      {stats.map((s) => (
-        <div key={s.label} className="flex items-center gap-2">
+      {stats.map((s, index) => (
+        <div key={`${s.label}-${s.value}-${index}`} className="flex items-center gap-2">
           {s.icon && <span className={light ? 'text-pearl-red' : 'text-cine-cyan'}>{s.icon}</span>}
           <div className="leading-tight">
             <span
