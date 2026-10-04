@@ -1,266 +1,335 @@
-import { useRef, useState } from 'react'
-import { Play, Pause, Layers, Scissors, UserCircle2, Layers3, ExternalLink } from 'lucide-react'
-import CaseStudyHeader from './CaseStudyHeader'
-import FloatingElement from '../ui/FloatingElement'
-import VideoControlBar, { toggleFullscreen } from '../ui/VideoControlBar'
-import { GoldCoin, HeartIcon, MusicNote } from '../ui/decor'
-import ComputerMonitorFrame from '../ui/ComputerMonitorFrame'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { ArrowLeft, ArrowRight, Maximize, Minimize, Pause, Play, Volume2, VolumeX } from 'lucide-react'
 import { asset } from '../../lib/asset'
-import { PROJECT_NUMBER } from '../../lib/projectMeta'
 
-// Primary reel — the new ~42s highlight cut (was the full ~4:38 spot
-// itself). The full version stays reachable, just not the thing that
-// autoplays/loads by default, via the FULL_VIDEO_SRC button below.
-const VIDEO_SRC = asset('/assets/motion/gameplay_highlight_final.mp4')
-const POSTER_SRC = asset('/assets/motion/aca-anashim-poster.jpg')
-const FULL_VIDEO_SRC = asset('/assets/motion/aca-anashim.mp4')
+const motionAsset = (name: string) => asset(`/assets/motion/${name}`)
 
-const SPECS = [
-  { icon: UserCircle2, label: 'Director' },
-  { icon: Scissors, label: 'Scriptwriter' },
-  { icon: Layers, label: 'After Effects' },
-]
+const FULL_FILM_SRC = motionAsset('aca-anashim.mp4')
+const HERO_HIGHLIGHT_SRC = motionAsset('gameplay_highlight_final.mp4')
+const FULL_FILM_POSTER_SRC = motionAsset('people-motion-hero-poster.jpg')
 
-/* ------------------------------------- Export ------------------------------------- */
+const MOTION_SKILLS = [
+  {
+    number: '01',
+    title: 'Character Animation',
+    icon: 'icons/character-animation.svg',
+    clip: 'clips/03-character-animation.mp4',
+    caption: 'Expressive character movement integrated into animated environments.',
+  },
+  {
+    number: '02',
+    title: 'UI & Game Animation',
+    icon: 'icons/ui-game-animation.svg',
+    clip: 'clips/02-ui-game-animation.mp4',
+    caption: 'Animated interfaces, game systems and responsive graphic elements.',
+  },
+  {
+    number: '03',
+    title: 'Kinetic Type & Transitions',
+    icon: 'icons/transitions-compositing.svg',
+    clip: 'clips/people-kinetic-typography.mp4',
+    caption: 'Animated typography, scene transitions and visual continuity across changing worlds.',
+  },
+] as const
 
-export default function PeopleMotionCaseStudy({ onClose, dark = false }: { onClose: () => void; dark?: boolean }) {
-  const [playing, setPlaying] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const [duration, setDuration] = useState(0)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const screenRef = useRef<HTMLDivElement>(null)
+function SectionHeading({ id, eyebrow, children, note }: { id: string; eyebrow?: string; children: React.ReactNode; note: string }) {
+  return (
+    <header>
+      {eyebrow && <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7444ff]">{eyebrow}</p>}
+      <h2 id={id} className="mt-2 font-serif text-3xl leading-[0.98] tracking-[-0.045em] text-[#171428] sm:text-4xl">{children}</h2>
+      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#5e5a72]">{note}</p>
+    </header>
+  )
+}
 
-  const togglePlay = () => {
-    const v = videoRef.current
-    if (!v) return
-    if (v.paused) {
-      v.play().catch(() => {})
-      setPlaying(true)
-    } else {
-      v.pause()
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(() => (
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ))
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const update = () => setReduced(media.matches)
+    update()
+    media.addEventListener('change', update)
+    return () => media.removeEventListener('change', update)
+  }, [])
+
+  return reduced
+}
+
+function toggleMediaFullscreen(container: HTMLElement | null, video: HTMLVideoElement | null) {
+  if (!container || !video) return
+  if (document.fullscreenElement) {
+    document.exitFullscreen?.().catch(() => {})
+    return
+  }
+
+  const webkitVideo = video as HTMLVideoElement & { webkitEnterFullscreen?: () => void }
+  const fallback = () => webkitVideo.webkitEnterFullscreen?.()
+  if (container.requestFullscreen) {
+    container.requestFullscreen().catch(fallback)
+  } else {
+    fallback()
+  }
+}
+
+function HeroHighlight({ reduceMotion }: { reduceMotion: boolean }) {
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const [playing, setPlaying] = useState(!reduceMotion)
+  const [muted, setMuted] = useState(true)
+  const [fullscreen, setFullscreen] = useState(false)
+
+  useEffect(() => {
+    const updateFullscreen = () => setFullscreen(document.fullscreenElement === containerRef.current)
+    document.addEventListener('fullscreenchange', updateFullscreen)
+    return () => document.removeEventListener('fullscreenchange', updateFullscreen)
+  }, [])
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    if (reduceMotion) {
+      video.pause()
       setPlaying(false)
+      return
+    }
+    video.play().then(() => setPlaying(true)).catch(() => setPlaying(false))
+  }, [reduceMotion])
+
+  const togglePlayback = () => {
+    const video = videoRef.current
+    if (!video) return
+    if (video.paused) {
+      video.play().catch(() => setPlaying(false))
+    } else {
+      video.pause()
     }
   }
 
-  const seek = (nextTime: number) => {
-    const v = videoRef.current
-    if (!v || !Number.isFinite(nextTime)) return
-    v.currentTime = nextTime
-    setProgress(nextTime)
+  const toggleMute = () => {
+    const video = videoRef.current
+    if (!video) return
+    video.muted = !video.muted
+    setMuted(video.muted)
   }
 
   return (
-    <div>
-      <CaseStudyHeader
-        id="modal-motion-title"
-        stageLabel={PROJECT_NUMBER['people-motion']}
-        title="People In Motion"
-        supportLabel="Playable Ad Concept & Game UI Motion"
-        theme={dark ? 'dark' : 'light'}
-        onClose={onClose}
-        showBreadcrumb={false}
-        meta={[
-          { label: 'Contribution', value: 'Director · Scriptwriter · After Effects', icon: UserCircle2 },
-          { label: 'Craft', value: 'Motion Design', icon: Layers3 },
-        ]}
-      />
-
-      <div className="relative px-5 sm:px-8 pb-6">
-        {/* Background atmosphere — was just color blobs + a dot texture,
-            same generic treatment AI Rescue got; real feedback wanted
-            something more "character-driven" here specifically. The
-            campaign's own poster art (the walking-crowd silhouettes under
-            the desert sunset — the exact same real key art the video
-            itself opens on, not a new asset) now sits behind everything,
-            heavily blurred/faded, so the backdrop reads as "this scene
-            has real people/content in it" instead of a flat color wash,
-            while staying quiet enough not to compete with the actual
-            video. Same warm gold/rose glows and dot texture layered on
-            top of it as before. */}
-        <div className="absolute inset-0 overflow-hidden rounded-[28px] pointer-events-none -z-10" aria-hidden>
-          <img src={POSTER_SRC} alt="" className="absolute -inset-16 w-[calc(100%+8rem)] h-[calc(100%+8rem)] object-cover object-center opacity-[0.54] blur-[14px] scale-110" />
-          <div className={`absolute inset-0 ${dark ? 'bg-[#160f16]/62' : 'bg-pearl-bg/72'}`} />
-          <div className="absolute inset-y-0 left-0 w-[30%] bg-gradient-to-r from-[#1b1323]/70 via-[#32172a]/32 to-transparent" />
-          <div className="absolute inset-y-0 right-0 w-[30%] bg-gradient-to-l from-[#231224]/72 via-[#4a1d32]/30 to-transparent" />
-          <div className="absolute -top-24 -right-16 w-80 h-80 rounded-full bg-orange-400/25 blur-[100px]" />
-          <div className="absolute -bottom-20 -left-10 w-96 h-96 rounded-full bg-purple-500/20 blur-[110px]" />
-          <div className="absolute top-[35%] inset-x-[15%] h-36 bg-pearl-gold/12 blur-[70px]" />
-          <div
-            className="absolute inset-0 opacity-[0.12]"
-            style={{ backgroundImage: 'radial-gradient(rgba(176,42,58,0.5) 1px, transparent 1px)', backgroundSize: '22px 22px' }}
-          />
-        </div>
-
-        <div className="relative">
-          <div style={{ maxWidth: 'calc(52vh * 16 / 9)' }} className="relative mx-auto w-full drop-shadow-[0_24px_34px_rgba(10,5,16,0.58)]">
-            <ComputerMonitorFrame ref={screenRef}>
-              <div className="absolute inset-0 group/video">
-              <video
-                ref={videoRef}
-                src={VIDEO_SRC}
-                poster={POSTER_SRC}
-                playsInline
-                preload="metadata"
-                onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
-                onTimeUpdate={(e) => setProgress(e.currentTarget.currentTime)}
-                onEnded={() => setPlaying(false)}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              {!playing && <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/5 to-black/40" />}
-
-              {/* Glass play button overlay — the one control that starts or
-                  stops playback, matching the light pearl palette. Also
-                  the double-click-to-fullscreen target: it fully covers
-                  the video (absolute inset-0), so it's what actually
-                  receives the pointer events in that area, not the
-                  <video> underneath it. */}
-              <button
-                type="button"
-                onClick={togglePlay}
-                onDoubleClick={() => toggleFullscreen(screenRef.current)}
-                aria-label={playing ? 'Pause the After Effects reel' : 'Play the After Effects reel'}
-                className="group absolute inset-0 flex items-center justify-center"
-              >
-                <span
-                  className={`flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/40 shadow-pearl-lg transition-all group-hover:scale-110 group-hover:bg-white/30 ${
-                    playing ? 'w-12 h-12 opacity-0 group-hover:opacity-100' : 'w-16 h-16 sm:w-20 sm:h-20'
-                  }`}
-                >
-                  {playing ? (
-                    <Pause size={20} className="text-white fill-current" />
-                  ) : (
-                    <Play size={24} className="text-white fill-current translate-x-0.5" />
-                  )}
-                </span>
-              </button>
-
-              {/* Real transport controls (mute, speed, fullscreen) — a bare
-                  play/pause was the only way to interact with the video
-                  before. z-20 + rendered after the full-cover play button
-                  above, so these buttons' own bounds win the click instead
-                  of also triggering play/pause underneath them. */}
-              <VideoControlBar videoRef={videoRef} fullscreenRef={screenRef} className="absolute top-3 left-3 z-20" />
-              <div className={`absolute inset-x-0 bottom-0 z-30 px-3 pb-2 pt-6 bg-gradient-to-t from-black/80 to-transparent transition-opacity duration-200 ${playing ? 'opacity-0 group-hover/video:opacity-100 group-focus-within/video:opacity-100' : 'opacity-100'}`}>
-                <input
-                  type="range"
-                  min="0"
-                  max={duration || 0}
-                  step="0.05"
-                  value={Math.min(progress, duration || 0)}
-                  onChange={(e) => seek(Number(e.currentTarget.value))}
-                  onClick={(e) => e.stopPropagation()}
-                  aria-label="Video progress"
-                  className="block w-full h-1.5 cursor-pointer accent-white"
-                />
-              </div>
-              </div>
-            </ComputerMonitorFrame>
-          </div>
-
-          {/* A timeline ruler + a few keyframe diamonds — After Effects'
-              own visual language, in this case study's established gold/
-              red rather than a new accent color, replacing what was a
-              plain empty gap between the screen and the CTA below it. A
-              first attempt at this lived in the absolutely-positioned
-              background layer above at `top-[14%]`, which turned out to
-              sit directly behind the video monitor's own opaque frame —
-              invisible regardless of contrast (caught in review, by
-              actually looking at a screenshot of that exact region, not
-              just trusting the position math). A real in-flow element
-              here instead guarantees it renders in the one gap that's
-              always genuinely visible background, whatever the video's
-              own responsive size. */}
-          <div className="relative mt-4 h-3 mx-auto" style={{ maxWidth: 'calc(52vh * 16 / 9)' }} aria-hidden>
-            <div className="absolute inset-x-[4%] top-1/2 h-px bg-pearl-gold/35" />
-            {Array.from({ length: 16 }).map((_, i) => (
-              <span key={i} className="absolute top-1/2 w-px h-2.5 -translate-y-1/2 bg-pearl-gold/30" style={{ left: `${6 + i * 5.9}%` }} />
-            ))}
-            {[
-              { left: '18%', color: '#b8863b' },
-              { left: '46%', color: '#b02a3a' },
-              { left: '74%', color: '#b8863b' },
-            ].map((k, i) => (
-              <span
-                key={i}
-                className="absolute top-1/2 w-2 h-2"
-                style={{ left: k.left, backgroundColor: k.color, transform: 'translate(-50%, -50%) rotate(45deg)', boxShadow: `0 0 6px ${k.color}` }}
-              />
-            ))}
-          </div>
-
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-            {/* Light lavender/white glass pill with dark text — matches the
-                mockup's "Watch Playable Demo" CTA exactly (same family as
-                AI Rescue's button), not the gold gradient this used to be. */}
-            <button
-              type="button"
-              onClick={togglePlay}
-              className="group inline-flex items-center gap-2 px-6 py-3 rounded-full font-display font-bold text-xs sm:text-sm tracking-wide uppercase bg-gradient-to-b from-white to-[#e7e2f5] text-[#28223f] shadow-[0_8px_24px_-6px_rgba(0,0,0,0.35)] transition-transform hover:scale-[1.04]"
-            >
-              {playing ? <Pause size={13} className="fill-current" /> : <Play size={13} className="fill-current" />}
-              {playing ? 'Pause Reel' : 'Watch Playable Demo'} <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
-            </button>
-
-            {/* The video above is now the short ~42s highlight cut, not the
-                full spot — this is how the full ~4:38 original stays
-                reachable. Deliberately the bolder of the two buttons here
-                (solid gold→red gradient vs. the reel button's soft white
-                pill) so it can't read as a minor secondary link; opens the
-                real file directly in a new tab, same asset the case study
-                always had, nothing re-cut or regenerated. */}
-            <a
-              href={FULL_VIDEO_SRC}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group inline-flex items-center gap-2 px-6 py-3 rounded-full font-display font-bold text-xs sm:text-sm tracking-wide uppercase text-white bg-gradient-to-b from-pearl-gold to-pearl-red border border-white/20 shadow-[0_4px_0_rgba(0,0,0,0.35),0_10px_24px_-4px_rgba(176,42,58,0.55)] transition-transform hover:scale-[1.04]"
-            >
-              <Play size={13} className="fill-current" /> Watch Full Project <ExternalLink size={14} />
-            </a>
-          </div>
-        </div>
-
-        <div className="mt-7 flex flex-wrap gap-2.5 justify-center">
-          {SPECS.map(({ icon: Icon, label }) => (
-            <span
-              key={label}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[10.5px] font-semibold ${
-                dark ? 'bg-black/30 backdrop-blur-md border border-white/10 text-white' : 'glass-pearl-soft text-pearl-ink'
-              }`}
-            >
-              <Icon size={13} className="text-pearl-red" />
-              {label}
-            </span>
-          ))}
-        </div>
+    <div ref={containerRef} className="relative h-full w-full">
+      <video
+        ref={videoRef}
+        src={HERO_HIGHLIGHT_SRC}
+        autoPlay={!reduceMotion}
+        muted={muted}
+        loop
+        playsInline
+        preload="metadata"
+        onClick={togglePlayback}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        onVolumeChange={(event) => setMuted(event.currentTarget.muted)}
+        className="block h-full w-full cursor-pointer object-cover"
+      >
+        Your browser does not support this video.
+      </video>
+      <button
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation()
+          togglePlayback()
+        }}
+        aria-label={playing ? 'Pause highlight' : 'Play highlight'}
+        aria-pressed={playing}
+        className={`absolute z-10 grid place-items-center border border-white/65 bg-[#7444ff]/85 text-white shadow-[0_8px_20px_rgba(50,25,120,0.25)] backdrop-blur-sm transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#7444ff] ${playing ? 'bottom-3 right-[5.5rem] h-9 w-9 rounded-full opacity-80 hover:opacity-100' : 'left-1/2 top-1/2 h-14 w-14 -translate-x-1/2 -translate-y-1/2 rounded-full'}`}
+      >
+        {playing ? <Pause size={15} fill="currentColor" /> : <Play size={22} fill="currentColor" className="translate-x-0.5" />}
+      </button>
+      <div className="absolute bottom-3 right-3 z-10 flex gap-2">
+        <button type="button" onClick={toggleMute} aria-label={muted ? 'Unmute highlight' : 'Mute highlight'} aria-pressed={!muted} className="grid h-9 w-9 place-items-center rounded-full border border-white/65 bg-[#7444ff]/85 text-white shadow-[0_8px_20px_rgba(50,25,120,0.25)] backdrop-blur-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#7444ff]">
+          {muted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+        </button>
+        <button type="button" onClick={() => toggleMediaFullscreen(containerRef.current, videoRef.current)} aria-label={fullscreen ? 'Exit fullscreen' : 'Enter fullscreen'} aria-pressed={fullscreen} className="grid h-9 w-9 place-items-center rounded-full border border-white/65 bg-[#7444ff]/85 text-white shadow-[0_8px_20px_rgba(50,25,120,0.25)] backdrop-blur-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#7444ff]">
+          {fullscreen ? <Minimize size={15} /> : <Maximize size={15} />}
+        </button>
       </div>
     </div>
   )
 }
 
-/** Gold coins and a music note breaking the whole MODAL's left/right edges
- *  — rendered via ProjectModal's `breakout` slot, outside the scroll
- *  container's clipping. */
-export function PeopleMotionBreakout() {
+function MotionPreview({ id, src, title, onRequestPlay, registerVideo }: {
+  id: string
+  src: string
+  title: string
+  onRequestPlay: (id: string) => void
+  registerVideo: (id: string, video: HTMLVideoElement | null) => void
+}) {
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const [playing, setPlaying] = useState(false)
+  const [muted, setMuted] = useState(false)
+  const [fullscreen, setFullscreen] = useState(false)
+
+  useEffect(() => {
+    const updateFullscreen = () => setFullscreen(document.fullscreenElement === containerRef.current)
+    document.addEventListener('fullscreenchange', updateFullscreen)
+    return () => document.removeEventListener('fullscreenchange', updateFullscreen)
+  }, [])
+
+  const togglePlayback = () => {
+    const video = videoRef.current
+    if (!video) return
+    if (video.paused) {
+      onRequestPlay(id)
+      video.play().catch(() => setPlaying(false))
+    } else {
+      video.pause()
+    }
+  }
+
+  const toggleMute = () => {
+    const video = videoRef.current
+    if (!video) return
+    video.muted = !video.muted
+    setMuted(video.muted)
+  }
+
   return (
-    <>
-      <FloatingElement delay={0.2} distance={10} magnetic breathe className="absolute top-[14%] -left-9 sm:-left-14 z-30 hidden sm:block">
-        <MusicNote size={44} color="#b8863b" />
-      </FloatingElement>
-      <FloatingElement delay={1.1} distance={8} magnetic breathe className="absolute top-[44%] -left-8 sm:-left-14 z-30 hidden sm:block">
-        <GoldCoin size={52} />
-      </FloatingElement>
-      <FloatingElement delay={0.8} distance={9} magnetic breathe className="absolute top-[74%] -left-9 sm:-left-14 z-30 hidden sm:block">
-        <HeartIcon size={46} color="#c23b3b" />
-      </FloatingElement>
-      <FloatingElement delay={0.6} distance={9} magnetic breathe className="absolute top-[10%] -right-9 sm:-right-14 z-30 hidden sm:block">
-        <GoldCoin size={40} />
-      </FloatingElement>
-      <FloatingElement delay={1.5} distance={10} magnetic breathe className="absolute top-[50%] -right-8 sm:-right-14 z-30 hidden sm:block">
-        <HeartIcon size={40} color="#c23b3b" />
-      </FloatingElement>
-      <FloatingElement delay={0.4} distance={8} magnetic breathe className="absolute top-[80%] -right-9 sm:-right-14 z-30 hidden sm:block">
-        <GoldCoin size={48} />
-      </FloatingElement>
-    </>
+    <div ref={containerRef} className="relative aspect-video overflow-hidden rounded-2xl border border-[#786c9c]/15 bg-[#171428]">
+      <video
+        ref={(video) => {
+          videoRef.current = video
+          registerVideo(id, video)
+        }}
+        src={motionAsset(src)}
+        aria-label={`${title} moving preview`}
+        muted={muted}
+        loop
+        playsInline
+        preload="metadata"
+        onClick={togglePlayback}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        onVolumeChange={(event) => setMuted(event.currentTarget.muted)}
+        className="block h-full w-full cursor-pointer object-cover"
+      />
+      <button
+        type="button"
+        onClick={togglePlayback}
+        aria-label={playing ? `Pause ${title}` : `Play ${title}`}
+        aria-pressed={playing}
+        className={`absolute z-10 grid place-items-center border border-white/65 bg-[#7444ff]/85 text-white shadow-[0_8px_20px_rgba(50,25,120,0.25)] backdrop-blur-sm transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#7444ff] ${playing ? 'bottom-3 right-[5.5rem] h-8 w-8 rounded-full opacity-80 hover:opacity-100' : 'left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full'}`}
+      >
+        {playing ? <Pause size={13} fill="currentColor" /> : <Play size={20} fill="currentColor" className="translate-x-0.5" />}
+      </button>
+      <div className="absolute bottom-3 right-3 z-10 flex gap-2">
+        <button type="button" onClick={toggleMute} aria-label={muted ? `Unmute ${title}` : `Mute ${title}`} aria-pressed={!muted} className="grid h-8 w-8 place-items-center rounded-full border border-white/65 bg-[#7444ff]/85 text-white shadow-[0_8px_20px_rgba(50,25,120,0.25)] backdrop-blur-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#7444ff]">
+          {muted ? <VolumeX size={13} /> : <Volume2 size={13} />}
+        </button>
+        <button type="button" onClick={() => toggleMediaFullscreen(containerRef.current, videoRef.current)} aria-label={fullscreen ? 'Exit fullscreen' : 'Enter fullscreen'} aria-pressed={fullscreen} className="grid h-8 w-8 place-items-center rounded-full border border-white/65 bg-[#7444ff]/85 text-white shadow-[0_8px_20px_rgba(50,25,120,0.25)] backdrop-blur-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#7444ff]">
+          {fullscreen ? <Minimize size={13} /> : <Maximize size={13} />}
+        </button>
+      </div>
+    </div>
   )
+}
+
+export default function PeopleMotionCaseStudy({ onClose, onNavigate }: { onClose: () => void; onNavigate?: (project: 'galgalatz' | 'ai-rescue') => void; dark?: boolean }) {
+  const reduceMotion = usePrefersReducedMotion()
+  const skillVideos = useRef<Record<string, HTMLVideoElement | null>>({})
+
+  const registerSkillVideo = useCallback((id: string, video: HTMLVideoElement | null) => {
+    skillVideos.current[id] = video
+  }, [])
+
+  const requestSkillPlayback = useCallback((id: string) => {
+    Object.entries(skillVideos.current).forEach(([otherId, video]) => {
+      if (otherId !== id) video?.pause()
+    })
+  }, [])
+
+  const pauseAllSkillPreviews = useCallback(() => {
+    Object.values(skillVideos.current).forEach((video) => video?.pause())
+  }, [])
+
+  return (
+    <article className="overflow-hidden rounded-[28px] bg-white/45 text-[#171428] backdrop-blur-[2px] sm:rounded-[32px]">
+      <h1 id="modal-motion-title" className="sr-only">People in Motion</h1>
+
+      <div className="space-y-10 px-5 py-7 sm:space-y-14 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
+        {/* 1. Hero */}
+        <section aria-labelledby="motion-hero-title" className="grid items-center gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:gap-12">
+          <div className="max-w-xl">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7444ff]">Motion Design Project</p>
+            <h2 id="motion-hero-title" className="mt-3 font-serif text-[clamp(2.8rem,5vw,5.2rem)] leading-[0.9] tracking-[-0.06em] text-[#171428]">People in Motion</h2>
+            <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#514a68]">Motion Design · After Effects · 2D Animation · Visual Storytelling</p>
+            <p className="mt-5 text-sm leading-relaxed text-[#5e5a72] sm:text-[15px]">A character-led motion piece combining animation, game-inspired UI, kinetic typography and transitions across changing visual worlds.</p>
+          </div>
+          <div className="aspect-video overflow-hidden rounded-[22px] border border-white/80 bg-[#171428] shadow-[0_20px_55px_rgba(64,43,120,0.16)]">
+            <HeroHighlight reduceMotion={reduceMotion} />
+          </div>
+        </section>
+
+        {/* 2. Motion Skills */}
+        <section aria-labelledby="motion-skills" className="border-t border-[#756b95]/15 pt-9 sm:pt-11">
+          <SectionHeading id="motion-skills" note="Three motion disciplines demonstrated through real moments from the film.">Motion Skills</SectionHeading>
+          <div className="mt-6 grid gap-5 md:grid-cols-3">
+            {MOTION_SKILLS.map((skill) => (
+              <article key={skill.number} className="min-w-0 rounded-[22px] border border-white/80 bg-white/55 p-3 shadow-[0_14px_35px_rgba(64,43,120,0.07)] sm:p-4">
+                <MotionPreview
+                  id={skill.number}
+                  src={skill.clip}
+                  title={skill.title}
+                  onRequestPlay={requestSkillPlayback}
+                  registerVideo={registerSkillVideo}
+                />
+                <div className="mt-4 flex items-start gap-3">
+                  <img src={motionAsset(skill.icon)} alt="" aria-hidden className="h-9 w-9 shrink-0 object-contain" />
+                  <div>
+                    <p className="text-[10px] font-bold tracking-[0.17em] text-[#7444ff]">{skill.number}</p>
+                    <h3 className="mt-1 font-serif text-2xl leading-none tracking-[-0.04em] text-[#171428]">{skill.title}</h3>
+                    <p className="mt-2 text-xs leading-relaxed text-[#5e5a72]">{skill.caption}</p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {/* 3. Watch the Full Film */}
+        <section aria-labelledby="motion-film" className="border-t border-[#756b95]/15 pt-9 sm:pt-11">
+          <SectionHeading id="motion-film" eyebrow="Watch the Full Film" note="Experience the complete motion piece and the journey across its characters, interfaces and game-inspired scenes.">People in Motion</SectionHeading>
+          <div className="mt-6 aspect-video overflow-hidden rounded-[22px] border border-white/80 bg-[#171428] shadow-[0_20px_55px_rgba(64,43,120,0.16)]">
+            <video
+              src={FULL_FILM_SRC}
+              poster={FULL_FILM_POSTER_SRC}
+              controls
+              playsInline
+              preload="metadata"
+              onPlay={pauseAllSkillPreviews}
+              className="h-full w-full object-contain"
+            >
+              Your browser does not support this video.
+            </video>
+          </div>
+        </section>
+      </div>
+
+      {/* 5. Existing previous / next project navigation */}
+      <footer className="flex items-center justify-between gap-4 border-t border-[#756b95]/15 bg-white/30 px-5 py-5 sm:px-8">
+        <button type="button" onClick={() => onNavigate ? onNavigate('galgalatz') : onClose()} className="inline-flex items-center gap-2 text-xs font-semibold text-[#3f3853] transition-colors hover:text-[#7444ff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#7444ff]">
+          <ArrowLeft size={17} /> Previous Project
+        </button>
+        <p className="text-center text-[10px] uppercase tracking-[0.16em] text-[#756f85]"><span className="mb-1 block text-[9px]">Selected Work</span><span className="font-serif text-xl normal-case tracking-normal text-[#171428]">People in Motion</span></p>
+        <button type="button" onClick={() => onNavigate ? onNavigate('ai-rescue') : onClose()} className="inline-flex items-center gap-2 text-xs font-semibold text-[#3f3853] transition-colors hover:text-[#7444ff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#7444ff]">
+          Next Project <ArrowRight size={17} />
+        </button>
+      </footer>
+    </article>
+  )
+}
+
+/** The focused showcase needs no decorative breakouts beyond the existing shared modal shell. */
+export function PeopleMotionBreakout() {
+  return null
 }

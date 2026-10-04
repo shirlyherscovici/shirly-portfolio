@@ -1,30 +1,60 @@
-# Shirly Herscovici — Marketing Video & Motion Designer
+# Shirly Herscovici — Motion & Visual Designer
 
-Graphic & Motion Designer with 8+ years of experience creating broadcast graphics, promo content, motion design, visual systems and AI-assisted creative work.
+Portfolio website showcasing selected work across motion design, visual storytelling, brand and editorial design, UI-driven digital experiences, and AI-assisted visual production.
 
-Currently working at N12 / News 12 (Keshet Broadcasting), creating fast-turnaround broadcast graphics, Photoshop templates, After Effects animation, promo visuals and visual systems for editorial and entertainment projects.
+**Live portfolio:** https://shirlyherscovici.github.io/shirly-portfolio/
 
-## Specialties
-- Marketing Video & Motion Graphics
-- Motion Design & Animation
-- After Effects
-- Broadcast & Promo Design
-- Graphic Design & Visual Systems
-- AI-Assisted Creative Production
-- Typography & Visual Storytelling
-- Interactive / UI Visual Design
+## Selected work
 
-## Selected Work
-- Galgalatz — Interactive Broadcast / UI
-- Motion — Animation & Motion Design
-- AI Navigator — AI-assisted Creative Project
-- Amy Winehouse — Graphic Design / Visual System
+### Music from the Screen
+**N12 × Galgalatz**  
+A UI and visual-language project built around a movie-song chart experience, combining responsive digital design, editorial storytelling, and motion.
 
-## Career Goal
-Seeking Marketing Video Designer, Motion Graphics Designer and Creative Designer opportunities in gaming, entertainment and creative technology companies.
+### People in Motion
+A character-led motion project demonstrating 2D animation, UI/game animation, kinetic typography, transitions, compositing, and visual storytelling.
 
-## Portfolio
-https://shirlyherscovici.github.io/shirly-portfolio/
+### AI Cinematic Pipeline
+**USA Pilot Rescue**  
+An AI-assisted visual storytelling case study focused on frame direction, motion generation, continuity, compositing, and final broadcast delivery.
 
-## LinkedIn
-https://www.linkedin.com/in/shirly-herscovici-a93766278/
+### Amy
+An N12 editorial visual-identity project inspired by Amy Winehouse and the 27 Club, including art direction, banner development, identity assets, before/after treatments, and responsive applications.
+
+## Focus
+
+- Motion design & After Effects
+- Visual design & art direction
+- Brand / marketing / editorial design
+- 2D character animation
+- UI-driven motion and digital experiences
+- Kinetic typography & compositing
+- AI-assisted visual storytelling
+
+## Built with
+
+- React
+- TypeScript
+- Vite
+- CSS
+- Responsive media and video interactions
+- GitHub Pages
+
+## Run locally
+
+```bash
+npm install
+npm run dev
+```
+
+Production build:
+
+```bash
+npm run build
+```
+
+## Contact
+
+**Shirly Herscovici**  
+Motion & Visual Designer  
+Email: shirly3212@gmail.com  
+Portfolio: https://shirlyherscovici.github.io/shirly-portfolio/

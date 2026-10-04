@@ -1,464 +1,117 @@
-import { memo, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Download, Mail, Linkedin, PenTool, Film, Code2, Sparkles, ArrowRight, TrendingUp, Menu, X } from 'lucide-react'
-import { AmyModule, GalgalatzModule, AiModule, MotionModule, CardArrival } from './ProjectModules'
-import HeroStage from './HeroStage'
+import { memo, useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { ArrowRight, Instagram, Linkedin, Mail, Menu, Play, X } from 'lucide-react'
+import { AmyModule, AiModule, GalgalatzModule, MotionModule } from './ProjectModules'
 import type { ProjectId } from '../../types'
 import { asset } from '../../lib/asset'
-import { PROFESSIONAL_TITLE } from '../../lib/siteMeta'
+
+const hubAsset = (name: string) => asset(`/assets/hub/${name}`)
 
 const NAV_ITEMS = [
-  { label: 'Visual Design', icon: PenTool, glow: 'rgba(201,161,90,0.6)' },
-  { label: 'Motion Design', icon: Film, glow: 'rgba(255,95,160,0.6)' },
-  { label: 'UI & Interactive', icon: Code2, glow: 'rgba(79,216,255,0.6)' },
-  { label: 'AI Creative', icon: Sparkles, glow: 'rgba(185,140,255,0.6)' },
+  { label: 'Work', href: '#work' },
+  { label: 'About', href: '#about' },
+  { label: 'Resume', href: asset('/Resume.pdf'), download: false },
+  { label: 'Contact', href: '#contact' },
 ]
 
-// A fixed, deterministic scatter of small twinkling stars — spans the
-// FULL page now (the site is one continuous dark/purple cinematic
-// environment top to bottom, not just behind the Hero). Reuses the
-// existing `animate-pulse-soft` keyframe (a slow opacity pulse) rather
-// than inventing a new one; it already respects the project's global
-// prefers-reduced-motion override in index.css.
-const STARS = [
-  { x: 6, y: 4, size: 2, delay: 0 },
-  { x: 18, y: 12, size: 1.5, delay: 0.8 },
-  { x: 32, y: 3, size: 1.5, delay: 1.6 },
-  { x: 47, y: 9, size: 2, delay: 0.4 },
-  { x: 61, y: 5, size: 1.5, delay: 1.2 },
-  { x: 78, y: 14, size: 2, delay: 0.2 },
-  { x: 91, y: 6, size: 1.5, delay: 1.8 },
-  { x: 9, y: 24, size: 1.5, delay: 1.0 },
-  { x: 26, y: 30, size: 2, delay: 0.6 },
-  { x: 41, y: 21, size: 1.5, delay: 1.4 },
-  { x: 55, y: 33, size: 1.5, delay: 0.3 },
-  { x: 70, y: 26, size: 2, delay: 1.1 },
-  { x: 85, y: 35, size: 1.5, delay: 0.7 },
-  { x: 4, y: 48, size: 2, delay: 1.5 },
-  { x: 22, y: 55, size: 1.5, delay: 0.5 },
-  { x: 38, y: 44, size: 1.5, delay: 1.3 },
-  { x: 52, y: 58, size: 2, delay: 0.9 },
-  { x: 67, y: 47, size: 1.5, delay: 0.1 },
-  { x: 82, y: 60, size: 1.5, delay: 1.7 },
-  { x: 95, y: 50, size: 2, delay: 0.4 },
-  { x: 13, y: 70, size: 1.5, delay: 1.2 },
-  { x: 30, y: 78, size: 2, delay: 0.6 },
-  { x: 46, y: 68, size: 1.5, delay: 1.6 },
-  { x: 63, y: 82, size: 1.5, delay: 0.2 },
-  { x: 79, y: 72, size: 2, delay: 1.0 },
-  { x: 92, y: 85, size: 1.5, delay: 0.8 },
-  { x: 8, y: 92, size: 2, delay: 1.4 },
-  { x: 35, y: 95, size: 1.5, delay: 0.3 },
-  { x: 58, y: 90, size: 1.5, delay: 1.1 },
-  { x: 88, y: 96, size: 2, delay: 0.5 },
+const STAGE_POSTERS = [
+  'galgalatz-homepage-wide.png?v=20260928b',
+  'people-in-motion-homepage-wide.png?v=20260928b',
+  'navigator-ai-homepage-wide.png?v=20260928b',
+  'amy-homepage-wide.png?v=20260928b',
 ]
 
-function Starfield() {
+function FloatingLeavesLayer() {
   return (
-    <div className="absolute inset-0 pointer-events-none" aria-hidden>
-      {STARS.map((s, i) => (
-        <span
-          key={i}
-          className="absolute rounded-full bg-white animate-pulse-soft"
-          style={{
-            left: `${s.x}%`,
-            top: `${s.y}%`,
-            width: s.size,
-            height: s.size,
-            animationDelay: `${s.delay}s`,
-            animationDuration: `${2.6 + (i % 3) * 0.5}s`,
-            boxShadow: '0 0 4px rgba(255,255,255,0.8)',
-          }}
-        />
-      ))}
+    <div className="homepage-leaves" aria-hidden>
+      <img src={hubAsset('leafL.png.png')} alt="" className="homepage-leaf homepage-leaf--left-a" />
+      <img src={hubAsset('leafR.png.png')} alt="" className="homepage-leaf homepage-leaf--right-a" />
+      <img src={hubAsset('leafL.png.png')} alt="" className="homepage-leaf homepage-leaf--left-b" />
+      <img src={hubAsset('leafR.png.png')} alt="" className="homepage-leaf homepage-leaf--right-b" />
     </div>
   )
 }
 
-// Top-nav links — anchor to real sections that already exist on the page
-// rather than inventing new ones. "About" jumps back to the hero's own
-// intro copy (the closest thing this single-page portfolio has to an About
-// blurb); "Contact" jumps to the footer's real mailto CTA; "Resume"
-// downloads the real resume file directly instead of scrolling.
-const HEADER_LINKS = [
-  { label: 'Work', href: '#work' },
-  { label: 'About', href: '#about' },
-  { label: 'Contact', href: '#contact' },
-]
+function PortfolioHub({ onOpen }: { onOpen: (id: ProjectId) => void }) {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
 
-interface PortfolioHubProps {
-  onOpen: (id: ProjectId) => void
-}
+  useEffect(() => {
+    const updateHeader = () => setScrolled(window.scrollY > 28)
+    updateHeader()
+    window.addEventListener('scroll', updateHeader, { passive: true })
+    return () => window.removeEventListener('scroll', updateHeader)
+  }, [])
 
-function PortfolioHub({ onOpen }: PortfolioHubProps) {
-  // Mobile nav — the same three HEADER_LINKS the desktop header already
-  // shows, just reachable below the md breakpoint where that nav is
-  // hidden. Closes itself after a link is followed since each link is a
-  // same-page anchor jump.
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  useEffect(() => {
+    STAGE_POSTERS.forEach((name) => {
+      const poster = new Image()
+      poster.src = hubAsset(name)
+    })
+  }, [])
 
   return (
-    // The outer shell is plain natural-height flow — only the header+Hero+
-    // grid wrapper below locks itself to one desktop viewport (no
-    // scrolling to discover the four projects, per explicit direction);
-    // the footer lives after it in normal flow, reachable with a small
-    // scroll, the same way the approved mockup itself doesn't try to
-    // cram a footer into its own one-screen composition either. Below
-    // `lg` (tablet/mobile) none of this applies — plain natural-height
-    // flow throughout, since forcing "one screen" there would crush the
-    // cards unreadably small.
-    <div className="relative bg-cine overflow-x-clip flex flex-col">
-      {/* Immersive dark/purple environment — .bg-cine on this outer div is
-          the ONE continuous source of the page's dark atmosphere, full
-          document height, Hero through footer, no seams possible within
-          it since it's a single gradient with no discrete steps. The
-          hero-background photo is a purely decorative accent layer on
-          top of that — not a second "background," just set dressing for
-          the top of the page.
-          Two real bugs, now both fixed:
-          (1) The box used to be sized as a % of the outer wrapper's
-          height — i.e. the full DOCUMENT height, which grows with
-          content. At some document/viewport combinations that put the
-          box's bottom edge (and the photo's own visible content near it —
-          a lit sci-fi floor-grid pattern) at a point that read as a
-          visible seam against the page beneath, confirmed at both
-          1920×1080 and 2560×1440 despite earlier fade tuning. Sized off
-          the VIEWPORT (vh) now instead, so it's a fixed decorative
-          flourish behind the Hero specifically — it no longer "reaches
-          for" the document's actual height at all, and can't drift into
-          card territory as content length changes.
-          (2) The fade used to paint a second, separately-colored opaque
-          rectangle (`transparent → #0b0a14`) on top of the photo — an
-          approximation of .bg-cine's own color that only matched it at
-          one specific point, not along its whole curve, which is exactly
-          what produced the seam mathematically. Switched to a CSS mask
-          on the photo itself (fading its own alpha to 0), so the tail of
-          the box reveals .bg-cine directly rather than painting a second
-          guess at its color over it — nothing left to mismatch. */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden>
-        <div
-          className="absolute inset-x-0 top-0 h-[65vh] min-h-[420px] max-h-[640px]"
-          style={{
-            maskImage: 'linear-gradient(to bottom, black 0%, black 30%, transparent 88%)',
-            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 30%, transparent 88%)',
-          }}
-        >
-          <img src={asset('/assets/hub/hero-background.png')} alt="" className="absolute inset-0 w-full h-full object-cover object-top" />
-        </div>
-        <Starfield />
-      </div>
+    <div className="homepage-redesign relative min-h-screen bg-[#f8f5ff] text-[#15132a]" style={{ backgroundImage: `url(${hubAsset('homepage-bg.png.png')})`, backgroundPosition: 'top center', backgroundRepeat: 'no-repeat', backgroundSize: '100% auto' }}>
+      <FloatingLeavesLayer />
 
-      {/* Header — transparent/integrated with the hero (no heavy solid
-          separating bar): backdrop-blur for legibility over the background
-          art, no opaque fill of its own. Compact padding (py-2.5/3, was
-          3.5/4) — reclaims a little vertical budget toward the one-screen
-          composition without visibly cramping it. */}
-      {/* A fixed, known height on desktop (lg:h-14, was auto/padding-driven)
-          — paired with the footer's own fixed height and the content
-          wrapper's matching `calc(100vh - both)` below, this is what makes
-          the one-screen budget exact instead of an approximation that can
-          drift as copy/spacing changes. */}
-      <header className="shrink-0 sticky top-0 z-50 lg:h-14 backdrop-blur-xl border-b bg-[#0e0f18]/25 border-white/10">
-        <div className="mx-auto max-w-[1440px] h-full px-4 sm:px-6 lg:px-10 py-2.5 sm:py-3 lg:py-0 flex items-center justify-between">
-          <a href="#top" className="flex items-center gap-2.5 group">
-            {/* Purple accent (was pearl-red) — matches this site's own
-                cinematic purple identity rather than the old light-theme
-                red, per explicit direction. Circle/size/position/structure
-                all unchanged. */}
-            <span className="w-8 h-8 rounded-full bg-white/90 border border-white shadow-pearl-sm flex items-center justify-center font-display font-black text-[11px] text-[#8b5cf6] shrink-0">
-              SH
-            </span>
-            <span className="leading-tight">
-              <span className="block text-[11px] font-bold uppercase tracking-[0.1em] text-white">Shirly Herscovici</span>
-              <span className="block text-[9px] font-semibold uppercase tracking-[0.14em] text-white/50">{PROFESSIONAL_TITLE} · 8+ Years</span>
-            </span>
-          </a>
-          <div className="flex items-center gap-4 sm:gap-6">
-            <nav className="hidden md:flex items-center gap-5 lg:gap-6">
-              {HEADER_LINKS.map(({ label, href }) => (
-                <a key={label} href={href} className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/65 hover:text-white transition-colors">
-                  {label}
-                </a>
-              ))}
-            </nav>
-            <div className="flex items-center gap-1.5">
-              <a
-                href={asset('/resume.pdf')}
-                download
-                className="flex items-center justify-center gap-1.5 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 text-[11px] font-semibold uppercase tracking-wide transition-colors px-3 py-1.5 rounded-full border border-transparent text-white/70 hover:text-white hover:border-white/15"
-              >
-                <Download size={12} /> <span className="hidden sm:inline">Resume</span>
-              </a>
-              {/* Mobile nav toggle — the desktop <nav> above is `hidden
-                  md:flex`, so below that breakpoint Work/About/Contact were
-                  otherwise unreachable from the header. Reveals the same
-                  HEADER_LINKS in a small dropdown rather than a full-screen
-                  takeover, matching the header's own restrained scale. */}
-              <button
-                type="button"
-                onClick={() => setMobileNavOpen((v) => !v)}
-                aria-label={mobileNavOpen ? 'Close menu' : 'Open menu'}
-                aria-expanded={mobileNavOpen}
-                aria-controls="mobile-nav-menu"
-                className="flex md:hidden items-center justify-center w-11 h-11 rounded-full border border-white/15 text-white/80 hover:bg-white/10 transition-colors"
-              >
-                {mobileNavOpen ? <X size={14} /> : <Menu size={14} />}
-              </button>
+      <section id="top" className="homepage-hero relative z-[3] overflow-hidden" style={{ backgroundImage: `linear-gradient(90deg, rgba(251,249,255,0.92) 0%, rgba(251,249,255,0.52) 48%, rgba(251,249,255,0.08) 100%), url(${hubAsset('hero-background-clean.png.png')})` }}>
+        <header className={`homepage-header absolute inset-x-0 top-0 z-20 mx-auto flex h-[68px] max-w-[1440px] items-center justify-between px-6 sm:px-10 lg:px-14 ${scrolled ? 'homepage-header--scrolled' : ''}`}>
+          <a href="#top" aria-label="Shirly Herscovici home"><img src={hubAsset('LOGO.png.png')} alt="Shirly Herscovici — Motion & Visual Designer" className="h-auto w-[225px] sm:w-[255px]" /></a>
+          <nav className="hidden items-center gap-8 lg:flex">
+            {NAV_ITEMS.map(({ label, href, download }) => <a key={label} href={href} download={download} className="text-[12px] font-semibold text-[#282440] transition-colors hover:text-violet-700">{label}</a>)}
+          </nav>
+          <a href="#contact" className="homepage-primary-button hidden lg:inline-flex">Let&apos;s Talk <ArrowRight size={16} /></a>
+          <button type="button" onClick={() => setMenuOpen((open) => !open)} aria-label={menuOpen ? 'Close menu' : 'Open menu'} className="grid h-10 w-10 place-items-center rounded-full border border-violet-900/15 bg-white/60 text-violet-900 lg:hidden">{menuOpen ? <X size={18} /> : <Menu size={18} />}</button>
+        </header>
+
+        <AnimatePresence>
+          {menuOpen && <motion.nav initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="absolute inset-x-0 top-[68px] z-20 overflow-hidden border-y border-violet-900/10 bg-white/75 backdrop-blur-xl lg:hidden">
+            <div className="mx-auto flex max-w-[1440px] flex-col px-6 py-3 sm:px-10">{NAV_ITEMS.map(({ label, href, download }) => <a key={label} href={href} download={download} onClick={() => setMenuOpen(false)} className="py-3 text-sm font-semibold text-[#282440]">{label}</a>)}</div>
+          </motion.nav>}
+        </AnimatePresence>
+
+        <div className="homepage-hero-grid mx-auto grid min-h-[620px] max-w-[1440px] grid-cols-12 px-6 sm:px-10 lg:min-h-[720px] lg:px-14">
+          <div className="homepage-hero-copy relative z-10 col-span-12 flex max-w-[600px] flex-col justify-center pt-[118px] pb-16 lg:col-span-6 lg:pt-[92px] lg:pb-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-violet-600">Ideas That Move People</p>
+            <h1 className="mt-5 font-editorial text-[clamp(64px,5.3vw,96px)] leading-[0.92] tracking-[-0.055em] text-[#111024]">Motion, AI and<br /><span className="homepage-gradient-text italic">visual stories.</span></h1>
+            <p className="mt-6 max-w-[470px] text-[17px] leading-[1.5] text-[#4f4a70]">Marketing video, motion design, brand<br className="hidden sm:block" /> and AI-assisted visual experiences.</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <a href="#work" className="homepage-primary-button">View My Work <ArrowRight size={17} /></a>
+              <a href="#work" className="homepage-secondary-button" aria-label="Browse selected work"><Play size={14} fill="currentColor" /> Showreel</a>
             </div>
           </div>
         </div>
+        <div className="homepage-hero-note" aria-hidden><img src={hubAsset('text_hiro.png.png')} alt="" /></div>
+        <div className="homepage-hero-character" aria-hidden>
+          <img src={hubAsset('newCharacter.png.png')} alt="" />
+        </div>
+      </section>
 
-        <AnimatePresence>
-          {mobileNavOpen && (
-            <motion.nav
-              id="mobile-nav-menu"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="md:hidden overflow-hidden border-t border-white/10"
-            >
-              <div className="mx-auto max-w-[1440px] px-4 sm:px-6 py-2 flex flex-col">
-                {HEADER_LINKS.map(({ label, href }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    onClick={() => setMobileNavOpen(false)}
-                    className="py-2.5 text-[12px] font-semibold uppercase tracking-[0.14em] text-white/70 hover:text-white transition-colors"
-                  >
-                    {label}
-                  </a>
-                ))}
-              </div>
-            </motion.nav>
-          )}
-        </AnimatePresence>
-      </header>
-
-      {/* Content — Hero + grid. On desktop this wrapper gets an exact
-          `calc(100vh - header)` height (56px, matching the header's own
-          fixed lg height above) and is split into two fixed percentage
-          bands below (53/47, matched to the approved mockup's own
-          hero:grid proportions) — a hard pixel budget each section is
-          centered and clipped within, rather than natural content height
-          plus flex-grow, which let the grid silently push past the
-          viewport. The footer is NOT part of this budget (see below) —
-          reclaiming that height is what let the cards grow back to the
-          mockup's own generous size. Below `lg` this is entirely inert
-          (plain natural-height flow, scrollable). */}
-      <div className="relative z-10 flex flex-col">
-        <section
-          id="top"
-          className="mx-auto max-w-[1440px] w-full px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-8 pb-4 sm:pb-6 lg:pb-6 scroll-mt-20 shrink-0 lg:flex lg:items-center"
-        >
-          {/* Mobile's own vertical rhythm was compressed here (gap-10→gap-5,
-              trimmed mt- steps below) — measured at 863px tall against an
-              812px viewport (real mobile browser chrome eats into that
-              further), meaning the diorama never landed in the first swipe.
-              Desktop/tablet (sm+/lg+) spacing is further compressed again
-              for the one-screen composition specifically (lg: steps only). */}
-          {/* A real 2-column grid (was flex with hand-tuned 45%/52% widths)
-              — two EQUAL columns, so the right column's own center is the
-              true horizontal center of its half, not an off-center point
-              determined by unequal flex-basis math. Fixes a real reported
-              bug: on a wide 1080p external monitor the old right column
-              was both wider than the left (52% vs 45%) AND right-justified
-              within itself (see below), which visibly dragged the
-              character/floating-icon cluster toward the far right edge of
-              the container instead of sitting centered over its own half. */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-5 lg:gap-4 w-full">
-            {/* Left — copy. Left-aligned, compact, premium; no project art
-                duplicated here (that used to live in the old centered
-                hero) — the diorama on the right carries the "this is a
-                game-world designer" signal instead. */}
-            <div className="min-w-0 text-center lg:text-left">
-              <motion.h1
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.05 }}
-                className="font-display font-black text-[2.1rem] sm:text-4xl lg:text-[2.5rem] xl:text-[2.85rem] leading-[1.05] tracking-tight"
-              >
-                {/* Latest copy pass — exact copy per explicit direction,
-                    repositioned toward Marketing Video & Motion work
-                    specifically (was "Motion & Interactive UI Designer.").
-                    Same 2-line silver/accent-gradient treatment as before
-                    so the hero's visual weight is unchanged, only the
-                    words are. */}
-                <span className="bg-gradient-to-b from-white via-[#e6e6ee] to-[#9d9dae] bg-clip-text text-transparent">
-                  Marketing Video &amp;
-                </span>
-                <br />
-                <span className="text-gradient-cine">Motion Designer.</span>
-              </motion.h1>
-              <motion.p
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="mt-2 sm:mt-3 text-sm sm:text-base font-medium max-w-md mx-auto lg:mx-0 text-white/60"
-              >
-                Graphic designer &amp; motion artist creating high-impact promo, animation, visual systems and AI-driven content.
-              </motion.p>
-
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.15 }}
-                className="mt-3 sm:mt-5 lg:mt-4 flex items-center justify-center lg:justify-start gap-3 flex-wrap"
-              >
-                <motion.a
-                  href="#work"
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-br from-[#c4a2ff] via-[#8b5cf6] to-[#5b21b6] text-white text-xs font-display font-bold uppercase tracking-wide shadow-[0_0_24px_rgba(139,92,246,0.5),0_0_50px_rgba(139,92,246,0.22)]"
-                >
-                  View Featured Work <ArrowRight size={14} />
-                </motion.a>
-                <motion.a
-                  href={asset('/resume.pdf')}
-                  download
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="flex items-center gap-2 px-6 py-3 rounded-full border text-xs font-display font-bold uppercase tracking-wide transition-colors border-white/25 text-white hover:bg-white/10"
-                >
-                  <Download size={13} /> Resume
-                </motion.a>
-              </motion.div>
-
-              {/* Credibility line — seniority + real shipped work, named
-                  directly, right in the first 5 seconds instead of only
-                  below the fold. Deliberately small/quiet — a trust line,
-                  not a second headline — so it doesn't compete with the
-                  hero copy above it. Exact copy per explicit direction. */}
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="mt-2.5 sm:mt-4 lg:mt-3 flex items-center justify-center lg:justify-start gap-2 flex-wrap text-[11px] font-medium text-white/55"
-              >
-                <span className="inline-flex items-center gap-1 font-display font-extrabold text-cine-cyan">
-                  <TrendingUp size={13} /> 8+ Years
-                </span>
-                <span>• N12 News • Keshet Broadcasting</span>
-              </motion.div>
-            </div>
-
-            {/* Right — the character + 4 Worlds composition, floating free
-                (no card/container). Centered within its own grid cell at
-                every size (was `lg:justify-end`, pinning it to the
-                column's far edge instead) — HeroStage's own internal
-                sizing (see useHeroSizes) already keeps it well clear of
-                the left column's text on every viewport this was checked
-                against, so centering it here doesn't need its own
-                per-breakpoint override. */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-              className="w-full flex justify-center items-center"
-            >
-              <HeroStage onOpen={onOpen} />
-            </motion.div>
+      <main id="work" className="homepage-main relative z-[3] scroll-mt-16">
+        <section className="selected-work">
+          <div className="project-chapters">
+            <GalgalatzModule onClick={() => onOpen('galgalatz')} />
+            <MotionModule onClick={() => onOpen('people-motion')} />
+            <AiModule onClick={() => onOpen('ai-rescue')} />
+            <AmyModule onClick={() => onOpen('amy')} />
           </div>
         </section>
 
-        {/* Four premium "world" cards in one balanced row on desktop, 2×2
-            on tablet, one column on mobile. Sits directly under the Hero
-            now — the old scroll-driven "CinematicTransition" bridge
-            (its own aperture/portal animation, and a second, separate
-            01–04 numbering) has been removed: it added a scroll-length
-            no longer compatible with the one-screen composition, and its
-            numbering duplicated the ask to remove the colored numbers
-            entirely. */}
-        <main
-          id="work"
-          className="relative z-20 mx-auto max-w-[1440px] w-full px-4 sm:px-6 lg:px-10 pb-8 sm:pb-10 lg:pb-12 shrink-0 lg:-mt-8 lg:flex lg:items-center scroll-mt-20"
-        >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-5 lg:w-full">
-            <CardArrival index={0} accent="#8b5cf6">
-              <GalgalatzModule onClick={() => onOpen('galgalatz')} />
-            </CardArrival>
-            <CardArrival index={1} accent="#ffb454">
-              <MotionModule onClick={() => onOpen('people-motion')} />
-            </CardArrival>
-            <CardArrival index={2} accent="#4fd8ff">
-              <AiModule onClick={() => onOpen('ai-rescue')} />
-            </CardArrival>
-            <CardArrival index={3} accent="#ff5fa0">
-              <AmyModule onClick={() => onOpen('amy')} />
-            </CardArrival>
+        <span id="about" className="block scroll-mt-24" aria-hidden />
+        <section id="contact" className="homepage-contact scroll-mt-20">
+          <h2 className="font-editorial text-4xl leading-[0.88] tracking-[-0.045em] text-[#15132a] sm:text-5xl">LET&apos;S CREATE<br />SOMETHING<br /><span className="homepage-gradient-text italic">in motion.</span></h2>
+          <p className="mt-5 text-sm leading-relaxed text-[#5e5a72] lg:mt-0">Interested in working together?<br />I&apos;d love to hear about your project.</p>
+          <div className="mt-6 flex flex-wrap items-center gap-3 lg:mt-0 lg:justify-end">
+            <a href="mailto:shirly3212@gmail.com" className="homepage-primary-button">Let&apos;s Talk <ArrowRight size={17} /></a>
+            <a href="https://www.linkedin.com/in/shirly-herscovici/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="homepage-social"><Linkedin size={17} /></a>
+            <span title="Instagram" className="homepage-social homepage-social--static" aria-hidden><Instagram size={17} /></span>
+            <a href="mailto:shirly3212@gmail.com" aria-label="Email Shirly" className="homepage-social"><Mail size={17} /></a>
           </div>
-        </main>
-      </div>
-
-      <section id="about" className="relative z-10 mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-10 py-8 sm:py-10 scroll-mt-20">
-        <div className="rounded-[24px] border border-white/10 bg-white/[0.035] backdrop-blur-sm px-5 py-6 sm:px-8 sm:py-7">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cine-cyan">About</p>
-          <div className="mt-2 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-            <h2 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-white">Visual storytelling across motion, design &amp; emerging media</h2>
-            <p className="max-w-2xl text-sm leading-relaxed text-white/65">Visual &amp; Motion Designer with 8+ years of experience across broadcast, campaigns, interactive experiences and AI-assisted visual production.<br /><br />Currently at N12 / News 12, creating fast-turnaround motion, promo graphics, visual systems and editorial content for prime-time and digital platforms.</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="contact" className="relative z-10 mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-10 pb-8 sm:pb-10 scroll-mt-20">
-        <div className="rounded-[28px] border border-violet-300/20 bg-gradient-to-br from-violet-500/15 via-[#111422]/65 to-cyan-400/10 px-6 py-8 sm:px-10 sm:py-10 text-center shadow-[0_0_60px_rgba(139,92,246,0.14)]">
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-cine-cyan">Contact</p>
-          <h2 className="mt-2 font-display text-3xl sm:text-4xl font-black tracking-tight text-white">GET IN TOUCH</h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-white/65">Have a project, campaign, or story worth bringing to life? Let&apos;s talk.</p>
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <motion.a href="mailto:shirly3212@gmail.com" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#6d28d9] px-6 py-3 text-xs font-display font-bold uppercase tracking-wide text-white shadow-[0_0_24px_rgba(139,92,246,0.5)]">
-              <Mail size={14} /> Email Shirly
-            </motion.a>
-            <motion.a href="https://www.linkedin.com/in/shirly-herscovici/" target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/[0.06] px-6 py-3 text-xs font-display font-bold uppercase tracking-wide text-white transition-colors hover:bg-white/[0.12]">
-              <Linkedin size={14} /> LinkedIn
-            </motion.a>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer — sits in normal flow AFTER the one-screen Hero+grid
-          wrapper above (not squeezed into its viewport budget, matching
-          the approved mockup, which doesn't fit a footer into its own
-          one-screen composition either) — reachable with a small scroll
-          past the four projects, never required to see them. No fill/
-          blur of its own (was bg-[#0B0C10]/55 + backdrop-blur-sm) — that
-          combination read as a visible hard seam right at the card row's
-          bottom edge (Task 1: the continuous .bg-cine gradient + starfield
-          on the page's own outer wrapper already carries all the way down
-          behind the footer, same as behind the cards above it; the footer
-          just sits on it directly now instead of laying a second, flatter
-          dark panel on top). Border softened to match (was white/[0.06]) —
-          a hairline, not a divider. */}
-      <footer className="shrink-0 relative z-30 border-t border-white/[0.03]">
-        <div className="mx-auto max-w-[1440px] px-5 sm:px-8 py-4 sm:py-5 flex flex-col lg:flex-row items-center lg:items-center justify-between gap-3">
-          <div className="text-center lg:text-left">
-            <p className="font-display font-extrabold text-base sm:text-lg text-white tracking-tight">SHIRLY HERSCOVICI</p>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60 mt-0.5">{PROFESSIONAL_TITLE}</p>
-          </div>
-
-          <nav className="flex items-center gap-1.5 sm:gap-2.5 flex-wrap justify-center">
-            {NAV_ITEMS.map(({ label, icon: Icon, glow }) => (
-              <span
-                key={label}
-                style={{ ['--glow' as string]: glow }}
-                className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-wide text-white/70 hover:text-white transition-colors px-2 py-1.5 rounded-full hover:bg-white/10 cursor-default group/nav"
-              >
-                <Icon size={12} className="shrink-0 transition-[filter] duration-300 [filter:drop-shadow(0_0_0_transparent)] group-hover/nav:[filter:drop-shadow(0_0_6px_var(--glow))]" />
-                <span className="hidden md:inline leading-tight">{label}</span>
-              </span>
-            ))}
-          </nav>
-
-          {/* Glowing purple pill, per spec */}
-          <motion.a
-            href="mailto:shirly3212@gmail.com"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.97 }}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#6d28d9] text-white text-xs font-display font-bold uppercase tracking-wide shadow-[0_0_24px_rgba(139,92,246,0.55),0_0_50px_rgba(139,92,246,0.25)] shrink-0"
-          >
-            <Mail size={13} /> Let&apos;s Work Together <span aria-hidden>→</span>
-          </motion.a>
-        </div>
+        </section>
+      </main>
+      <footer className="relative z-[3] mx-auto flex w-[calc(100%-32px)] max-w-[1440px] items-center justify-between pb-8 pt-3 sm:w-[calc(100%-64px)]">
+        <img src={hubAsset('LOGO.png.png')} alt="Shirly Herscovici" className="w-[142px] opacity-80" />
+        <p className="text-[10px] font-semibold tracking-[0.12em] text-[#7b7690]">© {new Date().getFullYear()}</p>
       </footer>
     </div>
   )

@@ -127,20 +127,23 @@ function GlassDisplayCase({ highlighted }: { highlighted: boolean }) {
  *  clip-path, no corner calibration: it's one flat image, so whatever 3D
  *  tilt the parent applies to it, frame and screen tilt together,
  *  pixel-locked, by construction. */
-function PhoneShot({ frame }: { frame: (typeof FRAMES)[number] }) {
+function PhoneShot({ active }: { active: number }) {
   const prefersReduced = useReducedMotion()
   return (
     <div className="relative w-full h-full">
-      <motion.img
-        key={frame.key}
-        src={frame.src}
-        alt={frame.alt}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        className="absolute inset-0 w-full h-full object-contain"
-        draggable={false}
-      />
+      {/* Keep every frame in the same fixed phone box. Swapping a keyed
+          image was remounting it during selection, which briefly let its
+          intrinsic dimensions affect the modal's scrollable layout. */}
+      {FRAMES.map((frame, index) => (
+        <img
+          key={frame.key}
+          src={frame.src}
+          alt={index === active ? frame.alt : ''}
+          aria-hidden={index !== active}
+          className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-300 ${index === active ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+          draggable={false}
+        />
+      ))}
       {/* A bright scanline sweeps down as the frame changes — this is a
           radio station's own voting chart, so switching frames should feel
           like tuning between channels, not a slideshow crossfade. Keyed by
@@ -149,7 +152,7 @@ function PhoneShot({ frame }: { frame: (typeof FRAMES)[number] }) {
           motionless "scanline" would just look like a stray bar. */}
       {!prefersReduced && (
         <motion.div
-          key={`scan-${frame.key}`}
+          key={`scan-${FRAMES[active].key}`}
           aria-hidden
           initial={{ top: '-15%', opacity: 0.9 }}
           animate={{ top: '115%', opacity: 0 }}
@@ -224,14 +227,14 @@ export default function GalgalatzCaseStudy({ onClose }: { onClose: () => void })
     <div className="relative isolate overflow-hidden">
       <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden>
         <img src={ASSETS.neonBox} alt="" className="absolute inset-0 h-full w-full scale-125 object-cover object-center opacity-[0.14] blur-[22px]" />
-        <div className="absolute inset-0 bg-black/65" />
+        <div className="absolute inset-0 bg-[#f8f5ff]/76" />
       </div>
       <CaseStudyHeader
         id="modal-galgalatz-title"
         stageLabel={PROJECT_NUMBER.galgalatz}
         title="Game UI UX Prototyping"
         supportLabel="Production Voting Flow & 3D Neon Integration"
-        theme="dark"
+        theme="light"
         onClose={onClose}
         variant="inline-meta"
         meta={[
@@ -254,7 +257,7 @@ export default function GalgalatzCaseStudy({ onClose }: { onClose: () => void })
           result summary — important enough that it shouldn't be an
           afterthought under the visuals. */}
       <div className="px-5 sm:px-8 pb-4">
-        <div className="rounded-2xl glass-cine-soft px-4 py-3 flex flex-wrap items-baseline gap-x-3 gap-y-1.5 text-[12px] sm:text-[13px]">
+        <div className="rounded-2xl glass-pearl-soft px-4 py-3 flex flex-wrap items-baseline gap-x-3 gap-y-1.5 text-[12px] sm:text-[13px]">
           {[
             { k: 'Challenge', v: 'A cluttered, low-engagement voting flow.' },
             { k: 'UX Idea', v: 'Guide users discover → listen → vote.' },
@@ -264,7 +267,7 @@ export default function GalgalatzCaseStudy({ onClose }: { onClose: () => void })
             <span key={s.k} className="flex items-baseline gap-2">
               <span>
                 <span className="font-display font-bold uppercase tracking-wide text-cine-cyan">{s.k}</span>{' '}
-                <span className="text-white/90 font-medium">{s.v}</span>
+                <span className="text-[#171428]/80 font-medium">{s.v}</span>
               </span>
               {i < arr.length - 1 && <span className="text-cine-cyan/40">→</span>}
             </span>
@@ -288,7 +291,7 @@ export default function GalgalatzCaseStudy({ onClose }: { onClose: () => void })
             and phone grow to fill whatever height the film strip needs,
             landing them all visually aligned instead of the scene sitting
             shorter than the strip beside it. */}
-        <div className="lg:grid lg:h-[520px] lg:grid-cols-[1.3fr_1fr] lg:gap-6">
+        <div className="lg:grid lg:h-[520px] lg:min-h-[520px] lg:grid-cols-[1.3fr_1fr] lg:gap-6">
         <div className="lg:h-full lg:flex lg:flex-col">
         {/* Fixed-aspect artboard (not flex-driven sizing) — cabinet and
             phone zones positioned at percentages pixel-measured directly
@@ -343,7 +346,7 @@ export default function GalgalatzCaseStudy({ onClose }: { onClose: () => void })
                 whileHover={{ rotateY: -5, rotateX: 1.5, scale: 1.015 }}
                 transition={{ type: 'spring', stiffness: 220, damping: 22 }}
               >
-                <PhoneShot frame={FRAMES[active]} />
+                <PhoneShot active={active} />
               </motion.div>
 
               {/* Screen nav arrows — cycle through the same FRAMES the

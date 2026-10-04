@@ -202,7 +202,7 @@ export default function ProjectModal({
           position in every case study. */}
       {mounted && (
         <motion.div
-          className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-lg"
+          className="fixed inset-0 z-[100] bg-[rgba(239,235,250,0.36)] backdrop-blur-[16px] backdrop-saturate-[.95]"
           aria-hidden
           initial={prefersReduced ? false : { opacity: 0 }}
           animate={{ opacity: open ? 1 : 0 }}
@@ -243,13 +243,11 @@ export default function ProjectModal({
             transition={{ duration: prefersReduced ? 0 : 0.18, ease: 'easeOut' }}
             style={{
               isolation: 'isolate',
-              boxShadow: '0 0 50px rgba(0,0,0,0.5), 0 40px 90px -20px rgba(0,0,0,0.6)',
+              boxShadow: '0 28px 90px rgba(57,40,100,0.18)',
               pointerEvents: open ? 'auto' : 'none',
               willChange: 'transform, opacity',
             }}
-            className={`relative w-full ${maxWidthClass} my-auto rounded-[28px] sm:rounded-[32px] border outline-none ${
-              theme === 'light' ? 'bg-white/25 backdrop-blur-xl border-white/60' : 'bg-slate-900/40 backdrop-blur-xl border-white/15'
-            }`}
+            className={`relative w-full ${maxWidthClass} my-auto rounded-[28px] sm:rounded-[32px] border border-white/[0.88] bg-[linear-gradient(145deg,rgba(255,255,255,.94),rgba(248,245,255,.90))] outline-none backdrop-blur-[24px]`}
           >
             {/* Retro joystick accent, top-left, Amy only — a standalone 3D
                 render breaking the panel's own top edge (no boxed
@@ -288,7 +286,7 @@ export default function ProjectModal({
                 aria-label="Close case study"
                 whileHover={{ scale: 1.06 }}
                 whileTap={{ scale: 0.94 }}
-                className="absolute top-3 right-3 sm:top-4 sm:right-4 z-[100] pointer-events-auto w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-b from-[#d34f4f] to-[#8f1f2d] border border-white/20 shadow-[0_3px_0_#5e1319,0_6px_14px_-2px_rgba(143,31,45,0.55)] flex items-center justify-center text-white"
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 z-[100] pointer-events-auto w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-violet-900/15 bg-white/75 text-[#171428] shadow-[0_8px_20px_rgba(57,40,100,.10)] backdrop-blur-md flex items-center justify-center"
               >
                 <X size={16} strokeWidth={2.5} />
               </motion.button>
@@ -299,7 +297,7 @@ export default function ProjectModal({
                 aria-label="Close case study"
                 whileHover={{ scale: 1.06 }}
                 whileTap={{ scale: 0.94 }}
-                className="absolute top-3 right-3 sm:top-4 sm:right-4 z-[100] pointer-events-auto w-9 h-9 sm:w-10 sm:h-10 rounded-lg border-2 border-white/40 hover:border-white/70 hover:bg-white/10 transition-colors flex items-center justify-center text-white"
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 z-[100] pointer-events-auto w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-violet-900/15 bg-white/75 text-[#171428] shadow-[0_8px_20px_rgba(57,40,100,.10)] backdrop-blur-md transition-colors hover:bg-white flex items-center justify-center"
               >
                 <X size={16} strokeWidth={2.5} />
               </motion.button>
@@ -310,17 +308,11 @@ export default function ProjectModal({
                 aria-label="Close case study"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.96 }}
-                className={`absolute top-3 right-3 sm:top-4 sm:right-4 z-[100] pointer-events-auto flex items-center gap-2.5 ${
-                  theme === 'light' ? 'text-pearl-ink' : 'text-white'
-                }`}
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 z-[100] pointer-events-auto flex items-center gap-2.5 text-[#171428]"
               >
                 <span
                   className={
-                    closeAccent === 'red'
-                      ? 'flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gradient-to-b from-[#d34f4f] to-[#8f1f2d] border border-white/20 shadow-[0_3px_0_#5e1319,0_6px_14px_-2px_rgba(143,31,45,0.55)] text-white transition-transform hover:scale-105'
-                      : `flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg border transition-colors ${
-                          theme === 'light' ? 'border-pearl-ink/25 hover:bg-pearl-ink/5' : 'border-white/30 hover:bg-white/10'
-                        }`
+                    'flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-violet-900/15 bg-white/75 shadow-[0_8px_20px_rgba(57,40,100,.10)] transition-colors hover:bg-white'
                   }
                 >
                   <X size={15} strokeWidth={2.25} />
@@ -334,11 +326,7 @@ export default function ProjectModal({
                 whileHover="hover"
                 initial="rest"
                 whileTap={{ scale: 0.94 }}
-                className={`group absolute top-3 right-3 sm:top-4 sm:right-4 z-[100] pointer-events-auto flex items-center gap-1.5 h-9 sm:h-10 pl-2.5 pr-2.5 rounded-full border backdrop-blur-md transition-colors ${
-                  theme === 'light'
-                    ? 'bg-white/70 border-white/80 text-pearl-ink hover:bg-white/90 shadow-pearl-sm'
-                    : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
-                }`}
+                className="group absolute top-3 right-3 sm:top-4 sm:right-4 z-[100] pointer-events-auto flex h-9 gap-1.5 rounded-full border border-violet-900/15 bg-white/75 pl-2.5 pr-2.5 text-[#171428] shadow-[0_8px_20px_rgba(57,40,100,.10)] backdrop-blur-md transition-colors hover:bg-white sm:h-10"
               >
                 <X size={15} strokeWidth={2.25} />
                 <motion.span

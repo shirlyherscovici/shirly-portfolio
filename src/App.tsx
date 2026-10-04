@@ -14,7 +14,7 @@ import { asset } from './lib/asset'
 // entirely, per explicit direction) — every case study always renders its
 // dark palette, so this is a plain constant rather than the old
 // site-wide toggle state it replaces.
-const dark = true
+const dark = false
 
 const LABEL_ID: Record<ProjectId, string> = {
   amy: 'modal-amy-title',
@@ -27,7 +27,7 @@ function AppShell() {
   const [openId, setOpenId] = useState<ProjectId | null>(null)
   const close = () => setOpenId(null)
 
-  const theme: Theme = openId ? 'dark' : 'light'
+  const theme: Theme = 'light'
 
   return (
     // MotionConfig(reducedMotion="user") makes every Framer Motion
@@ -47,10 +47,10 @@ function AppShell() {
         onClose={close}
         theme={theme}
         labelledBy={openId ? LABEL_ID[openId] : ''}
-        arcadeChrome={openId === 'amy'}
         outlineClose={openId === 'galgalatz'}
         closeLabel={openId === 'ai-rescue' ? 'Close' : openId === 'people-motion' ? 'Close Case Study' : undefined}
         closeAccent={openId === 'ai-rescue' ? 'red' : undefined}
+        maxWidthClass={openId === 'ai-rescue' ? 'max-w-[1320px]' : undefined}
         joystickBadgeSrc={openId === 'galgalatz' ? asset('/assets/galgalatz/joystick-galgaltz.png') : undefined}
         breakout={
           openId === 'ai-rescue' ? (
@@ -66,8 +66,8 @@ function AppShell() {
       >
         {openId === 'amy' && <AmyCaseStudy onClose={close} dark={dark} />}
         {openId === 'galgalatz' && <GalgalatzCaseStudy onClose={close} />}
-        {openId === 'ai-rescue' && <AiRescueCaseStudy onClose={close} />}
-        {openId === 'people-motion' && <PeopleMotionCaseStudy onClose={close} dark={dark} />}
+        {openId === 'ai-rescue' && <AiRescueCaseStudy onClose={close} onNavigate={setOpenId} />}
+        {openId === 'people-motion' && <PeopleMotionCaseStudy onClose={close} onNavigate={setOpenId} dark={dark} />}
       </ProjectModal>
     </MotionConfig>
   )

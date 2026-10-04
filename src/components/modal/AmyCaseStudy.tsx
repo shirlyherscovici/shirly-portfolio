@@ -1,421 +1,327 @@
-import { motion } from 'framer-motion'
-import { Users, TrendingUp, Heart, PenTool, Palette, ExternalLink } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowLeft, ArrowRight, ExternalLink } from 'lucide-react'
 import CaseStudyHeader from './CaseStudyHeader'
-import StatStrip from '../ui/StatStrip'
-import FloatingElement from '../ui/FloatingElement'
-import { MusicNote, TreasureChest } from '../ui/decor'
-import AmyRosterGrid from './AmyRosterGrid'
-import AmyBeforeAfterPhone from './AmyBeforeAfterPhone'
-import { useCountUp } from '../../lib/useCountUp'
 import { asset } from '../../lib/asset'
 import { PROJECT_NUMBER } from '../../lib/projectMeta'
 
-const ASSETS = {
-  figure: asset('/assets/amy/amy-figure-birds-gems.png'),
-}
+const amyAsset = (name: string) => asset(`/assets/amy/${name}`)
 
-/* -------------------------- Hero figure composition -------------------------- */
-
-function AmyHeroFigure({ dark }: { dark: boolean }) {
+function SectionHeading({ id, children, note }: { id: string; children: React.ReactNode; note?: string }) {
   return (
-    <div className="relative h-full overflow-visible">
-      {/* h-full, not its own aspect-ratio — this zone's actual proportions
-          are now set by the artboard stage's own aspect-ratio (measured
-          from the mockup card), not by this component in isolation. */}
-      <div
-        className={`relative h-full rounded-[24px] overflow-visible border shadow-pearl-sm flex items-end justify-center px-1 pt-6 ${
-          dark ? 'bg-gradient-to-b from-[#2b1f26] to-[#170f14] border-white/10' : 'bg-gradient-to-b from-[#fdf3e8] to-[#f6ded7] border-white'
-        }`}
-      >
-        {/* Real character render — the box, roses, golden swallow, vinyl
-            record and music note are all baked into the source artwork.
-            Enlarged and allowed to spill past the panel's own edges. */}
-        <img
-          src={ASSETS.figure}
-          alt="AMY — Amy Winehouse tribute character emerging from a gift box, with a golden swallow, roses and a vinyl record"
-          className="w-[132%] max-w-none h-full max-h-[124%] object-contain drop-shadow-xl relative z-10"
-        />
-      </div>
-      {/* No separate floating swallow/vinyl/coin here anymore — checked
-          the actual source artwork (amy-figure-birds-gems.png) directly
-          and it already has the swallow, the vinyl record, AND a music
-          note baked in at bottom-left. The earlier floating GoldCoin and
-          VinylRecord elements were rendering a second copy of things the
-          image already shows, which the mockup doesn't do — it has
-          exactly one of each. */}
+    <div className="flex flex-wrap items-end gap-x-4 gap-y-1 border-b border-[#302d35]/50 pb-2">
+      <h2 id={id} className="font-serif text-3xl font-semibold leading-none tracking-[-0.045em] text-[#1d1b21] sm:text-4xl">{children}</h2>
+      {note && <p className="mb-0.5 text-xs leading-snug text-[#605a61]">{note}</p>}
     </div>
   )
 }
 
-/* -------------------------------- Metric badges -------------------------------- */
-
-function ChestBadge({ dark }: { dark: boolean }) {
-  const growth = useCountUp('+74%')
+function LanguageCard({ label, children, copy }: { label: string; children: React.ReactNode; copy: string }) {
   return (
-    <div
-      // Light mode used to sit on `glass-pearl-soft` — a translucent
-      // WHITE glass. Fine with the old dark-red number, but white text
-      // (per explicit request, for both this number and the pie badge's)
-      // would have gone straight to unreadable on it. A rich crimson
-      // gradient (matching the "Amy" gift-box red already used for the
-      // View Live Project button) replaces it in both modes, so white
-      // text has real contrast either way.
-      className="relative flex-1 rounded-2xl border p-3.5 text-center overflow-hidden bg-gradient-to-br from-[#c9576b] to-[#7a1a26] border-pearl-gold/40"
-      style={{ boxShadow: '0 10px 24px -8px rgba(176,42,58,0.28), 0 2px 6px rgba(35,31,44,0.08)' }}
+    <article className="min-w-0">
+      <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.16em] text-[#403b43]">{label}</p>
+      <div className="aspect-[1.35/1] overflow-hidden border border-black/10 bg-[#eee4d3]">{children}</div>
+      <p className="mt-2 text-xs leading-[1.35] text-[#5f5960]">{copy}</p>
+    </article>
+  )
+}
+
+type BannerStage = {
+  number: '01' | '02' | '03' | '04'
+  title: string
+  subtitle: string
+  copy: string
+  image: string
+}
+
+const BANNER_STAGES: BannerStage[] = [
+  {
+    number: '01',
+    title: 'Initial Direction',
+    subtitle: 'Bold & Expressive',
+    copy: 'Early exploration focused on strong contrast, portraiture and immediate visual impact.',
+    image: 'concept-1.png',
+  },
+  {
+    number: '02',
+    title: 'Visual Exploration',
+    subtitle: 'Color & Character',
+    copy: 'A bolder route testing color, portrait placement and tattoo-inspired visual language.',
+    image: 'concept-2.png',
+  },
+  {
+    number: '03',
+    title: 'Refined Exploration',
+    subtitle: 'Mood & Restraint',
+    copy: 'A more restrained direction testing monochrome treatment and a quieter editorial tone.',
+    image: 'concept-3.png',
+  },
+  {
+    number: '04',
+    title: 'Final Direction',
+    subtitle: 'Editorial & Iconic',
+    copy: 'The final direction brings tattoo culture, distressed print textures and 27 Club references into one cohesive identity.',
+    image: 'hero-banner.png',
+  },
+]
+
+type ComparisonExample = {
+  number: '01' | '02' | '03'
+  before: string
+  after: string
+  label: string
+}
+
+const COMPARISON_EXAMPLES: ComparisonExample[] = [
+  { number: '01', before: 'before-after/001-before.jpg', after: 'before-after/001-after.jpg', label: 'Archive portrait' },
+  { number: '02', before: 'before-after/005-before.jpg', after: 'before-after/005-after.jpg', label: 'Campaign transformation' },
+  { number: '03', before: 'before-after/006-before.jpg', after: 'before-after/006-after.jpg', label: 'Editorial treatment' },
+]
+
+function BannerCard({ stage, active, onPreview, onPreviewEnd, onSelect }: {
+  stage: BannerStage
+  active: boolean
+  onPreview: () => void
+  onPreviewEnd: () => void
+  onSelect: () => void
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      onMouseEnter={onPreview}
+      onMouseLeave={onPreviewEnd}
+      onFocus={onPreview}
+      onBlur={onPreviewEnd}
+      onClick={onSelect}
+      className={`group block min-w-0 text-left transition-[opacity,transform] duration-300 ease-out ${active ? 'scale-[1.018] opacity-100' : 'opacity-65'}`}
     >
-      {/* 3D treasure chest stands in for the old text badge — a synthetic
-          pop-art ornament (no real "bonus reward" asset exists yet: a
-          3d-treasure-chest.png was requested but isn't in the project, so
-          this SVG stays in place with the requested crimson glow until a
-          real render is provided), gold/red to match the gift box & roses. */}
-      <TreasureChest size={80} className="mx-auto" style={{ filter: 'drop-shadow(0px 8px 16px rgba(208,44,58,0.35))' }} />
-      {/* Sized down from text-5xl/6xl — at that size "+74%" was clipping
-          against the badge's own edges in the wide-shell layout. White
-          (was dark red) now that the badge itself carries the color. */}
-      <p
-        className="font-display font-black text-4xl sm:text-5xl text-white leading-none tabular-nums mt-2"
-        style={{ textShadow: '0 1px 3px rgba(0,0,0,0.35), 0 0 24px rgba(0,0,0,0.2)' }}
-      >
-        {growth}
-      </p>
-      <p className="mt-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-white">Active User Growth</p>
-    </div>
+      <span className={`relative block aspect-[1.72/1] overflow-hidden border transition-colors duration-300 ${active ? 'border-[#d3172f] ring-1 ring-[#d3172f]' : 'border-black/15'}`}>
+        {stage.number === '04' && <span className="absolute right-2 top-2 z-10 rounded-full bg-[#d3172f] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-white">Final</span>}
+        <img src={amyAsset(stage.image)} alt={`${stage.title} banner direction`} className={`h-full w-full bg-[#ede1cf] object-contain object-center transition-[filter,transform] duration-300 ${active ? 'scale-[1.015] grayscale-0 saturate-100' : 'grayscale saturate-0'}`} />
+      </span>
+      <span className="mt-3 flex gap-3">
+        <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-serif text-lg transition-colors duration-300 ${active ? 'bg-[#d3172f] text-white' : 'bg-[#b6aa95] text-white'}`}>{stage.number}</span>
+        <span>
+          <span className={`block font-serif text-lg font-semibold leading-none transition-colors duration-300 ${active ? 'text-[#27232a]' : 'text-[#625c63]'}`}>{stage.title}</span>
+          <span className={`mt-1 block text-xs font-semibold leading-[1.35] transition-colors duration-300 ${active ? 'text-[#b31b2d]' : 'text-[#625c63]'}`}>{stage.subtitle}</span>
+          <span className="mt-1 block text-xs leading-[1.35] text-[#625c63]">{stage.copy}</span>
+        </span>
+      </span>
+    </button>
   )
 }
 
-/** A real, slow-spinning vinyl record — `disk.png`, already a supplied
- *  asset and already imported into `decor.tsx` as `VinylRecord`, but
- *  previously unused anywhere in the rendered Amy module or case study
- *  (the figure has its own baked-in vinyl, so a second copy layered on
- *  top of her would just duplicate it — this one lives beside the badges
- *  instead, its own small moment). A real 33⅓rpm turntable reads as
- *  ~1.8s/rotation; deliberately much slower (7s) so it reads as ambience
- *  — "the campaign this case study is about is a music tribute" — rather
- *  than a literal turntable-speed gimmick. */
-function RingBadge({ dark }: { dark: boolean }) {
-  const pct = useCountUp('+40%')
+function BannerDevelopment() {
+  const [selected, setSelected] = useState<BannerStage['number']>('04')
+  const [preview, setPreview] = useState<BannerStage['number'] | null>(null)
+  const active = preview ?? selected
+
   return (
-    <div
-      // Matches ChestBadge's badge treatment — see its comment on why
-      // light mode moved off `glass-pearl-soft` (a white glass, no
-      // contrast for white text) to this crimson gradient.
-      className="relative flex-1 rounded-2xl border p-3.5 text-center overflow-hidden bg-gradient-to-br from-[#c9576b] to-[#7a1a26] border-pearl-gold/40"
-      style={{ boxShadow: '0 10px 24px -8px rgba(176,42,58,0.28), 0 2px 6px rgba(35,31,44,0.08)' }}
-    >
-      {/* Real rendered 3D ring badge (gold / crimson / black), replacing
-          the earlier hand-built CSS conic-gradient donut — the percentage
-          sits in the ring's own transparent center hole (the ring art
-          itself is centered in its square canvas, confirmed directly).
-          Sized to read as the same visual weight as the chest icon next
-          to it (a graphic-design "these two badges are a matched pair"
-          balance), not dramatically bigger. */}
-      <div className="relative mx-auto mt-0 w-32 h-32 sm:w-36 sm:h-36 flex items-center justify-center">
-        <img src={asset('/assets/amy/pie.png')} alt="" className="absolute inset-0 w-full h-full object-contain drop-shadow-lg" />
-        {/* The hole in the ring art has real room (~55% of the canvas),
-            but "+40%" at the old size still read as touching its inner
-            edge — a fixed max-width, well inside the hole, guarantees
-            breathing room on every side regardless of exact string
-            length. White (was dark red) to match ChestBadge's number. */}
-        <p
-          className="relative font-display font-black text-xl sm:text-2xl text-white leading-none tabular-nums max-w-[60%] mx-auto"
-          style={{ textShadow: '0 1px 3px rgba(0,0,0,0.4), 0 0 20px rgba(0,0,0,0.25)' }}
-        >
-          {pct}
-        </p>
+    <>
+      <div aria-hidden className="relative mb-5 hidden grid-cols-4 items-center md:grid">
+        <span className="absolute left-[12.5%] right-[12.5%] top-1/2 h-px -translate-y-1/2 bg-[#302d35]/25" />
+        {BANNER_STAGES.map((stage) => <span key={stage.number} className={`relative z-10 mx-auto grid h-7 w-7 place-items-center rounded-full text-[10px] font-bold ${active === stage.number ? 'bg-[#d3172f] text-white' : 'bg-[#c7baa7] text-white'}`}>{stage.number}</span>)}
       </div>
-      <p className="mt-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-white">Increased Engagement</p>
-    </div>
+      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        {BANNER_STAGES.map((stage) => (
+          <BannerCard
+            key={stage.number}
+            stage={stage}
+            active={active === stage.number}
+            onPreview={() => setPreview(stage.number)}
+            onPreviewEnd={() => setPreview(null)}
+            onSelect={() => setSelected(stage.number)}
+          />
+        ))}
+      </div>
+      <BeforeAfterExamples />
+    </>
   )
 }
 
-/* --------------------------- Phone + roster composition --------------------------- */
+function BeforeAfterExamples() {
+  const [selected, setSelected] = useState<ComparisonExample['number']>('02')
+  const [view, setView] = useState<'before' | 'after'>('after')
+  const example = COMPARISON_EXAMPLES.find((item) => item.number === selected) ?? COMPARISON_EXAMPLES[1]
+  const image = view === 'before' ? example.before : example.after
 
-/** The new front-facing phone render (replaces the old photographed/tilted
- *  one) with the "27 Club" flip grid composited into its actual screen
- *  bounds, and a 3D tilt applied here in CSS rather than baked into a
- *  photo. Shared between the desktop artboard (one absolutely-positioned
- *  zone among three) and the mobile layout below (stands alone, full
- *  width) so the same device-framing technique — and the same asset — is
- *  used at every size. */
-function PhoneRosterZone() {
   return (
-    <div className="relative w-full" style={{ aspectRatio: '941 / 1672', perspective: 1400 }}>
-      {/* Frame and screen content live in ONE 3D-tilted parent — since the
-          new render is front-facing (un-tilted, clean axis-aligned screen
-          rectangle, measured directly against this asset: ~10–90% width,
-          ~9.7–89.5% height), they never need separate per-layer alignment;
-          whatever tilt is applied here, both move together as one rigid
-          surface. */}
-      <motion.div
-        className="relative w-full h-full"
-        style={{ transformStyle: 'preserve-3d', rotateY: 8, rotateX: 3 }}
-        whileHover={{ rotateY: 4, rotateX: 1.5, scale: 1.015 }}
-        transition={{ type: 'spring', stiffness: 220, damping: 22 }}
-      >
-        <img
-          src={asset('/assets/amy/amy-phones-front.png')}
-          alt=""
-          aria-hidden
-          className="absolute inset-0 w-full h-full pointer-events-none select-none"
-          draggable={false}
-        />
-        <div
-          className="absolute overflow-y-auto no-scrollbar rounded-[10px]"
-          // The roster cards inside AmyRosterGrid weren't responding to
-          // clicks at all — found via direct hit-test diagnostics
-          // (elementFromPoint at a real rendered card's own on-screen
-          // center was resolving to this DIV, the cards' shared
-          // grandparent, never the card itself or anything inside it, so
-          // every click silently fell through). Root cause: this
-          // `overflow-y-auto` scroll box sits directly inside the phone
-          // frame's `preserve-3d` + rotateY/rotateX-tilted parent (see the
-          // motion.div above) — Chromium was resolving pointer hit-tests
-          // for its own descendants against the wrong projected
-          // coordinates once several DOM levels deep in that shared 3D
-          // space. `translateZ(1px)` promotes this box onto its own
-          // compositor layer, which corrects the hit-test math without
-          // touching the phone's own visual tilt (this box still inherits
-          // it) or anything about the flip-card interaction itself.
-          style={{ left: '10%', top: '9.7%', width: '80%', height: '79.8%', touchAction: 'pan-y', transform: 'translateZ(1px)' }}
-        >
-          <AmyRosterGrid />
-          {/* A bottom fade signals "there's more below" if the grid's own
-              natural height ever exceeds this window — `no-scrollbar`
-              above hides the native scrollbar, so without this the fact
-              that it scrolls at all wouldn't be visible. Sticky so it
-              stays pinned to the visible bottom edge regardless of scroll
-              position. */}
-          <div className="sticky bottom-0 inset-x-0 h-6 bg-gradient-to-t from-black/70 to-transparent pointer-events-none" />
+    <div className="mt-7 border border-black/10 bg-[#f5ecdc] p-4 sm:p-5">
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#403b43]">Before / After</p>
+          <p className="mt-1 font-serif text-xl font-semibold text-[#27232a]">Design transformation</p>
         </div>
-      </motion.div>
+        <p className="text-xs text-[#625c63]">Choose an example, then switch between the original and campaign treatment.</p>
+      </div>
+      <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_168px]">
+        <div className="aspect-[1.35/1] overflow-hidden border border-black/15 bg-[#292325] sm:aspect-[1.55/1]">
+          <div className="relative h-full w-full">
+            <img src={amyAsset(image)} alt={`${view === 'before' ? 'Before' : 'After'}: ${example.label}`} className="block h-full w-full object-contain" />
+            <div className="absolute left-3 top-3 inline-flex overflow-hidden rounded-full border border-white/25 bg-black/55 p-1 text-[10px] font-bold tracking-[0.14em] text-white backdrop-blur-sm" aria-label="Before and after view">
+              <button type="button" onClick={() => setView('before')} aria-pressed={view === 'before'} className={`rounded-full px-3 py-1.5 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${view === 'before' ? 'bg-white text-[#27232a]' : 'text-white/80 hover:text-white'}`}>Before</button>
+              <button type="button" onClick={() => setView('after')} aria-pressed={view === 'after'} className={`rounded-full px-3 py-1.5 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${view === 'after' ? 'bg-[#d3172f] text-white' : 'text-white/80 hover:text-white'}`}>After</button>
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-3 lg:grid-cols-1" aria-label="Before and after examples">
+          {COMPARISON_EXAMPLES.map((item) => {
+            const isSelected = item.number === selected
+            return (
+              <button
+                key={item.number}
+                type="button"
+                aria-pressed={isSelected}
+                onClick={() => {
+                  setSelected(item.number)
+                  setView('after')
+                }}
+                className={`overflow-hidden border text-left transition-colors ${isSelected ? 'border-[#d3172f] ring-1 ring-[#d3172f]' : 'border-black/15 hover:border-[#8a6268]'}`}
+              >
+                <span className="block aspect-[1.65/1] bg-[#292325]">
+                  <img src={amyAsset(item.after)} alt="" className="h-full w-full object-contain" />
+                </span>
+                <span className={`block px-2 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] ${isSelected ? 'bg-[#d3172f] text-white' : 'text-[#4b454b]'}`}>Example {item.number}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }
 
-/* ---------------------------------- Export ---------------------------------- */
-
-export default function AmyCaseStudy({ onClose, dark = false }: { onClose: () => void; dark?: boolean }) {
-  const engaged = '120K → 240K'
-  const impressions = 'Art Direction'
-  const feedback = 'Visual Design'
-
+/** The approved Amy case study: a single light, editorial page composed
+ * only of the seven reference sections and existing Amy campaign assets. */
+export default function AmyCaseStudy({ onClose }: { onClose: () => void; dark?: boolean }) {
   return (
-    // Warm, semi-transparent pink-tinted glass in light mode; a deep
-    // near-black plum in dark mode (same red/gold accent family, just
-    // inverted) — the site-wide dark-mode toggle reaches this case study
-    // too, per explicit request, not just the homepage shell. (The
-    // internal sections below keep their own px-5 sm:px-8 rhythm rather
-    // than an outer p-8, since CaseStudyHeader already manages its own
-    // edge padding and doubling both would blow out the spacing.)
-    <div className={`backdrop-blur-xl rounded-[32px] border shadow-2xl ${dark ? 'bg-[#160f16]/70 border-white/10' : 'bg-[#EFE3DD]/40 border-white/80'}`}>
+    <article className="overflow-hidden rounded-[30px] bg-[#f8f1e5] text-[#1d1b21] shadow-[0_24px_70px_rgba(62,40,35,0.16)]">
       <CaseStudyHeader
         id="modal-amy-title"
         stageLabel={PROJECT_NUMBER.amy}
         title="Graphic Design"
-        supportLabel="Character Design & 3D Pop-Art Figure"
-        theme={dark ? 'dark' : 'light'}
+        supportLabel=""
+        theme="light"
         onClose={onClose}
-        arcadeChrome
         variant="minimal"
-        meta={[
-          { label: 'Role', value: 'Art Direction, Visual Design' },
-          { label: 'Tech', value: 'Midjourney · 3D Printing Pipeline · Illustrator' },
-        ]}
+        meta={[]}
       />
 
-      {/* Campaign Impact + My Role — moved from the footer to the TOP,
-          collapsed into one row, per explicit request: the metrics were
-          only visible after scrolling past the whole artboard below, and
-          they're the numbers that matter most to a reviewer, not an
-          afterthought. The "Play Case Study" CTA that used to close the
-          modal here was redundant with the close button and dropped. */}
-      <div className={`px-5 sm:px-8 pb-3 flex flex-wrap items-center gap-x-6 gap-y-2.5 border-b mb-3 ${dark ? 'border-white/10' : 'border-pearl-ink/10'}`}>
-        <div className="flex items-center gap-2">
-          <img src={asset('/assets/amy/arrow-amy.png')} alt="" className="w-6 h-6 object-contain shrink-0" />
-          <span className={`text-[10px] font-bold uppercase tracking-[0.14em] whitespace-nowrap ${dark ? 'text-white/90' : 'text-pearl-ink'}`}>Campaign Impact</span>
-        </div>
-        <StatStrip
-          theme="light"
-          labelOnDark={dark}
-          stats={[
-            { icon: <Users size={13} />, value: engaged, label: 'Audience' },
-            { icon: <TrendingUp size={13} />, value: impressions, label: 'Role' },
-            { icon: <Heart size={13} />, value: feedback, label: 'Role' },
-          ]}
-        />
-        <div className={`w-px h-6 hidden sm:block ${dark ? 'bg-white/15' : 'bg-pearl-ink/15'}`} />
-        <div className="flex items-center gap-3">
-          <span className={`text-[10px] font-bold uppercase tracking-[0.14em] whitespace-nowrap ${dark ? 'text-white/90' : 'text-pearl-ink'}`}>My Role</span>
-          <div className={`flex items-center gap-3 ${dark ? 'text-white/90' : 'text-pearl-ink'}`}>
-            <span className="flex items-center gap-1">
-              <PenTool size={14} />
-              <span className={`text-[10px] font-bold uppercase tracking-wide ${dark ? 'text-white/80' : 'text-pearl-ink/80'}`} style={{ WebkitTextStroke: '0.25px rgba(255,255,255,0.55)', textShadow: '0 0 4px rgba(255,255,255,0.15)' }}>Art Direction</span>
-            </span>
-            <span className="flex items-center gap-1">
-              <Palette size={14} />
-              <span className={`text-[10px] font-bold uppercase tracking-wide ${dark ? 'text-white/80' : 'text-pearl-ink/80'}`} style={{ WebkitTextStroke: '0.25px rgba(255,255,255,0.55)', textShadow: '0 0 4px rgba(255,255,255,0.15)' }}>Visual Design</span>
-            </span>
-            <span className="flex items-center gap-1">
-              <img src={asset('/assets/amy/arrow-amy.png')} alt="" className="w-3.5 h-3.5 object-contain" />
-              <span className={`text-[10px] font-bold uppercase tracking-wide ${dark ? 'text-white/80' : 'text-pearl-ink/80'}`} style={{ WebkitTextStroke: '0.25px rgba(255,255,255,0.55)', textShadow: '0 0 4px rgba(255,255,255,0.15)' }}>Campaign Strategy</span>
-            </span>
-          </div>
-        </div>
+      <div className="px-4 pb-4 sm:px-7 sm:pb-7 lg:px-9 lg:pb-9">
+        {/* 1. Hero */}
+        <section aria-label="Amy Winehouse campaign hero" className="overflow-hidden border border-black/15 bg-[#e7d6c3] shadow-[0_10px_24px_rgba(58,37,31,0.12)]">
+          <img
+            src={amyAsset('hero-banner.png')}
+            alt="Amy Winehouse N12 Special campaign hero"
+            className="block aspect-[1.95/1] w-full object-cover object-[center_46%]"
+          />
+        </section>
 
+        {/* 2. Project intro + impact */}
+        <section aria-labelledby="amy-intro" className="grid gap-7 border-b border-[#302d35]/40 py-7 lg:grid-cols-[1.17fr_0.83fr] lg:gap-10">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#6a5d63]">Art direction · Visual design · Campaign strategy</p>
+            <h1 id="amy-intro" className="mt-2 font-serif text-[clamp(2.2rem,4vw,4.1rem)] font-semibold leading-[0.96] tracking-[-0.05em] text-[#1d1b21]">Amy Winehouse — N12 Special</h1>
+            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[#514c53] sm:text-[15px]">A visual identity for an N12 editorial special celebrating Amy Winehouse and the 27 Club. The project draws from tattoo culture, distressed print aesthetics, vintage rock imagery and Amy’s iconic visual world.</p>
+            <a
+              href="https://special.n12.co.il/AmyWinehouse"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-5 inline-flex items-center gap-2 border border-[#a81628] bg-[#c92032] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.13em] text-white transition-colors hover:bg-[#a81628]"
+            >
+              View live project <ExternalLink size={13} />
+            </a>
+          </div>
+          <aside className="border-l border-[#302d35]/25 pl-5 sm:pl-7">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#403b43]">Project impact</p>
+            <p className="mt-2 text-sm font-semibold text-[#322d33]">Views grew from</p>
+            <p className="mt-1 font-serif text-4xl font-semibold leading-none tracking-[-0.04em] text-[#c4172c] sm:text-5xl">24,500 → 67,418</p>
+          </aside>
+        </section>
+
+        {/* 3. Visual Language */}
+        <section aria-labelledby="amy-language" className="py-8">
+          <SectionHeading id="amy-language">Visual Language</SectionHeading>
+          <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-5">
+            <LanguageCard label="Color palette" copy="A warm, vintage-inspired palette drawn from tattoo flash, aged print and rock imagery.">
+              <div className="grid h-full grid-cols-3 grid-rows-2">
+                <span className="bg-[#f3e7d1]" /><span className="bg-[#171418]" /><span className="bg-[#c8172d]" />
+                <span className="bg-[#d68689]" /><span className="bg-[#d9a343]" /><span className="bg-[#c9b29a]" />
+              </div>
+            </LanguageCard>
+            <LanguageCard label="Typography" copy="A custom Hebrew lockup inspired by vintage signage, tattoo lettering and Amy’s expressive visual language.">
+              <img src={amyAsset('logo.png')} alt="Amy campaign Hebrew title lockup" className="h-full w-full object-contain p-3" />
+            </LanguageCard>
+            <LanguageCard label="Textures & treatment" copy="Halftone dots, ink splatters and worn-paper textures give the identity its raw editorial character.">
+              <img src={amyAsset('hero-banner.png')} alt="Campaign texture treatment" className="h-full w-full object-cover object-left" />
+            </LanguageCard>
+            <LanguageCard label="Iconography" copy="Tattoo-flash motifs reference Amy’s personal iconography and the wider 27 Club visual world.">
+              <img src={amyAsset('bird.png')} alt="Gold swallow campaign icon" className="h-full w-full object-cover object-center" />
+            </LanguageCard>
+            <LanguageCard label="Image treatment" copy="High-contrast portraiture and distressed overlays connect photography to the graphic system.">
+              <img src={amyAsset('concept-3.png')} alt="Amy portrait campaign treatment" className="h-full w-full object-cover object-[65%_center]" />
+            </LanguageCard>
+          </div>
+        </section>
+
+        {/* 4. Banner Development */}
+        <section aria-labelledby="amy-banner" className="border-t border-[#302d35]/25 py-8">
+          <SectionHeading id="amy-banner" note="From early explorations to the final direction.">Banner Development</SectionHeading>
+          <div className="mt-5"><BannerDevelopment /></div>
+        </section>
+
+        {/* 5. Identity Assets */}
+        <section aria-labelledby="amy-assets" className="border-t border-[#302d35]/25 py-8">
+          <SectionHeading id="amy-assets" note="Core graphic elements that shaped the project’s visual identity.">Identity Assets</SectionHeading>
+          <div className="mt-5 grid gap-5 md:grid-cols-2">
+            <article className="border border-black/10 bg-[#f5ecdc] p-4 sm:p-5">
+              <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#403b43]">Primary title lockup</p>
+              <div className="mt-3 flex min-h-32 items-center justify-center border-y border-black/10 bg-[#fbf5e9] p-4">
+                <img src={amyAsset('logo.png')} alt="Amy campaign title lockup" className="max-h-28 w-auto max-w-full object-contain" />
+              </div>
+              <p className="mt-3 text-xs leading-relaxed text-[#5f5960]">A custom Hebrew title lockup combining vintage influence with a hand-crafted, expressive feel.</p>
+            </article>
+            <article className="border border-black/10 bg-[#f5ecdc] p-4 sm:p-5">
+              <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#403b43]">Series badge</p>
+              <div className="mt-3 flex min-h-32 items-center justify-center border-y border-black/10 bg-[#fbf5e9] p-4">
+                <img src={amyAsset('badge-27.png')} alt="27 Club series badge" className="max-h-20 w-auto max-w-full object-contain" />
+              </div>
+              <p className="mt-3 text-xs leading-relaxed text-[#5f5960]">A recurring 27 Club badge that connects the individual stories to the wider editorial special.</p>
+            </article>
+          </div>
+        </section>
+
+        {/* 6. System in Use */}
+        <section aria-labelledby="amy-system" className="border-t border-[#302d35]/25 py-8">
+          <SectionHeading id="amy-system" note="The visual system applied across desktop and mobile formats.">System in Use</SectionHeading>
+          <div className="mt-5 grid gap-5 lg:grid-cols-[1.65fr_0.7fr]">
+            <figure className="min-w-0">
+              <div className="overflow-hidden border border-black/15 bg-[#ca1c2b]">
+                <img src={amyAsset('grid-desktop.png')} alt="Desktop grid showing the full 27 Club artist system" className="block w-full object-cover" />
+              </div>
+              <figcaption className="mt-2 text-xs text-[#4e4850]"><strong className="font-semibold text-[#27232a]">Desktop Layout — </strong>The 27 Club system applied across the full artist grid.</figcaption>
+            </figure>
+            <figure className="min-w-0">
+              <div className="aspect-[0.72/1] overflow-hidden border border-black/15 bg-[#f6ecdc]">
+                <img src={amyAsset('grid-mobile.png')} alt="Mobile 27 Club experience" className="h-full w-full object-cover object-top" />
+              </div>
+              <figcaption className="mt-2 text-xs text-[#4e4850]"><strong className="font-semibold text-[#27232a]">Mobile Layout — </strong>The same visual system adapted for a compact vertical experience.</figcaption>
+            </figure>
+          </div>
+        </section>
       </div>
 
-      {/* Link to the real, live N12 project — pulled out of the cramped
-          summary row above (was a small ml-auto pill squeezed between the
-          role tags, easy to miss) into its own full-width, unmistakably
-          clickable CTA, matching the scale/language of this site's other
-          primary case-study buttons (e.g. AI Rescue's "Watch Prime-Time
-          Broadcast"). Same destination, same red "gaming block"
-          gradient/bevel identity as before — just sized to actually read
-          as the important button it is. */}
-      <div className="px-5 sm:px-8 pb-4 flex justify-center sm:justify-end">
-        <motion.a
-          href="https://special.n12.co.il/AmyWinehouse"
-          target="_blank"
-          rel="noopener noreferrer"
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.97 }}
-          className="group inline-flex items-center gap-2 px-6 sm:px-7 py-3 sm:py-3.5 rounded-full font-display font-bold text-xs sm:text-sm tracking-wide uppercase text-white bg-gradient-to-b from-[#d34f4f] to-[#8f1f2d] border border-white/20 shadow-[0_4px_0_#5e1319,0_10px_24px_-4px_rgba(143,31,45,0.65)] transition-shadow"
-        >
-          View Live Project on N12 <ExternalLink size={15} />
-        </motion.a>
-      </div>
-
-      {/* Mobile layout (below sm:) — the desktop artboard below is one
-          fixed-ratio scene with three zones pinned by percentage, which
-          scales down as a whole: at a real mobile width that shrank the
-          entire composition to under 200px tall, past the point of
-          legibility (badge labels clipping mid-word, the phone/roster
-          reduced to unreadable dots). Below sm:, the same four pieces
-          instead stack vertically, each given its own real height rather
-          than a shrunk sliver of a shared one — same components, same
-          assets, just laid out for a narrow column instead of a wide
-          stage. */}
-      <div className="sm:hidden px-5 pb-5 flex flex-col gap-4">
-        <div className="h-[230px]">
-          <AmyHeroFigure dark={dark} />
-        </div>
-        <div className="relative flex gap-3">
-          <ChestBadge dark={dark} />
-          <RingBadge dark={dark} />
-        </div>
-        <div className="h-[200px]">
-          <AmyBeforeAfterPhone dark={dark} />
-        </div>
-        <div className="mx-auto w-full max-w-[240px]">
-          <PhoneRosterZone />
-        </div>
-      </div>
-
-      {/* Desktop/tablet layout (sm: and up) — fixed-aspect artboard, not a
-          generic responsive grid: the approved mockup is one art-directed
-          scene (card measured at 1478x872px, ~1.695:1), and Amy/badges+
-          before-after/phone are positioned as absolute zones within it at
-          the mockup's own proportions (phone screen bounds were
-          pixel-sampled directly from the reference file: ~72-100% width,
-          ~9-95% height of the card), rather than left to CSS Grid's own
-          column-sizing logic. */}
-      <div className="hidden sm:block px-5 sm:px-8 pb-5">
-        <div className="relative w-full" style={{ aspectRatio: '1478 / 780' }}>
-          <div className="absolute inset-y-0 left-0" style={{ width: '37%' }}>
-            <AmyHeroFigure dark={dark} />
-          </div>
-
-          <div className="absolute inset-y-0 flex flex-col gap-2.5 sm:gap-3" style={{ left: '40%', width: '31%' }}>
-            <div className="relative flex gap-2.5 sm:gap-3.5">
-              <ChestBadge dark={dark} />
-              <RingBadge dark={dark} />
-            </div>
-            <div className="flex-1 min-h-0">
-              <AmyBeforeAfterPhone dark={dark} />
-            </div>
-          </div>
-
-          <div className="absolute inset-y-0 flex flex-col items-center justify-center" style={{ left: '73%', right: '-1%' }}>
-            <PhoneRosterZone />
-          </div>
-        </div>
-      </div>
-    </div>
+      {/* 7. Footer project navigation */}
+      <footer className="flex items-center justify-between gap-4 border-t border-black/20 bg-[#202125] px-5 py-5 text-[#f8f1e5] sm:px-8">
+        <button type="button" onClick={onClose} className="inline-flex items-center gap-2 text-xs transition-colors hover:text-[#e9c7ca]"><ArrowLeft size={18} /> Back to portfolio</button>
+        <p className="text-center text-[10px] uppercase tracking-[0.15em] text-white/60"><span className="mb-1 block text-[9px]">Next project</span><span className="font-serif text-xl normal-case tracking-normal text-[#f8f1e5]">Selected Work</span></p>
+        <button type="button" onClick={onClose} aria-label="Return to selected work" className="grid h-9 w-9 place-items-center border border-white/30 transition-colors hover:border-white"><ArrowRight size={18} /></button>
+      </footer>
+    </article>
   )
 }
 
-/** A music note, a gold coin and a heart-coin breaking the modal's RIGHT
- *  edge near the phone — rendered via ProjectModal's `breakout` slot,
- *  which sits outside the scroll container's clipping. There is
- *  deliberately nothing on the left edge: the mockup file was checked
- *  directly, and the only thing breaking the left side is the swallow
- *  already baked into the figure artwork (see AmyHeroFigure) — a
- *  separate floating swallow/coin/heart there would just be a second
- *  copy of decoration the mockup doesn't have. Positions here are
- *  pixel-measured from the reference file (music note ~17%, star coin
- *  ~40%, heart coin ~75% down the card), not evenly-spaced guesses. */
+/** The reference is self-contained; keep the shared modal breakout slot empty. */
 export function AmyCaseStudyBreakout() {
-  return (
-    <>
-      {/* A second music note, breaking the LEFT edge near the figure's own
-          baked-in note (bottom-left of the box/roses) — requested so the
-          note reads as escaping the frame rather than sitting flat inside
-          the artwork, the same treatment the right-edge decor already
-          gets. */}
-      {/* magnetic — hovering any of these pulls it gently toward the
-          cursor with a small perk-up scale, matching the homepage's own
-          magnetic-coin mechanic. */}
-      {/* The two coins that used to float here (a gold coin, a heart-coin)
-          replaced with music notes — per explicit request, and it also
-          just fits the actual subject better: this is a music-tribute
-          campaign, not a rewards/currency one. `breathe` layers a slow,
-          out-of-phase scale pulse onto the existing bob so they read as
-          alive rather than mechanically bobbing in place. */}
-      <FloatingElement delay={0.7} distance={9} magnetic breathe className="absolute top-[80%] -left-7 sm:-left-10 z-30 hidden sm:block">
-        <MusicNote size={38} />
-      </FloatingElement>
-      <FloatingElement delay={0.5} distance={9} magnetic breathe className="absolute top-[15%] -right-7 sm:-right-10 z-30 hidden sm:block">
-        <MusicNote size={42} />
-      </FloatingElement>
-      <FloatingElement delay={0.9} distance={10} magnetic breathe className="absolute top-[38%] -right-10 sm:-right-14 z-30 hidden sm:block">
-        <MusicNote size={40} />
-      </FloatingElement>
-      <FloatingElement delay={1.2} distance={9} magnetic breathe className="absolute top-[73%] -right-10 sm:-right-14 z-30 hidden sm:block">
-        <MusicNote size={36} />
-      </FloatingElement>
-
-      {/* "This is interactive, play with it" cue — enlarged again and
-          given a bigger, more obvious bounce (was still easy to miss).
-          Task 10: the filled circular badge behind the chevron is gone —
-          just a clean stroke-drawn arrow now (no shape fill, no drop-
-          shadow button chrome), animated via the SVG's own
-          stroke-dasharray/stroke-dashoffset (see the `draw-stroke`
-          keyframe in tailwind.config.js) rather than a solid icon, for a
-          lighter, more premium hint than a button-like circle. */}
-      <motion.div
-        aria-hidden
-        animate={{ x: [0, -16, 0], scale: [1, 1.08, 1] }}
-        transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-[54%] -right-12 sm:-right-16 z-30 hidden sm:flex flex-col items-center gap-1.5"
-      >
-        <svg
-          width="34"
-          height="34"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="white"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="drop-shadow-[0_4px_10px_rgba(143,31,45,0.65)] animate-draw-stroke"
-          style={{ strokeDasharray: 1 }}
-        >
-          <path d="M15 5 L8 12 L15 19" pathLength={1} />
-        </svg>
-        <span className="text-[9px] font-display font-black uppercase tracking-widest text-pearl-red bg-white px-2 py-1 rounded-full shadow-md">
-          Play
-        </span>
-      </motion.div>
-    </>
-  )
+  return null
 }
