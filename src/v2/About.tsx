@@ -29,7 +29,7 @@ export function About() {
             <span key={i} className="v2-mask">
               <motion.span
                 className="v2-char"
-                initial={reduce ? false : { y: '105%' }}
+                initial={{ y: '105%' }}
                 animate={{ y: '0%' }}
                 transition={{ duration: 0.9, ease, delay: 0.1 + i * 0.1 }}
               >
@@ -38,7 +38,7 @@ export function About() {
             </span>
           ))}
         </h1>
-        <motion.p className="v2-lede v2-about-lede" initial={reduce ? false : { opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.9, ease }}>
+        <motion.p className="v2-lede v2-about-lede" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.9, ease }}>
           I'm a designer who moves between motion, animation, AI and graphic design, and I build the
           interactive pieces too. For years I've worked on fast, high-stakes visuals, where a piece has to be right
           and on time. I love learning new tools, and I'm currently growing into 3D.

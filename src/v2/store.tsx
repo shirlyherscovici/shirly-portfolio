@@ -1,5 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-import type { PaletteName } from './data'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 
 /* ---------- Hash router: #/ , #/project/:slug , #/about ---------- */
 export type Route = { page: 'home' } | { page: 'project'; slug: string } | { page: 'about' }
@@ -32,32 +31,19 @@ export function go(to: string) {
   if (window.location.hash !== to) window.location.hash = to
 }
 
-/* ---------- Palette (Spencer-style toggle) ---------- */
-type PaletteCtx = { palette: PaletteName; setPalette: (p: PaletteName) => void }
-const Ctx = createContext<PaletteCtx>({ palette: 'color', setPalette: () => {} })
+/* ---------- Shared-image page transition ---------- */
+export type Flight = { slug: string; src: string; rect: { x: number; y: number; w: number; h: number }; bg: string } | null
+type FlightCtx = { flight: Flight; fly: (f: NonNullable<Flight>) => void; land: () => void }
+const FlightC = createContext<FlightCtx>({ flight: null, fly: () => {}, land: () => {} })
 
-export function PaletteProvider({ children }: { children: ReactNode }) {
-  const [palette, setPaletteState] = useState<PaletteName>(() => {
-    try {
-      const v = localStorage.getItem('sh-palette')
-      if (v === 'night' || v === 'paper' || v === 'color') return v
-    } catch {
-      /* storage unavailable */
-    }
-    return 'color'
-  })
-  const setPalette = (p: PaletteName) => {
-    setPaletteState(p)
-    try {
-      localStorage.setItem('sh-palette', p)
-    } catch {
-      /* storage unavailable */
-    }
-  }
-  return <Ctx.Provider value={{ palette, setPalette }}>{children}</Ctx.Provider>
+export function FlightProvider({ children }: { children: ReactNode }) {
+  const [flight, setFlight] = useState<Flight>(null)
+  const land = useCallback(() => setFlight(null), [])
+  const value = useMemo(() => ({ flight, fly: setFlight, land }), [flight, land])
+  return <FlightC.Provider value={value}>{children}</FlightC.Provider>
 }
 
-export const usePalette = () => useContext(Ctx)
+export const useFlight = () => useContext(FlightC)
 
 /* ---------- Shared "current page colour" so fixed UI can adapt ---------- */
 type ToneCtx = { bg: string; fg: string; setTone: (t: { bg: string; fg: string }) => void }

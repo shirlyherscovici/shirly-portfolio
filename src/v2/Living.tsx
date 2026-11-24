@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useMotionValue, useSpring, useReducedMotion, AnimatePresence } from 'framer-motion'
-import { PALETTES, PERSON } from './data'
-import { href, usePalette, useTone, useCanHover, type Route } from './store'
+import { PERSON } from './data'
+import { href, useTone, useCanHover, type Route } from './store'
 
 /* ---------- Header ---------- */
 export function Header({ route }: { route: Route }) {
@@ -61,7 +61,7 @@ export function Cursor() {
     }
   }, [canHover, x, y])
 
-  if (!canHover || reduce) return null
+  if (!canHover) return null
   const size = label ? 84 : 14
   return (
     <motion.div className="v2-cursor" style={{ x: sx, y: sy }} aria-hidden="true">
@@ -165,33 +165,5 @@ export function FaceBadge() {
         )}
       </AnimatePresence>
     </a>
-  )
-}
-
-/* ---------- Palette toggle ---------- */
-export function PaletteButton() {
-  const { palette, setPalette } = usePalette()
-  const { fg, bg } = useTone()
-  const [spin, setSpin] = useState(0)
-  const i = PALETTES.findIndex((p) => p.name === palette)
-  const next = PALETTES[(i + 1) % PALETTES.length]
-  return (
-    <button
-      type="button"
-      className="v2-palette"
-      onClick={() => {
-        setPalette(next.name)
-        setSpin((s) => s + 120)
-      }}
-      aria-label={`Colour theme: ${PALETTES[i].label}. Switch to ${next.label}`}
-      title={`Theme: ${PALETTES[i].label}`}
-      style={{ background: fg, color: bg }}
-    >
-      <motion.span className="v2-palette-dots" animate={{ rotate: spin }} transition={{ type: 'spring', stiffness: 160, damping: 14 }}>
-        {PALETTES[i].swatch.map((c, k) => (
-          <span key={k} style={{ background: c, transform: `rotate(${k * 120}deg) translateY(-7px)` }} />
-        ))}
-      </motion.span>
-    </button>
   )
 }
