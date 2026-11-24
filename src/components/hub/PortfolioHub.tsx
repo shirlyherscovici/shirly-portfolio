@@ -10,7 +10,7 @@ const hubAsset = (name: string) => asset(`/assets/hub/${name}`)
 const NAV_ITEMS = [
   { label: 'Work', href: '#work' },
   { label: 'About', href: '#about' },
-  { label: 'Resume', href: asset('/Resume.pdf'), download: false },
+  { label: 'Resume', href: asset('/resume.pdf'), download: false },
   { label: 'Contact', href: '#contact' },
 ]
 

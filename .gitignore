@@ -35,3 +35,8 @@ yarn-error.log*
 Thumbs.db
 desktop.ini
 source-assets/
+
+# Local tooling / scratch
+.claude/
+.tmp-screens/
+*.patch
