@@ -5,7 +5,7 @@ import { FlightProvider, ToneProvider, go, href, useFlight, useRoute, useTone } 
 import { Home } from './Home'
 import { ProjectPage } from './ProjectPage'
 import { About } from './About'
-import { Cursor, Header } from './Living'
+import { Header } from './Living'
 
 const ease = [0.76, 0, 0.24, 1] as const
 
@@ -109,7 +109,6 @@ function Shell() {
           {page}
         </motion.div>
       </AnimatePresence>
-      <Cursor />
       <FlightLayer />
     </>
   )

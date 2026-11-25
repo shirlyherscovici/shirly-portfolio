@@ -185,23 +185,25 @@ function Frame({
   )
 }
 
-/* ---------- Small preview card: the project's video, or a second image ---------- */
-function Peek({ project }: { project: Project }) {
+/* ---------- Small preview card: the project's video (or a second image), framed in the
+ *  project's colour. It flips over each time you move to another project. ---------- */
+function Peek({ project, frame }: { project: Project; frame: MotionValue<string> }) {
   if (!project.loop && !project.peek) return null
   return (
-    <motion.a
-      href={href.project(project.slug)}
-      className="v2-peek"
-      data-cursor="View"
-      tabIndex={-1}
-      aria-hidden="true"
-      initial={{ opacity: 0, y: 30, rotate: -3 }}
-      animate={{ opacity: 1, y: 0, rotate: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.6, ease: soft }}
-    >
-      {project.loop ? <video src={project.loop} autoPlay muted loop playsInline /> : <img src={project.peek} alt="" />}
-    </motion.a>
+    <div className="v2-peek-wrap">
+      <motion.a
+        href={href.project(project.slug)}
+        className="v2-peek"
+        tabIndex={-1}
+        aria-hidden="true"
+        style={{ borderColor: frame }}
+        initial={{ rotateY: -90 }}
+        animate={{ rotateY: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } }}
+        exit={{ rotateY: 90, transition: { duration: 0.3, ease: [0.55, 0, 1, 0.45] } }}
+      >
+        {project.loop ? <video src={project.loop} autoPlay muted loop playsInline /> : <img src={project.peek} alt="" />}
+      </motion.a>
+    </div>
   )
 }
 
@@ -344,7 +346,12 @@ export function Home() {
             </AnimatePresence>
           </div>
 
-          <AnimatePresence mode="wait">{ready && !mobile && <Peek key={project.slug} project={project} />}</AnimatePresence>
+          <div className="v2-peek-slot">
+            <AnimatePresence mode="wait">{ready && !mobile && <Peek key={project.slug} project={project} frame={fg} />}</AnimatePresence>
+          </div>
+
+          {/* Colour band down the side, in the same colour as the project text */}
+          <motion.span className="v2-sideband" style={{ backgroundColor: fg }} aria-hidden="true" />
 
           <nav className="v2-pills" aria-label="Projects">
             {PROJECTS.map((pr, i) => (
