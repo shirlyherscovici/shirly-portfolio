@@ -25,6 +25,8 @@ export type Project = {
   kind: string
   /** The project's own colours, taken from its artwork */
   colors: { bg: string; fg: string }
+  /** The project page hero: a lighter or flipped version of the home colours, so the entry wipe reads */
+  hero: { bg: string; fg: string }
   cover: MediaItem
   loop?: string
   /** Small preview on the home page when the project has no loop video */
@@ -38,6 +40,8 @@ export type Project = {
 }
 
 export const SHELL = { bg: '#181818', fg: '#f0f0f0', paper: '#f0efeb', ink: '#181818' }
+/** The dark room the case study content sits in */
+export const DARK = { bg: '#111111', fg: '#ececec' }
 
 export const PROJECTS: Project[] = [
   {
@@ -47,6 +51,7 @@ export const PROJECTS: Project[] = [
     name: 'Music from the Screen',
     kind: 'Key art · UI · Social',
     colors: { bg: '#ff4f9a', fg: '#1d0b45' },
+    hero: { bg: '#ffd3e6', fg: '#1d0b45' },
     cover: { kind: 'image', src: v2('galgalatz/banner-cover.webp'), alt: 'Neon key art for Music from the Screen, N12 × Galgalatz' },
     peek: v2('galgalatz/game-uiux.webp'),
     intro:
@@ -106,6 +111,7 @@ export const PROJECTS: Project[] = [
     name: 'People in Motion',
     kind: '2D animation · Motion design',
     colors: { bg: '#ffd23f', fg: '#174a36' },
+    hero: { bg: '#fff0c2', fg: '#174a36' },
     cover: { kind: 'image', src: v2('motion/people-motion-hero-poster.webp'), alt: 'Animated character in a game-style scene' },
     loop: asset('/assets/motion/clips/02-ui-game-animation.mp4'),
     intro: 'A character-led motion project built as a playful game world: character animation, UI and game animation, kinetic typography and transitions.',
@@ -162,6 +168,7 @@ export const PROJECTS: Project[] = [
     name: 'USA Pilot Rescue',
     kind: 'AI film · Visual storytelling',
     colors: { bg: '#2348c6', fg: '#f6dca6' },
+    hero: { bg: '#f6dca6', fg: '#2348c6' },
     cover: { kind: 'image', src: v2('ai/7.webp'), alt: 'AI-generated rescue scene with soldiers and aircraft' },
     loop: asset('/assets/navigator/motion/002.mp4'),
     intro:
@@ -221,6 +228,7 @@ export const PROJECTS: Project[] = [
     name: 'Amy',
     kind: 'Editorial identity · Art direction',
     colors: { bg: '#f6efe3', fg: '#d7263d' },
+    hero: { bg: '#d7263d', fg: '#f6efe3' },
     cover: { kind: 'image', src: v2('amy/hero-banner.webp'), alt: 'Amy Winehouse editorial banner with tattoo-inspired collage' },
     peek: v2('amy/amy-phones-front.webp'),
     intro:

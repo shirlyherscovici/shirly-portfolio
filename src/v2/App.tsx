@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { PROJECTS, SHELL } from './data'
 import { FlightProvider, ToneProvider, go, href, useFlight, useRoute, useTone } from './store'
@@ -6,23 +6,13 @@ import { Home } from './Home'
 import { ProjectPage } from './ProjectPage'
 import { About } from './About'
 import { Header } from './Living'
+import { heroBox } from './geom'
 
 const ease = [0.76, 0, 0.24, 1] as const
 
-/** Where the cover sits on a project page hero (mirrors .v2-hero CSS) */
-function heroTarget() {
-  const vw = window.innerWidth
-  const vh = window.innerHeight
-  const w = vw < 760 ? vw * 0.84 : Math.min(vw * 0.52, 760)
-  const h = (w * 10) / 16
-  const font = Math.max(64, Math.min(vw * 0.13, 200))
-  const gap = Math.max(12, Math.min(vh * 0.03, 28))
-  const total = 40 + h + gap + font * 0.95
-  return { x: (vw - w) / 2, y: (vh - total) / 2 + 40, w, h }
-}
-
-/** Shared-image transition: the clicked cover flies into the project hero
- *  while the project's colour floods the screen. */
+/** Opening a project from home: the hero colour wipes in from the left while the
+ *  clicked cover flies to its place in the hero. A next-project hand-over has
+ *  already played its move on the old page, so it only swaps pages. */
 function FlightLayer() {
   const { flight } = useFlight()
   const navigated = useRef<string | null>(null)
@@ -34,20 +24,20 @@ function FlightLayer() {
     const t = window.setTimeout(() => {
       navigated.current = flight.slug
       go(href.project(flight.slug))
-    }, 720)
+    }, flight.handoff ? 0 : 900)
     return () => window.clearTimeout(t)
   }, [flight])
 
   return (
     <AnimatePresence>
-      {flight && (
+      {flight && !flight.handoff && (
         <motion.div key={flight.slug} className="v2-flight" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} aria-hidden="true">
           <motion.div
             className="v2-flight-bg"
             style={{ background: flight.bg }}
-            initial={{ clipPath: `inset(${flight.rect.y}px ${window.innerWidth - flight.rect.x - flight.rect.w}px ${window.innerHeight - flight.rect.y - flight.rect.h}px ${flight.rect.x}px)` }}
-            animate={{ clipPath: 'inset(0px 0px 0px 0px)' }}
-            transition={{ duration: 0.7, ease }}
+            initial={{ clipPath: 'inset(0% 100% 0% 0%)' }}
+            animate={{ clipPath: 'inset(0% 0% 0% 0%)' }}
+            transition={{ duration: 0.85, ease }}
           />
           <motion.img
             src={flight.src}
@@ -55,10 +45,10 @@ function FlightLayer() {
             className="v2-flight-img"
             initial={{ left: flight.rect.x, top: flight.rect.y, width: flight.rect.w, height: flight.rect.h }}
             animate={(() => {
-              const t = heroTarget()
+              const t = heroBox()
               return { left: t.x, top: t.y, width: t.w, height: t.h }
             })()}
-            transition={{ duration: 0.7, ease }}
+            transition={{ duration: 0.85, ease, delay: 0.05 }}
           />
         </motion.div>
       )}
@@ -73,7 +63,7 @@ function Shell() {
   const { flight } = useFlight()
   const key = route.page === 'project' ? `p-${route.slug}` : route.page
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     window.scrollTo(0, 0)
     const proj = route.page === 'project' ? PROJECTS.find((p) => p.slug === route.slug) : null
     document.title = proj ? `${proj.name} | Shirly Herscovici` : route.page === 'about' ? 'About | Shirly Herscovici' : 'Shirly Herscovici | Motion, AI & graphic designer'

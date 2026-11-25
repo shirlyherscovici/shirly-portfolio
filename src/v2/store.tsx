@@ -32,7 +32,8 @@ export function go(to: string) {
 }
 
 /* ---------- Shared-image page transition ---------- */
-export type Flight = { slug: string; src: string; rect: { x: number; y: number; w: number; h: number }; bg: string } | null
+/** `handoff` is the next-project hand-over: the old page already played the move, so just swap pages */
+export type Flight = { slug: string; src: string; rect: { x: number; y: number; w: number; h: number }; bg: string; handoff?: boolean } | null
 type FlightCtx = { flight: Flight; fly: (f: NonNullable<Flight>) => void; land: () => void }
 const FlightC = createContext<FlightCtx>({ flight: null, fly: () => {}, land: () => {} })
 

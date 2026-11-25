@@ -713,31 +713,6 @@ html.v2-snap {
   line-height: 1.55;
 }
 
-.v2-next {
-  margin-top: clamp(100px, 16vh, 180px);
-  min-height: 70vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  text-decoration: none;
-  transition: filter 0.4s;
-}
-
-.v2-next-word {
-  font-family: var(--serif);
-  font-weight: 600;
-  font-size: clamp(64px, 13vw, 200px);
-  line-height: 0.95;
-  letter-spacing: -0.035em;
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.v2-next:hover .v2-next-word {
-  transform: scale(1.04) translateY(-6px);
-}
-
 /* ---------- Contact (Spencer-style) ---------- */
 .v2-contact {
   background: #141414;
@@ -1044,34 +1019,6 @@ html.v2-snap {
   font-size: 11px;
 }
 
-.v2-next-media {
-  width: min(36vw, 480px);
-  aspect-ratio: 16 / 10;
-  overflow: hidden;
-  border-radius: 4px;
-}
-
-.v2-next-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.v2-next:hover .v2-next-media img {
-  transform: scale(1.06);
-}
-
-.v2-next-word {
-  margin-top: -0.45em;
-  position: relative;
-}
-
-@media (max-width: 760px) {
-  .v2-next-media {
-    width: 78vw;
-  }
-}
 
 /* ---------- Home: opening ---------- */
 html.v2-booting .v2-header {
@@ -1152,4 +1099,270 @@ html.v2-booting .v2-pills {
 
 .v2-pills {
   transition: opacity 0.6s;
+}
+
+/* ---------- Project page (v3): hero, dark room, panels, next-project hand-over ---------- */
+.v2-project {
+  --hero-w: min(50vw, 860px);
+  --dark: #111111;
+  --panel: #1c1c1c;
+}
+
+.v2-project .v2-hero {
+  display: block;
+}
+
+/* Same box as heroBox() in geom.ts: centred, 16:10 */
+.v2-project .v2-hero-media {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--hero-w);
+  aspect-ratio: 16 / 10;
+  margin: calc(var(--hero-w) * -0.3125) 0 0 calc(var(--hero-w) / -2);
+  overflow: hidden;
+  border-radius: 4px;
+  z-index: 1;
+}
+
+.v2-project .v2-hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.v2-hero-title {
+  position: absolute;
+  z-index: 2;
+  left: clamp(20px, 6vw, 110px);
+  top: calc(50% + var(--hero-w) * 0.3125);
+  transform: translateY(-80%);
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(64px, 11vw, 200px);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.v2-title-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px currentColor;
+}
+
+.v2-title-fill {
+  position: absolute;
+  inset: 0;
+}
+
+.v2-title-solid {
+  position: static;
+}
+
+.v2-project .v2-hero-kind {
+  z-index: 2;
+}
+
+.v2-project .v2-scrollcue {
+  left: 50%;
+  margin-left: -20px;
+  z-index: 2;
+}
+
+/* The dark room */
+.v2-project .v2-curtain {
+  background: var(--dark);
+  color: #ececec;
+  padding-bottom: 1px;
+}
+
+.v2-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 40px clamp(40px, 6vw, 110px);
+  padding-top: clamp(90px, 16vh, 180px);
+  padding-bottom: clamp(40px, 8vh, 90px);
+}
+
+.v2-intro .v2-label,
+.v2-credits .v2-label,
+.v2-chapter-head .v2-label {
+  opacity: 0.5;
+}
+
+.v2-intro-h {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(40px, 5.6vw, 88px);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  margin: 18px 0 28px;
+}
+
+.v2-intro-p {
+  font-size: clamp(17px, 1.4vw, 20px);
+  line-height: 1.65;
+  margin: 0;
+  max-width: 60ch;
+  opacity: 0.85;
+}
+
+.v2-intro-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  padding-top: 44px;
+}
+
+.v2-intro-meta p,
+.v2-credits p {
+  margin: 0;
+}
+
+.v2-intro-meta p:not(.v2-label),
+.v2-credits p:not(.v2-label) {
+  margin-top: 8px;
+  font-size: 16px;
+}
+
+.v2-wrap-wide {
+  width: min(1440px, 100%);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.v2-project .v2-chapter {
+  padding-top: clamp(80px, 14vh, 160px);
+}
+
+.v2-project .v2-chapter-head {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 16px 40px;
+  align-items: baseline;
+  margin-bottom: clamp(28px, 5vh, 56px);
+}
+
+.v2-chapter-title {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(36px, 4.6vw, 72px);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.v2-chapter-text {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.6;
+  opacity: 0.75;
+}
+
+.v2-project .v2-blocks {
+  gap: clamp(20px, 3vw, 40px);
+}
+
+.v2-panel {
+  background: var(--panel);
+  border-radius: 6px;
+  padding: clamp(14px, 3.4vw, 56px);
+}
+
+.v2-panel.is-wide {
+  padding: clamp(14px, 4.4vw, 80px);
+}
+
+.v2-project .v2-media-box {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 3px;
+}
+
+.v2-project .v2-media-box.fit-contain {
+  background: transparent;
+}
+
+.v2-project .v2-curtain .v2-media figcaption {
+  text-align: center;
+  font-size: 13px;
+  margin-top: 16px;
+  opacity: 0.55;
+}
+
+.v2-project .v2-split > div:first-child {
+  background: var(--panel);
+}
+
+.v2-credits {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 28px;
+  margin-top: clamp(90px, 16vh, 180px);
+  margin-bottom: clamp(60px, 10vh, 110px);
+  padding-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.v2-credits a {
+  color: inherit;
+}
+
+/* Next project */
+.v2-project .v2-next {
+  position: relative;
+  display: block;
+  height: 100vh;
+  height: 100svh;
+  margin: 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.v2-next-wipe {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.v2-next-label {
+  position: absolute;
+  z-index: 2;
+  left: clamp(20px, 6vw, 110px);
+  top: calc(50% - var(--hero-w) * 0.3125);
+  margin: 0;
+}
+
+.v2-next-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  perspective: 1600px;
+}
+
+@media (max-width: 760px) {
+  .v2-project {
+    --hero-w: 84vw;
+  }
+
+  .v2-hero-title {
+    top: calc(50% + var(--hero-w) * 0.3125 + 14px);
+    transform: none;
+    font-size: 17vw;
+  }
+
+  .v2-intro,
+  .v2-project .v2-chapter-head {
+    grid-template-columns: 1fr;
+  }
+
+  .v2-intro-meta {
+    padding-top: 0;
+  }
+
+  .v2-next-label {
+    top: calc(50% - var(--hero-w) * 0.3125 - 40px);
+  }
 }

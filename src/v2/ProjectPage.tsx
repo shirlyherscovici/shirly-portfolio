@@ -1,14 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, useScroll, useTransform, useReducedMotion, useMotionValue, animate } from 'framer-motion'
-import { PROJECTS, SHELL, type Block, type MediaItem, type Project } from './data'
+import { motion, useScroll, useTransform, useReducedMotion, useMotionValue, useMotionValueEvent, animate } from 'framer-motion'
+import { DARK, PERSON, PROJECTS, type Block, type MediaItem, type Project } from './data'
 import { href, useFlight, useTone } from './store'
 import { Media } from './Media'
-import { Contact } from './Contact'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
 function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
-  const reduce = useReducedMotion()
   return (
     <motion.div
       className={className}
@@ -99,33 +97,53 @@ function Compare({ before, after }: { before: MediaItem; after: MediaItem }) {
   )
 }
 
+/** A dark framed panel, the way each piece of work is presented on the page */
+function Panel({ children, wide = false }: { children: React.ReactNode; wide?: boolean }) {
+  return (
+    <Reveal className={`v2-panel ${wide ? 'is-wide' : ''}`}>
+      {children}
+    </Reveal>
+  )
+}
+
 function BlockView({ block, project }: { block: Block; project: Project }) {
   switch (block.type) {
     case 'full':
       return (
-        <Reveal>
+        <Panel wide>
           <Media item={block.media} />
-        </Reveal>
+        </Panel>
       )
     case 'pair':
       return (
-        <div className="v2-grid-2">
-          {block.media.map((m, i) => (
-            <Reveal key={i} delay={i * 0.08}>
-              <Media item={m} />
-            </Reveal>
-          ))}
-        </div>
+        <Panel>
+          <div className="v2-grid-2">
+            {block.media.map((m, i) => (
+              <Media key={i} item={m} />
+            ))}
+          </div>
+        </Panel>
       )
     case 'row':
+      // A row of videos: every clip gets a panel of its own, with its caption underneath
+      if (block.media.every((m) => m.kind === 'video'))
+        return (
+          <>
+            {block.media.map((m, i) => (
+              <Panel key={i} wide>
+                <Media item={m} />
+              </Panel>
+            ))}
+          </>
+        )
       return (
-        <div className="v2-grid-3">
-          {block.media.map((m, i) => (
-            <Reveal key={i} delay={i * 0.08}>
-              <Media item={m} />
-            </Reveal>
-          ))}
-        </div>
+        <Panel>
+          <div className="v2-grid-3">
+            {block.media.map((m, i) => (
+              <Media key={i} item={m} />
+            ))}
+          </div>
+        </Panel>
       )
     case 'gallery':
       return (
@@ -135,9 +153,11 @@ function BlockView({ block, project }: { block: Block; project: Project }) {
       )
     case 'compare':
       return (
-        <Reveal className="v2-compare-wrap">
-          <Compare before={block.before} after={block.after} />
-        </Reveal>
+        <Panel>
+          <div className="v2-compare-wrap">
+            <Compare before={block.before} after={block.after} />
+          </div>
+        </Panel>
       )
     case 'split':
       return (
@@ -157,84 +177,147 @@ function BlockView({ block, project }: { block: Block; project: Project }) {
   }
 }
 
+/** Big project word: an outline that fills with colour from the left */
+function Title({ word, filled, delay, className = '' }: { word: string; filled: boolean; delay: number; className?: string }) {
+  return (
+    <>
+      <span className="v2-title-outline" aria-hidden="true">
+        {word}
+      </span>
+      <motion.span
+        className={`v2-title-fill ${className}`}
+        initial={filled ? false : { clipPath: 'inset(-20% 100% -30% 0%)' }}
+        animate={{ clipPath: 'inset(-20% 0% -30% 0%)' }}
+        transition={{ duration: 1.3, ease: wipe, delay }}
+      >
+        {word}
+      </motion.span>
+    </>
+  )
+}
+
+const wipe = [0.76, 0, 0.24, 1] as const
+
 export function ProjectPage({ project }: { project: Project }) {
   const { setTone } = useTone()
-  const { flight, land } = useFlight()
+  const { flight, fly, land } = useFlight()
   const reduce = useReducedMotion()
-  const [arrived] = useState(() => flight?.slug === project.slug)
+  // How we got here: from the home strip, handed over by the previous project, or directly
+  const [via] = useState<'home' | 'next' | null>(() => (flight?.slug === project.slug ? (flight.handoff ? 'next' : 'home') : null))
   const i = PROJECTS.findIndex((p) => p.slug === project.slug)
   const next = PROJECTS[(i + 1) % PROJECTS.length]
-  const { bg, fg } = project.colors
+  const hero = project.hero
+  const nextRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
-    if (!arrived) return
+    if (!via) return
     const t = window.setTimeout(land, 80)
     return () => window.clearTimeout(t)
-  }, [arrived, land])
+  }, [via, land])
 
+  // Hero picture drifts up a little as the dark page slides over it
   const { scrollY } = useScroll()
   const vh = window.innerHeight
-  const mediaY = useTransform(scrollY, [0, vh], [0, reduce ? 0 : -vh * 0.18])
-  const mediaScale = useTransform(scrollY, [0, vh], [1, reduce ? 1 : 0.92])
-  const wordY = useTransform(scrollY, [0, vh], [0, reduce ? 0 : vh * 0.12])
+  const mediaY = useTransform(scrollY, [0, vh], [0, -vh * 0.14])
 
+  /* ---------- Next project ---------- */
+  const [going, setGoing] = useState(false)
+  const { scrollYProgress: near } = useScroll({ target: nextRef, offset: ['start end', 'end end'] })
+  // The next picture is black and white while it comes up, and takes its colour once it has arrived
+  const nextFilter = useTransform(near, [0.35, 1], ['grayscale(1)', 'grayscale(0)'])
+  useMotionValueEvent(near, 'change', (v) => {
+    if (v > 0.985 && !going) setGoing(true)
+  })
+
+  // Header colour follows whatever section is under it
   useEffect(() => {
-    const ink = { bg: SHELL.paper, fg: SHELL.ink }
-    const apply = () => setTone(window.scrollY > window.innerHeight * 0.92 ? ink : { bg, fg })
+    const apply = () => {
+      if (going) return
+      const top = nextRef.current?.getBoundingClientRect().top ?? Infinity
+      if (top < 60) setTone(next.colors)
+      else if (window.scrollY > window.innerHeight * 0.92) setTone(DARK)
+      else setTone(hero)
+    }
     apply()
     window.addEventListener('scroll', apply, { passive: true })
     return () => window.removeEventListener('scroll', apply)
-  }, [bg, fg, setTone])
+  }, [hero, next, going, setTone])
 
-  const skip = arrived
+  /* Reaching the end hands over to the next project: its hero colour wipes down from the
+   * top, the picture straightens into the hero spot, then the pages swap underneath. */
+  useEffect(() => {
+    if (!going) return
+    const stop = (e: Event) => e.preventDefault()
+    const keys = (e: KeyboardEvent) => {
+      if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(e.key)) e.preventDefault()
+    }
+    window.addEventListener('wheel', stop, { passive: false })
+    window.addEventListener('touchmove', stop, { passive: false })
+    window.addEventListener('keydown', keys)
+    window.scrollTo(0, document.documentElement.scrollHeight)
+    setTone(next.hero)
+    const t = window.setTimeout(
+      () => fly({ slug: next.slug, src: next.cover.src, rect: { x: 0, y: 0, w: 0, h: 0 }, bg: next.hero.bg, handoff: true }),
+      1250,
+    )
+    return () => {
+      window.clearTimeout(t)
+      window.removeEventListener('wheel', stop)
+      window.removeEventListener('touchmove', stop)
+      window.removeEventListener('keydown', keys)
+    }
+  }, [going]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const mobile = window.innerWidth < 760
+  const lean = mobile
+    ? { x: '6vw', rotateX: 4, rotateY: -12, rotateZ: -5, skewX: -4, scale: 0.92 }
+    : { x: '20vw', rotateX: 8, rotateY: -24, rotateZ: -7, skewX: -8, scale: 0.9 }
+  const flat = { x: '0vw', rotateX: 0, rotateY: 0, rotateZ: 0, skewX: 0, scale: 1 }
+
+  const footer = [...project.credits, { label: 'Type', value: project.kind }]
 
   return (
     <div className="v2-project">
-      <section className="v2-hero" style={{ background: bg, color: fg }}>
-        <motion.div className="v2-hero-media" style={{ y: mediaY, scale: mediaScale }}>
-          <motion.div initial={skip ? false : { opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease }}>
-            <Media item={project.cover} eager />
-          </motion.div>
+      {/* ---------- Hero ---------- */}
+      <section className="v2-hero" style={{ background: hero.bg, color: hero.fg }}>
+        <motion.div className="v2-hero-media" style={{ y: mediaY }}>
+          <motion.img
+            src={project.cover.src}
+            alt={project.cover.alt}
+            initial={via ? false : { clipPath: 'inset(100% 0% 0% 0%)', scale: 1.12 }}
+            animate={{ clipPath: 'inset(0% 0% 0% 0%)', scale: 1 }}
+            transition={{ duration: 1.1, ease: wipe }}
+          />
         </motion.div>
-        <motion.h1 className="v2-hero-word" style={{ y: wordY }}>
-          {project.word.split('').map((ch, k) => (
-            <span key={k} className="v2-mask">
-              <motion.span
-                className="v2-char"
-                initial={{ y: '105%' }}
-                animate={{ y: '0%' }}
-                transition={{ duration: 0.8, ease, delay: (arrived ? 0.35 : 0.15) + k * 0.04 }}
-              >
-                {ch}
-              </motion.span>
-            </span>
-          ))}
-        </motion.h1>
+        <h1 className="v2-hero-title">
+          <Title word={project.word} filled={via === 'next'} delay={via === 'home' ? 0.75 : 0.35} />
+        </h1>
         <p className="v2-label v2-hero-kind">{project.kind}</p>
         <button
           type="button"
           className="v2-scrollcue"
           aria-label="Scroll to project"
           onClick={() => window.scrollTo({ top: window.innerHeight, behavior: reduce ? 'auto' : 'smooth' })}
-          style={{ borderColor: fg }}
+          style={{ borderColor: hero.fg }}
         >
-          <motion.span style={{ background: fg }} animate={reduce ? undefined : { y: [-6, 6, -6] }} transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }} />
+          <motion.span style={{ background: hero.fg }} animate={{ y: [-6, 6, -6] }} transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }} />
         </button>
       </section>
 
+      {/* ---------- The dark room with the work ---------- */}
       <article className="v2-curtain">
-        <div className="v2-wrap">
-          <Reveal className="v2-about">
+        <div className="v2-wrap v2-intro">
+          <Reveal className="v2-intro-main">
             <p className="v2-label">About the project</p>
-            <p className="v2-intro-text">{project.intro}</p>
+            <h2 className="v2-intro-h">{project.name}</h2>
+            <p className="v2-intro-p">{project.intro}</p>
             {project.link && (
-              <a className="v2-btn" href={project.link.href} target="_blank" rel="noopener noreferrer" data-cursor="Open" style={{ background: bg, color: fg }}>
+              <a className="v2-btn" href={project.link.href} target="_blank" rel="noopener noreferrer" style={{ background: project.colors.bg, color: project.colors.fg }}>
                 {project.link.label} <span aria-hidden="true">↗</span>
               </a>
             )}
           </Reveal>
-
-          <Reveal className="v2-meta">
+          <Reveal className="v2-intro-meta" delay={0.1}>
             {project.credits.map((m) => (
               <div key={m.label}>
                 <p className="v2-label">{m.label}</p>
@@ -242,33 +325,79 @@ export function ProjectPage({ project }: { project: Project }) {
               </div>
             ))}
           </Reveal>
-
-          {project.chapters.map((c, k) => (
-            <section key={c.title} className="v2-chapter">
-              <Reveal className="v2-chapter-head">
-                <span className="v2-num">{String(k + 1).padStart(2, '0')}</span>
-                <h2 className="v2-h3">{c.title}</h2>
-                {c.text && <p className="v2-text">{c.text}</p>}
-              </Reveal>
-              <div className="v2-blocks">
-                {c.blocks.map((b, j) => (
-                  <BlockView key={j} block={b} project={project} />
-                ))}
-              </div>
-            </section>
-          ))}
         </div>
 
-        <a href={href.project(next.slug)} className="v2-next" data-cursor="Next" style={{ background: next.colors.bg, color: next.colors.fg }}>
-          <span className="v2-label">Next project</span>
-          <span className="v2-next-media">
-            <img src={next.cover.src} alt="" loading="lazy" />
-          </span>
-          <span className="v2-next-word">{next.word}</span>
-        </a>
+        {project.chapters.map((c, k) => (
+          <section key={c.title} className="v2-chapter">
+            <Reveal className="v2-wrap v2-chapter-head">
+              <span className="v2-label">{String(k + 1).padStart(2, '0')}</span>
+              <h2 className="v2-chapter-title">{c.title}</h2>
+              {c.text && <p className="v2-chapter-text">{c.text}</p>}
+            </Reveal>
+            <div className="v2-wrap-wide v2-blocks">
+              {c.blocks.map((b, j) => (
+                <BlockView key={j} block={b} project={project} />
+              ))}
+            </div>
+          </section>
+        ))}
 
-        <Contact />
+        <div className="v2-wrap v2-credits">
+          {footer.map((m) => (
+            <div key={m.label}>
+              <p className="v2-label">{m.label}</p>
+              <p>{m.value}</p>
+            </div>
+          ))}
+          <div>
+            <p className="v2-label">Contact</p>
+            <p>
+              <a href={`mailto:${PERSON.email}`} className="v2-link">
+                {PERSON.email}
+              </a>
+            </p>
+          </div>
+        </div>
       </article>
+
+      {/* ---------- Next project: arrives as it sits on the home strip, then becomes its own hero ---------- */}
+      <section
+        ref={nextRef}
+        className="v2-next"
+        style={{ background: next.colors.bg }}
+        onClick={() => setGoing(true)}
+        aria-label={`Next project: ${next.name}`}
+      >
+        <motion.div
+          className="v2-next-wipe"
+          style={{ background: next.hero.bg }}
+          initial={{ clipPath: 'inset(0% 0% 100% 0%)' }}
+          animate={going ? { clipPath: 'inset(0% 0% 0% 0%)' } : { clipPath: 'inset(0% 0% 100% 0%)' }}
+          transition={{ duration: 0.6, ease: wipe }}
+        />
+        <motion.p className="v2-label v2-next-label" style={{ color: next.colors.fg }} animate={{ opacity: going ? 0 : 1 }}>
+          Next project
+        </motion.p>
+        <div className="v2-next-stage">
+          <motion.div
+            className="v2-hero-media"
+            style={{ filter: going ? 'grayscale(0)' : nextFilter }}
+            initial={lean}
+            animate={going ? flat : lean}
+            transition={{ duration: 0.9, ease: wipe, delay: 0.25 }}
+          >
+            <img src={next.cover.src} alt="" loading="lazy" />
+          </motion.div>
+        </div>
+        <motion.h2
+          className="v2-hero-title"
+          initial={{ color: next.colors.fg }}
+          animate={{ color: going ? next.hero.fg : next.colors.fg }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+        >
+          <span className="v2-title-fill v2-title-solid">{next.word}</span>
+        </motion.h2>
+      </section>
     </div>
   )
 }

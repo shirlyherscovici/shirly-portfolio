@@ -312,7 +312,7 @@ export function Home() {
 
   const open = (el: HTMLElement, project: Project) => {
     const r = el.getBoundingClientRect()
-    fly({ slug: project.slug, src: project.cover.src, rect: { x: r.left, y: r.top, w: r.width, h: r.height }, bg: project.colors.bg })
+    fly({ slug: project.slug, src: project.cover.src, rect: { x: r.left, y: r.top, w: r.width, h: r.height }, bg: project.hero.bg })
   }
 
   const mobile = vw < 760
