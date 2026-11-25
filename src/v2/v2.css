@@ -1109,6 +1109,21 @@ html.v2-booting .v2-header {
   margin: 0;
 }
 
+.v2-boot-title {
+  position: relative;
+  width: max-content;
+}
+
+.v2-boot-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(240, 240, 240, 0.45);
+}
+
+.v2-boot-fill {
+  position: absolute;
+  inset: 0;
+}
+
 .v2-boot-name p:first-child {
   font-family: var(--serif);
   font-weight: 600;

@@ -78,6 +78,8 @@ const ease = [0.76, 0, 0.24, 1] as const
 const soft = [0.22, 1, 0.36, 1] as const
 /** Length of the opening roll, in seconds */
 const BOOT = 2.4
+/** One shared period for the idle drift, so the strip moves as one */
+const DRIFT = 7
 let booted = false
 const firstLine = (s: string) => s.match(/^.*?[.!?](\s|$)/)?.[0].trim() ?? s
 
@@ -107,11 +109,11 @@ function strip(p: number, hs: number[], gap: number) {
 function place(p: number, roll: number, hs: number[], gap: number, index: number) {
   if (roll === 0) return { y: strip(p, hs, gap)[index], d: index - p, looped: false }
   const n = hs.length
-  const v = p + roll + n
-  const c = strip(v, [...hs, ...hs, ...hs], gap)
-  let k = index + n
-  for (const cand of [index, index + 2 * n]) if (Math.abs(c[cand]) < Math.abs(c[k])) k = cand
-  return { y: c[k], d: k - v, looped: k !== index + n }
+  // One even pitch for everyone, so the whole strip travels up as a single piece of film
+  const pitch = (hs[0] + hs[Math.min(1, n - 1)] * SIDE) / 2 + gap
+  const raw = index - (p + roll)
+  const d = ((((raw + n / 2) % n) + n) % n) - n / 2
+  return { y: d * pitch, d, looped: Math.abs(d - raw) > 0.001 }
 }
 
 /* ---------- One window of the strip: the image sits behind and the window slides over it.
@@ -121,6 +123,7 @@ function Frame({
   index,
   p,
   roll,
+  still,
   hs,
   gap,
   w,
@@ -132,6 +135,7 @@ function Frame({
   index: number
   p: MotionValue<number>
   roll: MotionValue<number>
+  still: boolean
   hs: number[]
   gap: number
   w: number
@@ -165,7 +169,6 @@ function Frame({
 
   return (
     <motion.div className="v2-frame" style={{ y, scale, opacity, width: w, height: h, marginLeft: -w / 2, marginTop: -h / 2 }}>
-      {/* The window's edges keep sliding, so a little more of the picture is always being revealed */}
       <motion.a
         ref={ref}
         href={href.project(project.slug)}
@@ -173,9 +176,6 @@ function Frame({
         tabIndex={active ? 0 : -1}
         aria-label={`${project.name}, open project`}
         draggable={false}
-        initial={{ clipPath: 'inset(0% 0% 5% 0%)' }}
-        animate={{ clipPath: ['inset(0% 0% 5% 0%)', 'inset(5% 0% 0% 0%)'] }}
-        transition={{ duration: 5 + index * 0.7, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
         onPointerMove={(e) => {
           const r = ref.current?.getBoundingClientRect()
           if (r) u.set((e.clientX - r.left) / r.width)
@@ -192,10 +192,11 @@ function Frame({
           else onPick(index)
         }}
       >
+        {/* Every picture rises slowly inside its window, all in step, revealing a little more */}
         <motion.div
           className="v2-window-pan"
-          animate={{ x: ['-4%', '4%'], y: ['2.5%', '-2.5%'] }}
-          transition={{ duration: 6 + index, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+          animate={still ? { y: '0%' } : { y: ['4%', '-4%'] }}
+          transition={still ? { duration: 0.6 } : { duration: DRIFT, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
         >
           <motion.img src={project.cover.src} alt={project.cover.alt} style={{ y: imgY, filter }} draggable={false} />
         </motion.div>
@@ -212,7 +213,7 @@ function Frame({
 }
 
 /* ---------- Small preview card: the project's video (or a second image), framed in the
- *  project's colour. It flips over each time you move to another project. ---------- */
+ *  project's colour. It flips over top to bottom each time you move to another project. ---------- */
 function Peek({ project, frame }: { project: Project; frame: MotionValue<string> }) {
   if (!project.loop && !project.peek) return null
   return (
@@ -223,9 +224,9 @@ function Peek({ project, frame }: { project: Project; frame: MotionValue<string>
         tabIndex={-1}
         aria-hidden="true"
         style={{ borderColor: frame }}
-        initial={{ rotateY: -90 }}
-        animate={{ rotateY: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } }}
-        exit={{ rotateY: 90, transition: { duration: 0.3, ease: [0.55, 0, 1, 0.45] } }}
+        initial={{ rotateX: 90 }}
+        animate={{ rotateX: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }}
+        exit={{ rotateX: -90, transition: { duration: 0.5, ease: [0.55, 0, 1, 0.45] } }}
       >
         {project.loop ? <video src={project.loop} autoPlay muted loop playsInline /> : <img src={project.peek} alt="" />}
       </motion.a>
@@ -243,7 +244,11 @@ export function Home() {
   /* Opening (first visit): dark room, small name top left, the film rolls up through every
    * project while the side band fills like a progress bar; then the project colour wipes in
    * from the left and the strip leans into its angle. */
-  const [boot, setBoot] = useState(!booted)
+  const [boot, setBoot] = useState(() => {
+    // Hide the header before the first paint, so it never flashes over the opening
+    if (!booted) document.documentElement.classList.add('v2-booting')
+    return !booted
+  })
   const ready = true
   const roll = useMotionValue(booted ? 0 : -n)
   useEffect(() => {
@@ -251,6 +256,9 @@ export function Home() {
     document.documentElement.classList.add('v2-booting')
     const c = animate(roll, 0, { duration: BOOT, ease: [0.33, 0, 0.12, 1] })
     const t = window.setTimeout(() => {
+      // Land exactly on the first project even if the roll was slowed down (e.g. a background tab)
+      c.stop()
+      roll.set(0)
       booted = true
       setBoot(false)
       document.documentElement.classList.remove('v2-booting')
@@ -333,7 +341,7 @@ export function Home() {
     : mobile
     ? { rotateX: 4, rotateY: -12, rotateZ: -5, skewX: -4 }
     : list
-      ? { rotateX: 28, rotateY: 0, rotateZ: 0, skewX: 0, x: '-20.5vw', scale: 1.15 }
+      ? { rotateX: 0, rotateY: 0, rotateZ: 0, skewX: 0, x: '-20.5vw', scale: 1.1 }
       : { rotateX: 6, rotateY: -22, rotateZ: -7, skewX: -6, x: '0vw', scale: 1 }
   const turn = { duration: 0.9, ease }
 
@@ -393,11 +401,11 @@ export function Home() {
               <motion.div
                 className="v2-plane-drift"
                 style={{ rotateY: leanY, rotateX: leanX }}
-                animate={{ y: [0, -22, 0], x: [0, 8, 0] }}
-                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+                animate={list ? { y: 0 } : { y: [10, -10] }}
+                transition={list ? { duration: 0.6 } : { duration: DRIFT, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
               >
                 {PROJECTS.map((pr, i) => (
-                  <Frame key={pr.slug} project={pr} index={i} p={p} roll={roll} hs={hs} gap={gap} w={w} active={i === idx} onOpen={open} onPick={scrollToIndex} />
+                  <Frame key={pr.slug} project={pr} index={i} p={p} roll={roll} still={list} hs={hs} gap={gap} w={w} active={i === idx} onOpen={open} onPick={scrollToIndex} />
                 ))}
               </motion.div>
             </motion.div>
@@ -470,14 +478,18 @@ export function Home() {
                 aria-hidden="true"
               >
                 <div className="v2-boot-name">
-                  <motion.p
-                    style={{ color: PROJECTS[0].colors.bg }}
-                    initial={{ clipPath: 'inset(-20% 100% -30% 0%)' }}
-                    animate={{ clipPath: 'inset(-20% 0% -30% 0%)' }}
-                    transition={{ duration: 1.2, ease, delay: 0.2 }}
-                  >
-                    {PERSON.name}
-                  </motion.p>
+                  <p className="v2-boot-title">
+                    <span className="v2-boot-outline">{PERSON.name}</span>
+                    <motion.span
+                      className="v2-boot-fill"
+                      style={{ color: PROJECTS[0].colors.bg }}
+                      initial={{ clipPath: 'inset(-20% 100% -30% 0%)' }}
+                      animate={{ clipPath: 'inset(-20% 0% -30% 0%)' }}
+                      transition={{ duration: 1.6, ease, delay: 0.3 }}
+                    >
+                      {PERSON.name}
+                    </motion.span>
+                  </p>
                   <motion.p className="v2-label" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9, duration: 0.6 }}>
                     {PERSON.role}
                   </motion.p>
