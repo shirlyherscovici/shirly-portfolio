@@ -414,14 +414,21 @@ html.v2-snap {
   pointer-events: none;
 }
 
-.v2-window {
-  transition: box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.v2-window.is-active:hover {
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--glow) 45%, transparent),
-    0 0 46px 4px color-mix(in srgb, var(--glow) 38%, transparent);
+.v2-sweep {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+    110deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.08) 44%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0.08) 56%,
+    transparent 62%
+  );
+  background-size: 250% 100%;
+  background-repeat: no-repeat;
+  mix-blend-mode: screen;
 }
 
 @media (max-width: 760px) {

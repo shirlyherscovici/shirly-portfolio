@@ -4,7 +4,6 @@ import {
   motion,
   useMotionValue,
   useMotionValueEvent,
-  useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
@@ -96,7 +95,7 @@ function Loader({ onDone }: { onDone: () => void }) {
             <span className="v2-bigname-outline">{l}</span>
             <motion.span
               className="v2-bigname-fill"
-              style={{ color: PROJECTS[0].colors.fg }}
+              style={{ color: PROJECTS[0].colors.bg }}
               initial={{ clipPath: 'inset(-20% 100% -30% 0%)' }}
               animate={{ clipPath: 'inset(-20% 0% -30% 0%)' }}
               transition={{ duration: 1.3, ease, delay: 0.2 + i * 0.3 }}
@@ -154,9 +153,14 @@ function Frame({
   onOpen: (el: HTMLElement, project: Project) => void
   onPick: (i: number) => void
 }) {
-  const reduce = useReducedMotion()
   const ref = useRef<HTMLAnchorElement>(null)
   const h = hs[index]
+  /* Light sweep: a bright diagonal band that follows the pointer across the picture
+   * (like After Effects' Light Sweep), only while hovering the active frame */
+  const u = useMotionValue(0.5)
+  const su = useSpring(u, { stiffness: 140, damping: 22 })
+  const sweepPos = useTransform(su, (v) => `${((1.25 - v) / 1.5) * 100}% 0%`)
+  const [hover, setHover] = useState(false)
   const y = useTransform(p, (v) => strip(v, hs, gap)[index])
   const scale = useTransform(p, (v) => sizeAt(index - v))
   // Counter-move the picture so it reads as fixed behind the moving window
@@ -167,13 +171,27 @@ function Frame({
 
   return (
     <motion.div className="v2-frame" style={{ y, scale, opacity, width: w, height: h, marginLeft: -w / 2, marginTop: -h / 2 }}>
-      <a
+      {/* The window's edges keep sliding, so a little more of the picture is always being revealed */}
+      <motion.a
         ref={ref}
         href={href.project(project.slug)}
-        className={`v2-window ${active ? 'is-active' : ''}`}
+        className="v2-window"
         tabIndex={active ? 0 : -1}
         aria-label={`${project.name}, open project`}
         draggable={false}
+        initial={{ clipPath: 'inset(0% 0% 5% 0%)' }}
+        animate={{ clipPath: ['inset(0% 0% 5% 0%)', 'inset(5% 0% 0% 0%)'] }}
+        transition={{ duration: 5 + index * 0.7, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+        onPointerMove={(e) => {
+          const r = ref.current?.getBoundingClientRect()
+          if (r) u.set((e.clientX - r.left) / r.width)
+        }}
+        onPointerEnter={(e) => {
+          const r = ref.current?.getBoundingClientRect()
+          if (r) u.jump((e.clientX - r.left) / r.width < 0.5 ? -0.2 : 1.2)
+          setHover(true)
+        }}
+        onPointerLeave={() => setHover(false)}
         onClick={(e) => {
           e.preventDefault()
           if (active) onOpen(ref.current!, project)
@@ -182,12 +200,19 @@ function Frame({
       >
         <motion.div
           className="v2-window-pan"
-          animate={reduce ? undefined : { x: ['-2.5%', '2.5%'], y: ['1.5%', '-1.5%'] }}
-          transition={{ duration: 7 + index, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+          animate={{ x: ['-4%', '4%'], y: ['2.5%', '-2.5%'] }}
+          transition={{ duration: 6 + index, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
         >
           <motion.img src={project.cover.src} alt={project.cover.alt} style={{ y: imgY, filter }} draggable={false} />
         </motion.div>
-      </a>
+        <motion.span
+          className="v2-sweep"
+          style={{ backgroundPosition: sweepPos }}
+          animate={{ opacity: hover && active ? 1 : 0 }}
+          transition={{ duration: 0.35 }}
+          aria-hidden="true"
+        />
+      </motion.a>
     </motion.div>
   )
 }
@@ -215,7 +240,6 @@ function Peek({ project, frame }: { project: Project; frame: MotionValue<string>
 }
 
 export function Home() {
-  const reduce = useReducedMotion()
   const { setTone } = useTone()
   const { fly } = useFlight()
   const { w: vw, h: vh } = useViewport()
@@ -301,11 +325,12 @@ export function Home() {
     const t = window.setTimeout(() => setSettled(true), 2300)
     return () => window.clearTimeout(t)
   }, [ready])
+  // Home: leaning film strip. List: the same strip stands straight at the centre of the screen.
   const tilt = mobile
-    ? { rotateX: 4, rotateY: -10, rotateZ: -4 }
+    ? { rotateX: 4, rotateY: -12, rotateZ: -5, skewX: -4 }
     : list
-      ? { rotateX: 36, rotateY: 0, rotateZ: 0, x: '-27vw', scale: 1.12 }
-      : { rotateX: 5, rotateY: -17, rotateZ: -5, x: '0vw', scale: 1 }
+      ? { rotateX: 28, rotateY: 0, rotateZ: 0, skewX: 0, x: '-20.5vw', scale: 1.15 }
+      : { rotateX: 6, rotateY: -22, rotateZ: -7, skewX: -6, x: '0vw', scale: 1 }
   const turn = { duration: settled ? 0.9 : 1.1, ease, delay: settled ? 0 : 1.0 }
 
   // A little lean toward the pointer
@@ -314,7 +339,7 @@ export function Home() {
   const leanY = useSpring(useTransform(mx, (v) => v * 5), { stiffness: 60, damping: 18 })
   const leanX = useSpring(useTransform(my, (v) => -v * 4), { stiffness: 60, damping: 18 })
   useEffect(() => {
-    if (!canHover || reduce) return
+    if (!canHover) return
     // In list mode the strip lies straight back, so the lean is switched off there
     if (list) {
       mx.set(0)
@@ -327,7 +352,7 @@ export function Home() {
     }
     window.addEventListener('pointermove', onMove)
     return () => window.removeEventListener('pointermove', onMove)
-  }, [canHover, reduce, list, mx, my])
+  }, [canHover, list, mx, my])
 
   const fade = { opacity: list ? 0 : 1, transition: { duration: 0.4 } }
   const openAt = (i: number) => {
@@ -336,7 +361,7 @@ export function Home() {
   }
 
   return (
-    <motion.main className="v2-home" style={{ backgroundColor: bg, color: fg, ['--glow' as string]: fg }}>
+    <motion.main className="v2-home" style={{ backgroundColor: bg, color: fg }}>
       <AnimatePresence>{loading && <Loader onDone={finishIntro} />}</AnimatePresence>
 
       <section ref={stripRef} className="v2-strip" style={{ height: n * vh }} aria-label="Selected work">
@@ -349,7 +374,7 @@ export function Home() {
           <div className="v2-plane-wrap">
             <motion.div
               className="v2-plane"
-              initial={{ y: '70vh', opacity: 0, rotateX: 0, rotateY: 0, rotateZ: 0 }}
+              initial={{ y: '70vh', opacity: 0, rotateX: 0, rotateY: 0, rotateZ: 0, skewX: 0 }}
               animate={ready ? { y: 0, opacity: 1, ...tilt } : undefined}
               transition={{
                 y: { duration: 1.1, ease: soft },
@@ -357,6 +382,7 @@ export function Home() {
                 rotateX: turn,
                 rotateY: turn,
                 rotateZ: turn,
+                skewX: turn,
                 x: { duration: 0.9, ease },
                 scale: { duration: 0.9, ease },
               }}
@@ -365,8 +391,8 @@ export function Home() {
               <motion.div
                 className="v2-plane-drift"
                 style={{ rotateY: leanY, rotateX: leanX }}
-                animate={reduce ? undefined : { y: [0, -14, 0], x: [0, 6, 0] }}
-                transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+                animate={{ y: [0, -22, 0], x: [0, 8, 0] }}
+                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
               >
                 {PROJECTS.map((pr, i) => (
                   <Frame key={pr.slug} project={pr} index={i} p={p} hs={hs} gap={gap} w={w} active={i === idx} onOpen={open} onPick={scrollToIndex} />
@@ -375,7 +401,12 @@ export function Home() {
             </motion.div>
           </div>
 
-          <motion.div className="v2-info" initial={false} animate={fade}>
+          <motion.div
+            className="v2-info"
+            initial={false}
+            animate={{ clipPath: list ? 'inset(-20% 100% -20% -10%)' : 'inset(-20% -10% -20% -10%)' }}
+            transition={{ duration: 0.9, ease }}
+          >
             <AnimatePresence mode="wait">
               {ready && (
                 <motion.div key={project.slug} className="v2-info-inner" exit={{ opacity: 0, y: -16, transition: { duration: 0.25 } }}>

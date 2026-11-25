@@ -46,7 +46,7 @@ export const PROJECTS: Project[] = [
     frame: { ratio: 1 },
     name: 'Music from the Screen',
     kind: 'Key art · UI · Social',
-    colors: { bg: '#1c1540', fg: '#ff7eb6' },
+    colors: { bg: '#ff4f9a', fg: '#1d0b45' },
     cover: { kind: 'image', src: v2('galgalatz/banner-cover.webp'), alt: 'Neon key art for Music from the Screen, N12 × Galgalatz' },
     peek: v2('galgalatz/game-uiux.webp'),
     intro:
@@ -105,7 +105,7 @@ export const PROJECTS: Project[] = [
     frame: { ratio: 16 / 9 },
     name: 'People in Motion',
     kind: '2D animation · Motion design',
-    colors: { bg: '#24563f', fg: '#f6dcb8' },
+    colors: { bg: '#ffd23f', fg: '#174a36' },
     cover: { kind: 'image', src: v2('motion/people-motion-hero-poster.webp'), alt: 'Animated character in a game-style scene' },
     loop: asset('/assets/motion/clips/02-ui-game-animation.mp4'),
     intro: 'A character-led motion project built as a playful game world: character animation, UI and game animation, kinetic typography and transitions.',
@@ -161,7 +161,7 @@ export const PROJECTS: Project[] = [
     frame: { ratio: 16 / 9 },
     name: 'USA Pilot Rescue',
     kind: 'AI film · Visual storytelling',
-    colors: { bg: '#b8a98c', fg: '#1d1d18' },
+    colors: { bg: '#2348c6', fg: '#f6dca6' },
     cover: { kind: 'image', src: v2('ai/7.webp'), alt: 'AI-generated rescue scene with soldiers and aircraft' },
     loop: asset('/assets/navigator/motion/002.mp4'),
     intro:
@@ -220,7 +220,7 @@ export const PROJECTS: Project[] = [
     frame: { ratio: 1.63 },
     name: 'Amy',
     kind: 'Editorial identity · Art direction',
-    colors: { bg: '#c41e2e', fg: '#f4e3c4' },
+    colors: { bg: '#f6efe3', fg: '#d7263d' },
     cover: { kind: 'image', src: v2('amy/hero-banner.webp'), alt: 'Amy Winehouse editorial banner with tattoo-inspired collage' },
     peek: v2('amy/amy-phones-front.webp'),
     intro:
