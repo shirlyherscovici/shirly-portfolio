@@ -7,29 +7,61 @@ import {
   useScroll,
   useSpring,
   useTransform,
+  useVelocity,
   type MotionValue,
 } from 'framer-motion'
 import { PERSON, PROJECTS, SHELL, type Project } from './data'
-import { go, href, useCanHover, useFlight, useTone } from './store'
+import { href, useCanHover, useFlight, useTone } from './store'
 import { Contact } from './Contact'
 
-/* ---------- colour helpers ---------- */
-function hex(c: string) {
-  const n = parseInt(c.slice(1), 16)
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+/* ---------- colour helpers: mix in OKLab so blends stay clean (no muddy greys) ---------- */
+function toLin(c: number) {
+  c /= 255
+  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+}
+function fromLin(c: number) {
+  const v = c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055
+  return Math.round(Math.max(0, Math.min(1, v)) * 255)
+}
+function toLab(hex: string) {
+  const n = parseInt(hex.slice(1), 16)
+  const r = toLin((n >> 16) & 255)
+  const g = toLin((n >> 8) & 255)
+  const b = toLin(n & 255)
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b)
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b)
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b)
+  return [
+    0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s,
+    1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
+    0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s,
+  ]
+}
+function fromLab([L, A, B]: number[]) {
+  const l = (L + 0.3963377774 * A + 0.2158037573 * B) ** 3
+  const m = (L - 0.1055613458 * A - 0.0638541728 * B) ** 3
+  const s = (L - 0.0894841775 * A - 1.291485548 * B) ** 3
+  const r = 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s
+  const g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s
+  const b = -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s
+  return `rgb(${fromLin(r)},${fromLin(g)},${fromLin(b)})`
 }
 function mix(a: string, b: string, t: number) {
-  const A = hex(a)
-  const B = hex(b)
-  return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',')})`
+  const A = toLab(a)
+  const B = toLab(b)
+  return fromLab(A.map((v, i) => v + (B[i] - v) * t))
 }
-/** Colour at a continuous position along the project list */
+const smooth = (a: number, b: number, x: number) => {
+  const t = Math.max(0, Math.min(1, (x - a) / (b - a)))
+  return t * t * (3 - 2 * t)
+}
+/** Each project holds its colour; the switch happens quickly around the midpoint */
 function along(p: number, key: 'bg' | 'fg') {
   const n = PROJECTS.length
   const c = Math.max(0, Math.min(n - 1, p))
   const i = Math.floor(c)
   const j = Math.min(n - 1, i + 1)
-  return mix(PROJECTS[i].colors[key], PROJECTS[j].colors[key], c - i)
+  return mix(PROJECTS[i].colors[key], PROJECTS[j].colors[key], smooth(0.3, 0.7, c - i))
 }
 
 function useViewport() {
@@ -43,15 +75,17 @@ function useViewport() {
 }
 
 const ease = [0.76, 0, 0.24, 1] as const
+/** Scroll distance (in viewport heights) the intro takes before the strip starts moving */
+const INTRO = 0.7
 
-/* ---------- Name hero: outline that fills with the projects' colours ---------- */
-function NameHero({ fg }: { fg: MotionValue<string> }) {
-  const reduce = useReducedMotion()
-  // One vivid stop per project, in strip order
-  const gradient = 'linear-gradient(90deg, #ff7eb6, #3fae7a, #d9c39a, #e5323f)'
+/* ---------- Name: thin outline that fills with colour on load ---------- */
+function NameBlock({ q }: { q: MotionValue<number> }) {
+  const y = useTransform(q, [0, 1], ['0vh', '-28vh'])
+  const opacity = useTransform(q, [0, 0.75], [1, 0])
+  const fill = PROJECTS[0].colors.fg
   const lines = ['Shirly', 'Herscovici']
   return (
-    <section className="v2-namehero" aria-label="Intro">
+    <motion.div className="v2-name" style={{ y, opacity }}>
       <h1 className="v2-bigname">
         {lines.map((l, i) => (
           <span key={l} className="v2-bigname-line">
@@ -59,29 +93,25 @@ function NameHero({ fg }: { fg: MotionValue<string> }) {
             <motion.span
               className="v2-bigname-fill"
               aria-hidden="true"
-              style={{ backgroundImage: gradient }}
-              initial={{ clipPath: 'inset(0 100% 0 0)' }}
-              animate={{ clipPath: 'inset(0 0% 0 0)' }}
-              transition={{ duration: 1.6, ease, delay: 0.25 + i * 0.35 }}
+              style={{ color: fill }}
+              initial={{ clipPath: 'inset(-20% 100% -30% 0%)' }}
+              animate={{ clipPath: 'inset(-20% 0% -30% 0%)' }}
+              transition={{ duration: 1.5, ease, delay: 0.3 + i * 0.3 }}
             >
               {l}
             </motion.span>
           </span>
         ))}
       </h1>
-      <motion.div
-        className="v2-namehero-foot"
-        style={{ color: fg }}
-        initial={{ opacity: 0, y: 16 }}
+      <motion.p
+        className="v2-label v2-name-role"
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.6, duration: 0.8, ease }}
+        transition={{ delay: 1.5, duration: 0.8, ease }}
       >
-        <p className="v2-label">{PERSON.role}</p>
-        <p className="v2-label v2-scrollhint">
-          Selected work <span aria-hidden="true">↓</span>
-        </p>
-      </motion.div>
-    </section>
+        {PERSON.role}
+      </motion.p>
+    </motion.div>
   )
 }
 
@@ -142,14 +172,17 @@ function DepthCard({ project, active, onOpen }: { project: Project; active: bool
   )
 }
 
+type Geo = { w: number; h: number; x: number; align: 'left' | 'right' | 'center' }
+
 /* ---------- One frame of the film strip ---------- */
 function Frame({
   project,
   index,
   p,
+  q,
   step,
-  w,
-  h,
+  drop,
+  geo,
   active,
   onOpen,
   onPick,
@@ -157,28 +190,31 @@ function Frame({
   project: Project
   index: number
   p: MotionValue<number>
+  q: MotionValue<number>
   step: number
-  w: number
-  h: number
+  drop: number
+  geo: Geo
   active: boolean
   onOpen: (el: HTMLElement, project: Project) => void
   onPick: (i: number) => void
 }) {
   const d = useTransform(p, (v) => index - v)
-  const y = useTransform(d, (v) => v * step)
-  const scale = useTransform(d, (v) => 1 - Math.min(1, Math.abs(v)) * 0.22)
+  // While the intro is on screen the whole strip sits lower, so the first cover peeks under the name
+  const y = useTransform([d, q], ([v, qq]) => (v as number) * step + (1 - (qq as number)) * drop)
+  const scale = useTransform([d, q], ([v, qq]) => (1 - Math.min(1, Math.abs(v as number)) * 0.22) * (1 - (1 - (qq as number)) * 0.08))
   const opacity = useTransform(d, (v) => 1 - Math.min(1, Math.abs(v)) * 0.55)
-  const wordOpacity = useTransform(d, (v) => 1 - Math.min(1, Math.abs(v) * 1.6))
+  const wordOpacity = useTransform([d, q], ([v, qq]) => (1 - Math.min(1, Math.abs(v as number) * 1.6)) * smooth(0.35, 0.9, qq as number))
   const wordY = useTransform(d, (v) => v * 60)
+  const { w, h, x, align } = geo
 
   return (
-    <motion.div className="v2-frame" style={{ y, scale, opacity, width: w, marginLeft: -w / 2, marginTop: -h / 2 }} onClick={() => !active && onPick(index)}>
+    <motion.div className="v2-frame" style={{ y, scale, opacity, width: w, marginLeft: -w / 2 + x, marginTop: -h / 2 }} onClick={() => !active && onPick(index)}>
       <div className="v2-frame-media" style={{ height: h }}>
         <DepthCard project={project} active={active} onOpen={(el) => onOpen(el, project)} />
       </div>
       <motion.a
         href={href.project(project.slug)}
-        className="v2-frame-word"
+        className={`v2-frame-word is-${align}`}
         style={{ opacity: wordOpacity, y: wordY, color: project.colors.fg }}
         data-cursor="View"
         tabIndex={-1}
@@ -200,34 +236,52 @@ export function Home() {
   const { setTone } = useTone()
   const { fly } = useFlight()
   const { w: vw, h: vh } = useViewport()
-  const heroRef = useRef<HTMLDivElement>(null)
   const stripRef = useRef<HTMLDivElement>(null)
+  const framesRef = useRef<HTMLDivElement>(null)
+  const warpRef = useRef<SVGFEDisplacementMapElement>(null)
   const n = PROJECTS.length
+  const span = INTRO + n - 1
   const [idx, setIdx] = useState(0)
-  const [inHero, setInHero] = useState(true)
+  const [inIntro, setInIntro] = useState(true)
 
-  const { scrollYProgress: heroP } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
-  const { scrollYProgress: stripP } = useScroll({ target: stripRef, offset: ['start start', 'end end'] })
-  const raw = useTransform(stripP, (t) => t * (n - 1))
+  const { scrollYProgress } = useScroll({ target: stripRef, offset: ['start start', 'end end'] })
+  const s = useTransform(scrollYProgress, (t) => t * span)
+  const q = useTransform(s, (v) => Math.min(1, v / INTRO))
+  const raw = useTransform(s, (v) => Math.max(0, v - INTRO))
   const p = useSpring(raw, { stiffness: 120, damping: 24, mass: 0.6 })
 
-  const bg = useTransform([heroP, p], ([h, pp]) => ((h as number) < 1 ? mix(SHELL.bg, PROJECTS[0].colors.bg, h as number) : along(pp as number, 'bg')))
-  const fg = useTransform([heroP, p], ([h, pp]) => ((h as number) < 1 ? mix(SHELL.fg, PROJECTS[0].colors.fg, h as number) : along(pp as number, 'fg')))
+  const bg = useTransform([q, p], ([qq, pp]) => ((qq as number) < 1 ? mix(SHELL.bg, PROJECTS[0].colors.bg, smooth(0, 1, qq as number)) : along(pp as number, 'bg')))
+  const fg = useTransform([q, p], ([qq, pp]) => ((qq as number) < 1 ? mix(SHELL.fg, PROJECTS[0].colors.fg, smooth(0, 1, qq as number)) : along(pp as number, 'fg')))
 
   useMotionValueEvent(p, 'change', (v) => setIdx(Math.max(0, Math.min(n - 1, Math.round(v)))))
-  useMotionValueEvent(heroP, 'change', (v) => setInHero(v < 0.5))
+  useMotionValueEvent(q, 'change', (v) => setInIntro(v < 0.5))
 
   useEffect(() => {
-    setTone(inHero ? { bg: SHELL.bg, fg: SHELL.fg } : PROJECTS[idx].colors)
-  }, [idx, inHero, setTone])
+    setTone(inIntro ? { bg: SHELL.bg, fg: SHELL.fg } : PROJECTS[idx].colors)
+  }, [idx, inIntro, setTone])
+
+  // The header repeats the name, so it stays hidden while the big name is on screen
+  useEffect(() => {
+    document.documentElement.classList.toggle('v2-intro', inIntro)
+  }, [inIntro])
 
   useEffect(() => {
-    document.documentElement.classList.add('v2-snap')
-    return () => document.documentElement.classList.remove('v2-snap')
+    const root = document.documentElement
+    root.classList.add('v2-snap')
+    return () => root.classList.remove('v2-snap', 'v2-intro')
   }, [])
 
+  /* Scroll-speed distortion: the covers ripple and lean while the strip moves, and settle when it stops */
+  const vel = useVelocity(p)
+  const lean = useTransform(vel, (v) => `${Math.max(-5, Math.min(5, -v * 1.6))}deg`)
+  useMotionValueEvent(vel, 'change', (v) => {
+    const amt = Math.min(46, Math.abs(v) * (reduce ? 8 : 16))
+    warpRef.current?.setAttribute('scale', amt.toFixed(1))
+    if (framesRef.current) framesRef.current.style.filter = amt > 0.6 ? 'url(#v2-warp)' : ''
+  })
+
   const scrollToIndex = (i: number) => {
-    const top = (stripRef.current?.offsetTop ?? 0) + i * vh
+    const top = (stripRef.current?.offsetTop ?? 0) + (INTRO + i) * vh
     window.scrollTo({ top, behavior: 'smooth' })
   }
 
@@ -235,12 +289,13 @@ export function Home() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
-      const s = stripRef.current
-      if (!s) return
-      const y = window.scrollY - s.offsetTop
-      if (y < -vh * 0.5 || y > s.offsetHeight - vh * 0.5) return
+      const st = stripRef.current
+      if (!st) return
+      const y = window.scrollY - st.offsetTop
+      if (y > st.offsetHeight - vh * 0.5) return
       e.preventDefault()
-      scrollToIndex(Math.max(0, Math.min(n - 1, idx + (e.key === 'ArrowDown' ? 1 : -1))))
+      const from = q.get() < 1 ? -1 : idx
+      scrollToIndex(Math.max(0, Math.min(n - 1, from + (e.key === 'ArrowDown' ? 1 : -1))))
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -252,26 +307,38 @@ export function Home() {
   }
 
   const mobile = vw < 760
-  const w = mobile ? vw * 0.8 : Math.min(vw * 0.46, 660)
-  const h = (w * 10) / 16
-  const step = h + (mobile ? 90 : 130)
+  const base = mobile ? vw * 0.8 : Math.min(vw * 0.5, 720, vh * 0.95)
+  const geos: Geo[] = PROJECTS.map(({ frame }) => {
+    const w = mobile ? base * (frame.ratio < 1.3 ? 0.78 : 1) : base * frame.scale
+    return { w, h: w / frame.ratio, x: mobile ? 0 : frame.x * vw, align: mobile ? 'center' : frame.align }
+  })
+  const step = Math.max(...geos.map((g) => g.h)) + (mobile ? 90 : 130)
+  const drop = vh * (mobile ? 0.2 : 0.34)
 
   return (
     <motion.main className="v2-home" style={{ backgroundColor: bg, color: fg }}>
-      <div ref={heroRef}>
-        <NameHero fg={fg} />
-      </div>
+      <svg className="v2-svgdefs" aria-hidden="true" focusable="false">
+        <filter id="v2-warp" x="-10%" y="-10%" width="120%" height="120%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.002 0.014" numOctaves="1" seed="3" />
+          <feDisplacementMap ref={warpRef} in="SourceGraphic" scale="0" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </svg>
 
-      <section ref={stripRef} className="v2-strip" style={{ height: n * vh }} aria-label="Selected work">
+      <section ref={stripRef} className="v2-strip" style={{ height: (span + 1) * vh }} aria-label="Selected work">
+        <span className="v2-snapmark" style={{ top: 0 }} aria-hidden="true" />
         {PROJECTS.map((pr, i) => (
-          <span key={pr.slug} className="v2-snapmark" style={{ top: i * vh }} aria-hidden="true" />
+          <span key={pr.slug} className="v2-snapmark" style={{ top: (INTRO + i) * vh }} aria-hidden="true" />
         ))}
         <div className="v2-stage">
-          {PROJECTS.map((pr, i) => (
-            <Frame key={pr.slug} project={pr} index={i} p={p} step={step} w={w} h={h} active={i === idx} onOpen={open} onPick={scrollToIndex} />
-          ))}
+          <NameBlock q={q} />
 
-          <nav className="v2-index" aria-label="Projects">
+          <motion.div ref={framesRef} className="v2-frames" style={{ skewY: lean }}>
+            {PROJECTS.map((pr, i) => (
+              <Frame key={pr.slug} project={pr} index={i} p={p} q={q} step={step} drop={drop} geo={geos[i]} active={i === idx} onOpen={open} onPick={scrollToIndex} />
+            ))}
+          </motion.div>
+
+          <nav className={`v2-index ${inIntro ? 'is-hidden' : ''}`} aria-label="Projects">
             {PROJECTS.map((pr, i) => (
               <button key={pr.slug} type="button" className={`v2-label ${i === idx ? 'on' : ''}`} onClick={() => scrollToIndex(i)} aria-current={i === idx}>
                 <span>{String(i + 1).padStart(2, '0')}</span>
@@ -280,9 +347,11 @@ export function Home() {
             ))}
           </nav>
 
-          <motion.p key={idx} className="v2-label v2-stage-kind" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-            {PROJECTS[idx].kind}
-          </motion.p>
+          {!inIntro && (
+            <motion.p key={idx} className="v2-label v2-stage-kind" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+              {PROJECTS[idx].kind}
+            </motion.p>
+          )}
         </div>
       </section>
 

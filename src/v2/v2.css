@@ -132,23 +132,26 @@ html.v2-snap {
   position: relative;
 }
 
-.v2-namehero {
-  position: relative;
-  min-height: 100vh;
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 120px var(--gutter) 40px;
-  scroll-snap-align: start;
+.v2-name {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  top: clamp(84px, 13vh, 130px);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.v2-name-role {
+  margin: clamp(14px, 2vh, 24px) 0 0;
+  opacity: 0.75;
 }
 
 .v2-bigname {
   margin: 0;
   font-family: var(--serif);
   font-weight: 600;
-  font-size: clamp(64px, 15.5vw, 260px);
-  line-height: 0.9;
+  font-size: clamp(48px, 11vw, 190px);
+  line-height: 0.92;
   letter-spacing: -0.04em;
 }
 
@@ -160,30 +163,47 @@ html.v2-snap {
 }
 
 .v2-bigname-line:nth-child(2) {
-  margin-left: clamp(24px, 12vw, 220px);
+  margin-left: clamp(24px, 9vw, 170px);
 }
 
 .v2-bigname-outline {
   color: transparent;
-  -webkit-text-stroke: 1px rgba(240, 240, 240, 0.4);
+  -webkit-text-stroke: 1px rgba(240, 240, 240, 0.35);
 }
 
 .v2-bigname-fill {
   position: absolute;
   inset: 0;
-  color: transparent;
-  -webkit-background-clip: text;
-  background-clip: text;
 }
 
-.v2-namehero-foot {
+html.v2-intro .v2-header > a:first-child {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.v2-header > a:first-child {
+  transition: opacity 0.4s;
+}
+
+.v2-svgdefs {
   position: absolute;
-  left: var(--gutter);
-  right: var(--gutter);
-  bottom: 32px;
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.v2-frames {
+  position: absolute;
+  inset: 0;
+}
+
+.v2-index.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.v2-index {
+  transition: opacity 0.5s;
 }
 
 .v2-scrollhint span {
@@ -275,6 +295,18 @@ html.v2-snap {
   line-height: 1;
   letter-spacing: -0.035em;
   white-space: nowrap;
+}
+
+.v2-frame-word.is-left {
+  margin-left: -6%;
+  margin-right: -100vw;
+  text-align: left;
+}
+
+.v2-frame-word.is-right {
+  margin-left: -100vw;
+  margin-right: -6%;
+  text-align: right;
 }
 
 .v2-index {
@@ -841,11 +873,6 @@ html.v2-snap {
 
   .v2-bigname-line:nth-child(2) {
     margin-left: 0;
-  }
-
-  .v2-namehero-foot {
-    flex-direction: column;
-    bottom: 84px;
   }
 
   .v2-hero-media {
