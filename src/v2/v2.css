@@ -1765,3 +1765,22 @@ html.v2-booting .v2-allbtn {
 @media (max-width: 760px) {
   .v2-brand-line { display: none; }
 }
+
+/* About: intro beside the photo */
+.v2-ab-hi {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) min(300px, 32%);
+  gap: clamp(24px, 5vw, 72px);
+  align-items: start;
+}
+.v2-ab-photo {
+  margin: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #fff;
+}
+.v2-ab-photo img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 30%; }
+@media (max-width: 760px) {
+  .v2-ab-hi { grid-template-columns: 1fr; }
+  .v2-ab-photo { width: min(240px, 64vw); order: -1; }
+}

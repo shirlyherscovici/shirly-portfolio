@@ -4,6 +4,7 @@ import { PERSON, PROJECTS } from './data'
 import { href, useTone } from './store'
 import { Contact } from './Contact'
 import { ScrollArrow } from './ScrollArrow'
+import { asset } from '../lib/asset'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
@@ -64,6 +65,8 @@ export function About() {
           ))}
         </h1>
 
+        <div className="v2-ab-hi">
+        <div>
         <motion.p className="v2-ab-intro" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.9, ease }}>
           I’m a graphic and motion designer from Israel, and I’ve been doing this for over 8 years.
         </motion.p>
@@ -81,6 +84,16 @@ export function About() {
         <motion.div className="v2-ab-arrow" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9, duration: 0.6 }}>
           <ScrollArrow fill="#171717" ink="#fbf8f3" onClick={() => window.scrollTo({ top: window.innerHeight * 0.8, behavior: 'smooth' })} />
         </motion.div>
+        </div>
+        <motion.figure
+          className="v2-ab-photo"
+          initial={{ opacity: 0, y: 30, clipPath: 'inset(10% 10% 10% 10% round 20px)' }}
+          animate={{ opacity: 1, y: 0, clipPath: 'inset(0% 0% 0% 0% round 20px)' }}
+          transition={{ delay: 0.5, duration: 1.1, ease }}
+        >
+          <img src={asset('/v2/about/shirly.webp')} alt="Shirly Herscovici" width={360} height={360} />
+        </motion.figure>
+        </div>
 
 
         <section className="v2-ab-sec">
