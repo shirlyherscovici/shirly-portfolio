@@ -101,6 +101,19 @@ button {
 }
 
 /* ---------- Header ---------- */
+.v2-header > a:first-child {
+  animation: v2-namefill 1.2s cubic-bezier(0.76, 0, 0.24, 1) 0.15s both;
+}
+
+@keyframes v2-namefill {
+  from {
+    clip-path: inset(-20% 100% -20% 0);
+  }
+  to {
+    clip-path: inset(-20% 0 -20% 0);
+  }
+}
+
 .v2-header {
   position: fixed;
   inset: 0 0 auto 0;
@@ -421,9 +434,9 @@ html.v2-snap {
   background-image: linear-gradient(
     110deg,
     transparent 38%,
-    rgba(255, 255, 255, 0.08) 44%,
-    rgba(255, 255, 255, 0.55) 50%,
-    rgba(255, 255, 255, 0.08) 56%,
+    rgba(255, 255, 255, 0.04) 45%,
+    rgba(255, 255, 255, 0.22) 50%,
+    rgba(255, 255, 255, 0.04) 55%,
     transparent 62%
   );
   background-size: 250% 100%;

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   AnimatePresence,
+  animate,
   motion,
   useMotionValue,
   useMotionValueEvent,
@@ -76,38 +77,6 @@ function useViewport() {
 const ease = [0.76, 0, 0.24, 1] as const
 const soft = [0.22, 1, 0.36, 1] as const
 const firstLine = (s: string) => s.match(/^.*?[.!?](\s|$)/)?.[0].trim() ?? s
-
-/* ---------- Opening: the name fills with colour, then lifts away to the work (first visit only) ---------- */
-let introSeen = false
-function Loader({ onDone }: { onDone: () => void }) {
-  const done = useRef(onDone)
-  done.current = onDone
-  useEffect(() => {
-    const t = window.setTimeout(() => done.current(), 2300)
-    return () => window.clearTimeout(t)
-  }, [])
-  const lines = ['Shirly', 'Herscovici']
-  return (
-    <motion.div className="v2-loader" initial={{ y: 0 }} exit={{ y: '-100%' }} transition={{ duration: 0.9, ease }} aria-hidden="true">
-      <div className="v2-bigname">
-        {lines.map((l, i) => (
-          <span key={l} className="v2-bigname-line">
-            <span className="v2-bigname-outline">{l}</span>
-            <motion.span
-              className="v2-bigname-fill"
-              style={{ color: PROJECTS[0].colors.bg }}
-              initial={{ clipPath: 'inset(-20% 100% -30% 0%)' }}
-              animate={{ clipPath: 'inset(-20% 0% -30% 0%)' }}
-              transition={{ duration: 1.3, ease, delay: 0.2 + i * 0.3 }}
-            >
-              {l}
-            </motion.span>
-          </span>
-        ))}
-      </div>
-    </motion.div>
-  )
-}
 
 /* ---------- Strip geometry ---------- */
 /** Neighbours are this much smaller than the frame you are on */
@@ -246,12 +215,25 @@ export function Home() {
   const stripRef = useRef<HTMLDivElement>(null)
   const n = PROJECTS.length
   const [idx, setIdx] = useState(0)
-  const [loading, setLoading] = useState(!introSeen)
-  const [ready, setReady] = useState(introSeen)
+  // Start one frame after mount so the entry animation has a starting point
+  const [ready, setReady] = useState(false)
+  useEffect(() => {
+    const t = window.setTimeout(() => setReady(true), 120)
+    return () => window.clearTimeout(t)
+  }, [])
+
+  /* On load the film rolls: every project runs past and the strip lands on the first one */
+  const roll = useMotionValue(PROJECTS.length - 1 + 0.6)
+  useEffect(() => {
+    if (!ready) return
+    const c = animate(roll, 0, { duration: 2.2, ease: [0.16, 1, 0.3, 1] })
+    return () => c.stop()
+  }, [ready, roll])
 
   const { scrollYProgress } = useScroll({ target: stripRef, offset: ['start start', 'end end'] })
   const raw = useTransform(scrollYProgress, (t) => t * (n - 1))
   const p = useSpring(raw, { stiffness: 110, damping: 24, mass: 0.6 })
+  const shown = useTransform([p, roll], ([a, b]) => (a as number) + (b as number))
   const bg = useTransform(p, (v) => along(v, 'bg'))
   const fg = useTransform(p, (v) => along(v, 'fg'))
 
@@ -263,11 +245,7 @@ export function Home() {
     return () => root.classList.remove('v2-snap')
   }, [])
 
-  const finishIntro = () => {
-    introSeen = true
-    setLoading(false)
-    window.setTimeout(() => setReady(true), 350)
-  }
+
 
   const scrollToIndex = (i: number) => {
     const top = (stripRef.current?.offsetTop ?? 0) + i * vh
@@ -322,7 +300,7 @@ export function Home() {
   const [settled, setSettled] = useState(false)
   useEffect(() => {
     if (!ready) return
-    const t = window.setTimeout(() => setSettled(true), 2300)
+    const t = window.setTimeout(() => setSettled(true), 2600)
     return () => window.clearTimeout(t)
   }, [ready])
   // Home: leaning film strip. List: the same strip stands straight at the centre of the screen.
@@ -331,7 +309,7 @@ export function Home() {
     : list
       ? { rotateX: 28, rotateY: 0, rotateZ: 0, skewX: 0, x: '-20.5vw', scale: 1.15 }
       : { rotateX: 6, rotateY: -22, rotateZ: -7, skewX: -6, x: '0vw', scale: 1 }
-  const turn = { duration: settled ? 0.9 : 1.1, ease, delay: settled ? 0 : 1.0 }
+  const turn = { duration: settled ? 0.9 : 1.1, ease, delay: settled ? 0 : 1.5 }
 
   // A little lean toward the pointer
   const mx = useMotionValue(0)
@@ -362,7 +340,6 @@ export function Home() {
 
   return (
     <motion.main className="v2-home" style={{ backgroundColor: bg, color: fg }}>
-      <AnimatePresence>{loading && <Loader onDone={finishIntro} />}</AnimatePresence>
 
       <section ref={stripRef} className="v2-strip" style={{ height: n * vh }} aria-label="Selected work">
         {PROJECTS.map((pr, i) => (
@@ -374,11 +351,11 @@ export function Home() {
           <div className="v2-plane-wrap">
             <motion.div
               className="v2-plane"
-              initial={{ y: '70vh', opacity: 0, rotateX: 0, rotateY: 0, rotateZ: 0, skewX: 0 }}
+              initial={{ y: '40vh', opacity: 0, rotateX: 0, rotateY: 0, rotateZ: 0, skewX: 0 }}
               animate={ready ? { y: 0, opacity: 1, ...tilt } : undefined}
               transition={{
-                y: { duration: 1.1, ease: soft },
-                opacity: { duration: 0.5 },
+                y: { duration: 1.4, ease: soft },
+                opacity: { duration: 0.6 },
                 rotateX: turn,
                 rotateY: turn,
                 rotateZ: turn,
@@ -395,7 +372,7 @@ export function Home() {
                 transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
               >
                 {PROJECTS.map((pr, i) => (
-                  <Frame key={pr.slug} project={pr} index={i} p={p} hs={hs} gap={gap} w={w} active={i === idx} onOpen={open} onPick={scrollToIndex} />
+                  <Frame key={pr.slug} project={pr} index={i} p={shown} hs={hs} gap={gap} w={w} active={i === idx} onOpen={open} onPick={scrollToIndex} />
                 ))}
               </motion.div>
             </motion.div>
