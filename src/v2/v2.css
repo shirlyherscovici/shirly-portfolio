@@ -1777,7 +1777,7 @@ html.v2-booting .v2-allbtn {
   margin: 0;
   border-radius: 20px;
   overflow: hidden;
-  background: #fff;
+  background: radial-gradient(90% 80% at 50% 30%, #ffd166 0%, #f6b42c 55%, #ef8f2a 100%);
 }
 .v2-ab-photo img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 30%; }
 @media (max-width: 760px) {
