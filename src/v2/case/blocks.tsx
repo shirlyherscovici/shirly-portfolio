@@ -185,13 +185,29 @@ export function Visual({
   return (
     <motion.figure
       className={`cs-visual ${bleed ? 'is-bleed' : ''} ${frame ? 'is-frame' : ''} ${className}`}
-      initial={{ opacity: 0, y: 50 }}
+      initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '0px 0px -8% 0px' }}
-      transition={{ duration: 1, ease }}
+      transition={{ duration: 0.9, ease }}
     >
-      <div ref={box} className={`cs-visual-box ${!isClip(m) && m.contain ? 'is-contain' : ''}`} style={style}>
-        <motion.div className={`cs-visual-pan ${parallax ? 'is-parallax' : ''}`} style={{ y }}>
+      {/* One entrance for every picture on the site: the frame opens from the middle while the picture settles from a slight zoom */}
+      <motion.div
+        ref={box}
+        className={`cs-visual-box ${!isClip(m) && m.contain ? 'is-contain' : ''}`}
+        style={style}
+        initial={{ clipPath: 'inset(12% 8% 12% 8%)' }}
+        whileInView={{ clipPath: 'inset(0% 0% 0% 0%)' }}
+        viewport={{ once: true, margin: '0px 0px -8% 0px' }}
+        transition={{ duration: 1.2, ease }}
+      >
+        <motion.div
+          className={`cs-visual-pan ${parallax ? 'is-parallax' : ''}`}
+          style={{ y }}
+          initial={{ scale: 1.14 }}
+          whileInView={{ scale: 1 }}
+          viewport={{ once: true, margin: '0px 0px -8% 0px' }}
+          transition={{ duration: 1.4, ease }}
+        >
           {isClip(m) ? (
             <ClipView m={m} />
           ) : (
@@ -200,7 +216,7 @@ export function Visual({
             </button>
           )}
         </motion.div>
-      </div>
+      </motion.div>
       {(m.label || m.caption) && (
         <figcaption>
           {m.label && <strong>{m.label}</strong>}

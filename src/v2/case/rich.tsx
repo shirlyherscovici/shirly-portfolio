@@ -778,3 +778,160 @@ export function StampPalette({ colors }: { colors: { hex: string; name: string }
     </div>
   )
 }
+
+/* ======================================================================
+ * Music from the Screen: the neon key art switches on, one tube at a time,
+ * as you scroll. The picture is the real key art; each tube is the same
+ * picture clipped to one object, lit on top of a dimmed copy.
+ * ==================================================================== */
+export type Tube = [number, number, number, number] // x0, y0, x1, y1 in %
+
+export function NeonSign({ src, alt, tubes }: { src: string; alt: string; tubes: Tube[] }) {
+  const box = useRef<HTMLDivElement>(null)
+  const n = tubes.length
+  const [on, setOn] = useState(0)
+  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start start', 'end end'] })
+  useMotionValueEvent(p, 'change', (v) => setOn(Math.floor(Math.min(1, Math.max(0, (v - 0.06) / 0.78)) * (n + 0.999))))
+  const all = on > n - 1
+  return (
+    <section ref={box} className="cs-sign" style={{ height: '240vh' }}>
+      <div className="cs-sign-stage">
+        <div className={`cs-sign-board${all ? ' is-lit' : ''}`}>
+          <img className="cs-sign-base" src={src} alt={alt} />
+          {tubes.map(([x0, y0, x1, y1], i) => (
+            <img
+              key={i}
+              className={`cs-sign-tube${i < on ? ' on' : ''}`}
+              src={src}
+              alt=""
+              aria-hidden="true"
+              style={{ clipPath: `inset(${y0}% ${100 - x1}% ${100 - y1}% ${x0}%)`, ['--d' as string]: `${(i % 3) * 0.07}s` }}
+            />
+          ))}
+        </div>
+        <p className="cs-label cs-sign-count" aria-hidden="true">
+          {all ? 'The sign is on' : `${String(Math.min(on, n)).padStart(2, '0')} / ${String(n).padStart(2, '0')} lit`}
+        </p>
+      </div>
+    </section>
+  )
+}
+
+/* ======================================================================
+ * Music from the Screen: a playable copy of the voting flow. Tap a song and
+ * it climbs one place; reaching the top sets off a little burst.
+ * ==================================================================== */
+export type Song = { film: string; song: string; artist: string }
+
+export function VoteChart({ songs, art }: { songs: Song[]; art: string }) {
+  const [order, setOrder] = useState(() => songs.map((_, i) => i))
+  const [burst, setBurst] = useState(0)
+  const [last, setLast] = useState<number | null>(null)
+  const vote = (id: number) => {
+    const k = order.indexOf(id)
+    setLast(id)
+    if (k <= 0) {
+      setBurst((b) => b + 1)
+      return
+    }
+    const next = [...order]
+    ;[next[k - 1], next[k]] = [next[k], next[k - 1]]
+    setOrder(next)
+    if (k === 1) setBurst((b) => b + 1)
+  }
+  return (
+    <div className="cs-wrap cs-vote">
+      <div className="cs-vote-phone">
+        <span className="cs-vote-logo" style={{ backgroundImage: `url(${art})` }} aria-hidden="true" />
+        <p className="cs-vote-title">Your chart</p>
+        <ol className="cs-vote-list">
+          {order.map((id, k) => {
+            const s = songs[id]
+            return (
+              <motion.li key={id} layout transition={{ type: 'spring', stiffness: 420, damping: 34 }}>
+                <button type="button" className={last === id ? 'is-last' : ''} onClick={() => vote(id)} aria-label={`Vote for ${s.song}, now number ${k + 1}`}>
+                  <span className="cs-vote-num">{k + 1}</span>
+                  <span className="cs-vote-txt">
+                    <strong>{s.film}</strong>
+                    <span>{s.song}</span>
+                    <small>{s.artist}</small>
+                  </span>
+                  <span className="cs-vote-up" aria-hidden="true">
+                    ▲
+                  </span>
+                </button>
+              </motion.li>
+            )
+          })}
+        </ol>
+        <AnimatePresence>
+          {burst > 0 && (
+            <motion.span key={burst} className="cs-vote-burst" aria-hidden="true" initial={{ opacity: 1 }} animate={{ opacity: 0 }} transition={{ duration: 1.1, delay: 0.5 }}>
+              {Array.from({ length: 14 }, (_, i) => (
+                <motion.i
+                  key={i}
+                  initial={{ x: 0, y: 0, scale: 0.4 }}
+                  animate={{ x: Math.cos((i / 14) * Math.PI * 2) * 90, y: Math.sin((i / 14) * Math.PI * 2) * 60, scale: 1 }}
+                  transition={{ duration: 0.8, ease }}
+                />
+              ))}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </div>
+      <p className="cs-vote-hint" aria-live="polite">
+        {last === null ? 'Tap a song to vote it up the chart.' : `${songs[order[0]].song} is number one.`}
+      </p>
+    </div>
+  )
+}
+
+/* ======================================================================
+ * Music from the Screen: the chart posts as a countdown. A big number rolls
+ * down while each post lands on top of the last one.
+ * ==================================================================== */
+export function Countdown({ posts }: { posts: (Img & { rank: string })[] }) {
+  const box = useRef<HTMLDivElement>(null)
+  const open = useLightbox()
+  const n = posts.length
+  const [at, setAt] = useState(0)
+  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start start', 'end end'] })
+  useMotionValueEvent(p, 'change', (v) => setAt(Math.min(n - 1, Math.max(0, Math.floor(v * n * 0.999)))))
+  return (
+    <section ref={box} className="cs-count" style={{ height: `${n * 70 + 40}vh` }}>
+      <div className="cs-count-stage">
+        <div className="cs-count-num" aria-hidden="true">
+          <AnimatePresence mode="popLayout" initial={false}>
+            <motion.span key={at} initial={{ y: '100%', opacity: 0 }} animate={{ y: '0%', opacity: 1 }} exit={{ y: '-100%', opacity: 0 }} transition={{ duration: 0.6, ease }}>
+              {posts[at].rank}
+            </motion.span>
+          </AnimatePresence>
+        </div>
+        <div className="cs-count-deck">
+          {posts.map((m, i) => (
+            <motion.button
+              key={m.src}
+              type="button"
+              className="cs-count-card"
+              onClick={() => open(m)}
+              aria-label={`Enlarge: ${m.alt}`}
+              initial={false}
+              animate={
+                i < at
+                  ? { y: `${(i - at) * 4}%`, scale: 1 - (at - i) * 0.06, opacity: 0.55, rotate: (i % 2 ? 3 : -3) }
+                  : i === at
+                    ? { y: '0%', scale: 1, opacity: 1, rotate: 0 }
+                    : { y: '115%', scale: 1, opacity: 1, rotate: i % 2 ? 6 : -6 }
+              }
+              transition={{ duration: 0.8, ease }}
+              style={{ zIndex: i }}
+              tabIndex={i === at ? 0 : -1}
+            >
+              <img src={m.src} alt="" loading="lazy" draggable={false} />
+            </motion.button>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}

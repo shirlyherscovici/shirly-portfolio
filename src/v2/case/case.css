@@ -2983,3 +2983,299 @@
     height: 42vw;
   }
 }
+
+/* ---------- Music from the Screen: the neon sign switching on ---------- */
+.cs .cs-sign {
+  position: relative;
+}
+
+.cs .cs-sign-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 70px var(--gutter) 24px;
+}
+
+.cs .cs-sign-board {
+  position: relative;
+  width: min(78vh, 86vw, 760px);
+  aspect-ratio: 1;
+}
+
+.cs .cs-sign-board img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.cs .cs-sign-base {
+  filter: brightness(0.3) saturate(0.25);
+  transition: filter 1.2s ease;
+}
+
+.cs .cs-sign-board.is-lit .cs-sign-base {
+  filter: none;
+}
+
+.cs .cs-sign-tube {
+  opacity: 0;
+  filter: brightness(1.25) saturate(1.3);
+  transition: opacity 0.4s;
+}
+
+.cs .cs-sign-tube.on {
+  opacity: 1;
+  animation: cs-tube-on 0.7s steps(1, end) var(--d, 0s) both;
+}
+
+.cs .cs-sign-board.is-lit .cs-sign-tube {
+  filter: none;
+}
+
+@keyframes cs-tube-on {
+  0% { opacity: 0; }
+  12% { opacity: 1; }
+  22% { opacity: 0.15; }
+  34% { opacity: 1; }
+  46% { opacity: 0.4; }
+  58%, 100% { opacity: 1; }
+}
+
+.cs .cs-sign-count {
+  opacity: 0.7;
+}
+
+/* ---------- Music from the Screen: the playable vote ---------- */
+.cs .cs-vote {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.cs .cs-vote-phone {
+  position: relative;
+  width: min(360px, 88vw);
+  padding: 16px 14px 22px;
+  border: 10px solid #2b1b4f;
+  border-radius: 44px;
+  background:
+    radial-gradient(circle at 20% 12%, rgba(255, 255, 255, 0.5) 0 1px, transparent 2px) 0 0 / 46px 46px,
+    radial-gradient(circle at 70% 40%, rgba(255, 255, 255, 0.35) 0 1px, transparent 2px) 0 0 / 64px 64px,
+    linear-gradient(170deg, #3f13c9, #5b1fd1 45%, #2a0a7e);
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.7), inset 0 0 0 2px rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.cs .cs-vote-logo {
+  display: block;
+  width: 62%;
+  margin: 4px auto 0;
+  aspect-ratio: 1.25;
+  background-size: 168%;
+  background-position: 50% 40%;
+  border-radius: 18px;
+  -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 60%, transparent 100%);
+  mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 60%, transparent 100%);
+}
+
+.cs .cs-vote-title {
+  margin: 4px 0 12px;
+  text-align: center;
+  color: #ffd84a;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+}
+
+.cs .cs-vote-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.cs .cs-vote-list button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 44px 1fr 22px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px 6px 6px;
+  border: 0;
+  border-radius: 999px;
+  background: #f6c945;
+  color: #22124a;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.cs .cs-vote-list button:hover,
+.cs .cs-vote-list button:focus-visible {
+  transform: scale(1.025);
+  box-shadow: 0 0 0 3px rgba(248, 169, 251, 0.8), 0 0 24px rgba(248, 169, 251, 0.6);
+}
+
+.cs .cs-vote-list button.is-last {
+  background: #ffdc5e;
+}
+
+.cs .cs-vote-num {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #fff;
+  font-weight: 800;
+  font-size: 22px;
+}
+
+.cs .cs-vote-txt {
+  display: grid;
+  line-height: 1.15;
+  font-size: 13px;
+}
+
+.cs .cs-vote-txt strong {
+  font-size: 13px;
+}
+
+.cs .cs-vote-txt span {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.cs .cs-vote-txt small {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.cs .cs-vote-up {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.cs .cs-vote-burst {
+  position: absolute;
+  left: 50%;
+  top: 36%;
+  pointer-events: none;
+}
+
+.cs .cs-vote-burst i {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin: -4px;
+  border-radius: 50%;
+  background: #f8a9fb;
+  box-shadow: 0 0 12px #f8a9fb;
+}
+
+.cs .cs-vote-burst i:nth-child(3n) {
+  background: #ffd84a;
+  box-shadow: 0 0 12px #ffd84a;
+}
+
+.cs .cs-vote-burst i:nth-child(3n + 1) {
+  background: #7fe3ff;
+  box-shadow: 0 0 12px #7fe3ff;
+}
+
+.cs .cs-vote-hint {
+  margin: 0;
+  min-height: 1.5em;
+  opacity: 0.85;
+  text-align: center;
+}
+
+/* ---------- Music from the Screen: the chart countdown ---------- */
+.cs .cs-count {
+  position: relative;
+}
+
+.cs .cs-count-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: clamp(20px, 4vw, 60px);
+  padding: 70px var(--gutter) 24px;
+  overflow: hidden;
+}
+
+.cs .cs-count-num {
+  position: relative;
+  overflow: hidden;
+  justify-self: end;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(110px, 20vw, 320px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--accent);
+  text-shadow: 0 0 40px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.cs .cs-count-num span {
+  display: block;
+  white-space: nowrap;
+}
+
+.cs .cs-count-deck {
+  position: relative;
+  width: min(42vw, 62vh, 520px);
+  aspect-ratio: 4 / 5;
+}
+
+.cs .cs-count-card {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: none;
+  cursor: zoom-in;
+  box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.7);
+}
+
+.cs .cs-count-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media (max-width: 760px) {
+  .cs .cs-count-stage {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    align-content: center;
+  }
+
+  .cs .cs-count-num {
+    justify-self: center;
+    font-size: 96px;
+  }
+
+  .cs .cs-count-deck {
+    width: min(74vw, 52vh);
+  }
+}

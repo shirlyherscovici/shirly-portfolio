@@ -1,11 +1,13 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { useSmoothScroll } from './smooth'
 import { PROJECTS, SHELL, coverPos } from './data'
 import { FlightProvider, ToneProvider, go, href, useFlight, useRoute, useTone } from './store'
 import { Home } from './Home'
 import { CaseStudy as ProjectPage } from './case/CaseStudy'
 import { About } from './About'
 import { Header } from './Living'
+import { Cursor } from './Cursor'
 import { heroBox } from './geom'
 
 const ease = [0.76, 0, 0.24, 1] as const
@@ -63,6 +65,7 @@ function Shell() {
   const { bg } = useTone()
   const { flight } = useFlight()
   const key = route.page === 'project' ? `p-${route.slug}` : route.page
+  useSmoothScroll(route.page !== 'home', key)
 
   useLayoutEffect(() => {
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
@@ -89,6 +92,7 @@ function Shell() {
   return (
     <>
       <Header route={route} />
+      <Cursor />
       <AnimatePresence mode="wait">
         <motion.div
           key={key}

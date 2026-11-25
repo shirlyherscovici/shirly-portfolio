@@ -23,7 +23,7 @@ import {
   useLightbox,
   type Img,
 } from './blocks'
-import { DriftRows, StampPalette, ChannelSurf, ClipReel, NeonMarquee, PhoneStory, SeriesStage, RealVsFilm, TruthOrFake, Vault, type Question, type Scene } from './rich'
+import { DriftRows, StampPalette, NeonSign, VoteChart, Countdown, ChannelSurf, ClipReel, NeonMarquee, PhoneStory, SeriesStage, RealVsFilm, TruthOrFake, Vault, type Question, type Scene } from './rich'
 
 const v2 = (p: string) => asset(`/v2/${p}`)
 const A = (p: string) => asset(`/assets/${p}`)
@@ -338,8 +338,28 @@ const soundBody = (
       <Gap />
     </Act>
 
+    <Act bg="#0b0220" fg={SO.lilac} accent={SO.neon}>
+      <Chapter num="02" title="The neon key art" note="Scroll to switch the sign on, one tube at a time." />
+      <NeonSign
+        src={v2('galgalatz/banner-cover.webp')}
+        alt="The neon key art: popcorn, a drink, nachos, 3D glasses, a clapperboard and a film reel above the title Music from the Screen, the chart"
+        tubes={[
+          [27.5, 35, 35.5, 47.5],
+          [32.5, 24, 44, 48],
+          [43.5, 17.5, 59.5, 43],
+          [42, 41.5, 62.5, 48.5],
+          [59, 26, 72, 48],
+          [71, 35.5, 78.5, 47.5],
+          [53.5, 49, 78, 60],
+          [24.5, 49, 53.5, 60.5],
+          [39.5, 59.5, 63, 67],
+          [20.5, 14, 82, 69.5],
+        ]}
+      />
+    </Act>
+
     <Act bg={SO.violet} fg={SO.lilac} accent={SO.neon}>
-      <Chapter num="02" title="Concept" />
+      <Chapter num="03" title="Concept" />
       <Steps
         items={[
           { k: 'Challenge', v: 'A cluttered, low-engagement voting flow.' },
@@ -348,12 +368,30 @@ const soundBody = (
         ]}
       />
       <Gap />
-      <Chapter num="03" title="The chart posts" />
-      <Stack
-        items={[
-          { src: v2('galgalatz/rank-03.webp'), alt: 'Chart position 3', ratio: '4 / 5' },
-          { src: v2('galgalatz/rank-02.webp'), alt: 'Chart position 2', ratio: '4 / 5' },
-          { src: v2('galgalatz/rank-01.webp'), alt: 'Chart position 1', ratio: '4 / 5' },
+      <Chapter num="04" title="Try the vote" note="A playable copy of the voting flow, with songs from the real chart." />
+      <VoteChart
+        art={v2('galgalatz/banner-cover.webp')}
+        songs={[
+          { film: 'Rocky III', song: 'Eye Of The Tiger', artist: 'Survivor' },
+          { film: 'Saturday Night Fever', song: 'Stayin’ Alive', artist: 'Bee Gees' },
+          { film: 'Titanic', song: 'My Heart Will Go On', artist: 'Céline Dion' },
+          { film: 'The Big Lebowski', song: 'Hotel California', artist: 'Gipsy Kings' },
+          { film: 'Despicable Me 2', song: 'Happy', artist: 'Pharrell Williams' },
+          { film: 'A Star Is Born', song: 'Shallow', artist: 'Lady Gaga, Bradley Cooper' },
+          { film: 'Good Morning, Vietnam', song: 'What a Wonderful World', artist: 'Louis Armstrong' },
+        ]}
+      />
+      <Gap size="l" />
+    </Act>
+
+    <Act bg={SO.night} fg={SO.lilac} accent={SO.neon}>
+      <Chapter num="05" title="The countdown" note="The chart posts, from places 50–31 down to number one." />
+      <Countdown
+        posts={[
+          { src: v2('galgalatz/rank-31-50.webp'), alt: 'Chart post, places 50 to 31', rank: '50–31' },
+          { src: v2('galgalatz/rank-03.webp'), alt: 'Chart post, number 3: Rocky III, Eye Of The Tiger', rank: '3' },
+          { src: v2('galgalatz/rank-02.webp'), alt: 'Chart post, number 2: Titanic, My Heart Will Go On', rank: '2' },
+          { src: v2('galgalatz/rank-01.webp'), alt: 'Chart post, number 1: A Star Is Born, Shallow', rank: '1' },
         ]}
       />
       <Gap size="l" />

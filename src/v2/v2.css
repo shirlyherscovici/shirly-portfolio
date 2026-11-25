@@ -1715,3 +1715,28 @@ html.v2-booting .v2-allbtn {
     gap: 40px;
   }
 }
+
+/* ---------- Pointer label ---------- */
+.v2-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 200;
+  pointer-events: none;
+}
+
+.v2-cursor span {
+  position: absolute;
+  left: 18px;
+  top: 18px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #f5f2ec;
+  color: #141414;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.45);
+}
