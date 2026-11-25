@@ -44,7 +44,7 @@ export function About() {
   const { setTone } = useTone()
   useEffect(() => setTone({ bg: '#fbf8f3', fg: '#171717' }), [setTone])
 
-  const words = ['Shalom,', 'I’m', 'Shirly']
+  const words = ['Hey,', 'I’m', 'Shirly.']
   return (
     <main className="v2-aboutpage">
       <div className="v2-wrap v2-ab">
@@ -64,8 +64,7 @@ export function About() {
         </h1>
 
         <motion.p className="v2-ab-intro" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.9, ease }}>
-          A motion designer from Israel. I make realistic AI films for the news, and the motion, graphics and
-          interactive pieces around them.
+          I’m a graphic and motion designer from Israel, and I’ve been doing this for over 8 years.
         </motion.p>
 
         <motion.div className="v2-ab-social v2-label" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7, duration: 0.6 }}>
@@ -78,21 +77,22 @@ export function About() {
           </a>
         </motion.div>
 
-        <motion.p className="v2-ab-big" {...rise()}>
-          Most of my work is for N12, where a story can break in the morning and air as a film the same night.
-        </motion.p>
 
         <section className="v2-ab-sec">
           <motion.h2 {...rise()}>At work</motion.h2>
           <motion.p className="v2-ab-text" {...rise(0.05)}>
-            When there is no footage, I build it. The producer asks for an idea; I shape the images in ChatGPT, write a
-            short script and a storyboard, generate every shot separately in Flow and edit them into one film,
-            keeping the people, the places and the light consistent from shot to shot. The USA Pilot Rescue went from
-            brief to prime time in four hours.
+            Today I work at N12, designing visual identities, motion graphics, digital projects and promos. A lot of my
+            work lately is realistic AI video for the news. When a story breaks and there’s no footage, I put it
+            together from scratch. The USA Pilot Rescue film went from the first brief to prime time in four hours.
           </motion.p>
           <motion.p className="v2-ab-text" {...rise(0.1)}>
-            Around the films I animate characters and game worlds, build editorial identities and design for the
-            screen, from banners to a mobile voting flow. I love learning new tools, and I’m currently growing into 3D.
+            Usually the producer comes to me with a request. I work out the images in ChatGPT, write a short script and
+            a storyboard, make each shot separately in Flow and then edit it all together.
+          </motion.p>
+          <motion.p className="v2-ab-text" {...rise(0.15)}>
+            I like jumping between worlds: graphic design, animation, interactive pieces, AI and a little front-end
+            code. I’m always trying some new tool (lately it’s 3D), and I care a lot about the small details and how a
+            piece feels to watch.
           </motion.p>
         </section>
 
