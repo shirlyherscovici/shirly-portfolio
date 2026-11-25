@@ -240,8 +240,9 @@ html.v2-snap {
   margin: 0;
   font-family: var(--serif);
   font-weight: 600;
-  font-size: clamp(52px, 7vw, 130px);
-  line-height: 1.02;
+  /* Big, like a poster word; long words step down so they never run into the strip */
+  font-size: min(11vw, 200px, calc(40vw * 2.3 / var(--len, 6)));
+  line-height: 0.98;
   letter-spacing: -0.04em;
   white-space: nowrap;
 }
@@ -436,6 +437,18 @@ html.v2-snap {
   transform-style: preserve-3d;
 }
 
+/* The tilted layers are see-through to the pointer: in 3D they can sit in front of part of a picture
+ * and swallow the click, so only the pictures themselves take it */
+.v2-plane,
+.v2-plane-drift,
+.v2-frame {
+  pointer-events: none;
+}
+
+.v2-window {
+  pointer-events: auto;
+}
+
 .v2-window-pan {
   position: absolute;
   inset: -6%;
@@ -484,6 +497,10 @@ html.v2-snap {
     bottom: 7vh;
     left: var(--gutter);
     width: calc(100% - 2 * var(--gutter) - 30px);
+  }
+
+  .v2-info-word {
+    font-size: min(18vw, calc(72vw * 2.3 / var(--len, 6)));
   }
 
   .v2-info-line {
@@ -1422,8 +1439,8 @@ html.v2-booting .v2-pills {
   mask-repeat: repeat-x;
   -webkit-mask-position: 0 1.3em;
   mask-position: 0 1.3em;
-  animation: v2-boot-liquid 1.5s cubic-bezier(0.45, 0.05, 0.25, 1) forwards;
-  animation-delay: calc(0.3s + var(--i) * 0.055s);
+  /* The whole name fills together, from the bottom up; the surface ripples gently as it rises */
+  animation: v2-boot-liquid 1.7s cubic-bezier(0.45, 0.05, 0.25, 1) 0.3s forwards;
 }
 
 @keyframes v2-boot-liquid {
@@ -1432,16 +1449,8 @@ html.v2-booting .v2-pills {
     mask-position: 0 1.3em;
   }
   100% {
-    -webkit-mask-position: -2.8em -0.55em;
-    mask-position: -2.8em -0.55em;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .v2-boot-ch .v2-boot-fill {
-    animation: none;
-    -webkit-mask-image: none;
-    mask-image: none;
+    -webkit-mask-position: -1.4em -0.55em;
+    mask-position: -1.4em -0.55em;
   }
 }
 

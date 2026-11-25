@@ -23,7 +23,7 @@ import {
   useLightbox,
   type Img,
 } from './blocks'
-import { Anatomy, StampSheet, ChannelSurf, ClipReel, NeonMarquee, PinWall, PhoneStory, SeriesStage, RealVsFilm, TruthOrFake, Vault, type Question, type Scene } from './rich'
+import { DriftRows, StampPalette, ChannelSurf, ClipReel, NeonMarquee, PhoneStory, SeriesStage, RealVsFilm, TruthOrFake, Vault, type Question, type Scene } from './rich'
 
 const v2 = (p: string) => asset(`/v2/${p}`)
 const A = (p: string) => asset(`/assets/${p}`)
@@ -474,19 +474,18 @@ const eightiesBody = (
 
     <Act bg={EI.night} fg={EI.cream} accent={EI.teal}>
       <Chapter num="04" title="Research" note="The material gathered for the room: album covers, teen magazines and family photos." />
-      <PinWall
-        note="The research, pinned up"
+      <DriftRows
         items={[
-          { src: v2('eighties/src/album-1.webp'), alt: 'Yardena Arazi album cover', at: [1, 4, 14, -6] },
-          { src: v2('eighties/src/maariv-yardena-1.webp'), alt: 'Maariv LaNoar cover with Yardena Arazi', at: [17, 1, 15, 4] },
-          { src: v2('eighties/src/album-2.webp'), alt: 'Yardena Arazi album cover', at: [34, 7, 15, -3] },
-          { src: v2('eighties/src/maariv-ofra.webp'), alt: 'Maariv LaNoar cover with Ofra Haza', at: [51, 1, 15, 5] },
-          { src: v2('eighties/src/album-3.webp'), alt: 'Yardena Arazi album cover', at: [68, 6, 14, -5] },
-          { src: v2('eighties/src/ofira-friends.webp'), alt: 'Photo of three friends in the 80s', at: [84, 3, 14, 3] },
-          { src: v2('eighties/src/album-4.webp'), alt: 'Yardena Arazi album cover', at: [5, 50, 15, 3] },
-          { src: v2('eighties/src/ofira-childhood.webp'), alt: 'Childhood family photo', at: [22, 46, 14, -4] },
-          { src: v2('eighties/src/album-5.webp'), alt: 'Yardena Arazi album cover, Back in the Frame', at: [58, 50, 15, 4] },
-          { src: v2('eighties/src/album-6.webp'), alt: 'Yardena Arazi album cover', at: [76, 51, 15, -3] },
+          { src: v2('eighties/src/album-1.webp'), alt: 'Yardena Arazi album cover', ratio: '366 / 550' },
+          { src: v2('eighties/src/maariv-yardena-1.webp'), alt: 'Maariv LaNoar cover with Yardena Arazi', ratio: '445 / 575' },
+          { src: v2('eighties/src/album-2.webp'), alt: 'Yardena Arazi album cover', ratio: '1 / 1' },
+          { src: v2('eighties/src/maariv-ofra.webp'), alt: 'Maariv LaNoar cover with Ofra Haza', ratio: '445 / 575' },
+          { src: v2('eighties/src/album-3.webp'), alt: 'Yardena Arazi album cover', ratio: '1 / 1' },
+          { src: v2('eighties/src/ofira-friends.webp'), alt: 'Photo of three friends in the 80s', ratio: '851 / 900' },
+          { src: v2('eighties/src/album-4.webp'), alt: 'Yardena Arazi album cover', ratio: '778 / 800' },
+          { src: v2('eighties/src/ofira-childhood.webp'), alt: 'Childhood family photo', ratio: '480 / 640' },
+          { src: v2('eighties/src/album-5.webp'), alt: 'Yardena Arazi album cover, Back in the Frame', ratio: '1 / 1' },
+          { src: v2('eighties/src/album-6.webp'), alt: 'Yardena Arazi album cover', ratio: '1 / 1' },
         ]}
       />
       <Gap size="l" />
@@ -536,19 +535,12 @@ const quizBody = (
     </Act>
 
     <Act bg={QZ.navy} fg={QZ.cream} accent={QZ.sky}>
-      <Chapter num="01" title="The design language" note="The whole quiz speaks like old post: stamps, postmarks and airmail, printed in pop-art halftone. Here is the key art, taken apart." />
-      <Anatomy
-        src={qi('banner-share')}
-        alt="Key art of the quiz: two stamp portraits in sunglasses either side of the title"
-        ratio={1200 / 630}
-        parts={[
-          { label: 'The stamp', text: 'Each portrait sits inside a perforated postage stamp with a worn cream border, like a letter from another decade.', box: [7, 9, 29, 93] },
-          { label: 'Sunglasses on history', text: 'Modern sunglasses on historic faces: one playful detail that sets the tone of a quiz about what did and didn’t happen.', box: [71, 26, 89, 42] },
-          { label: 'The postmark', text: 'The N12 logo is set as a round postmark, and wavy cancellation lines run over the stamps.', box: [56, 12, 68, 34] },
-          { label: 'The lettering', text: 'Heavy, square Hebrew letters in cream, stacked like a printed label in the middle of the envelope.', box: [35, 26, 64, 72] },
-          { label: 'Airmail border', text: 'The blue and white diagonal stripes of an airmail envelope run along the bottom edge.', box: [0, 86, 52, 100] },
-        ]}
-        palette={[
+      <Chapter num="01" title="Play the Quiz" note="Real questions from the quiz, each with its image. Did it happen or not?" />
+      <TruthOrFake questions={quizQuestions} playUrl={QUIZ_URL} />
+      <Gap size="l" />
+      <Chapter num="02" title="Colour palette" />
+      <StampPalette
+        colors={[
           { hex: '#14375f', name: 'Envelope navy' },
           { hex: '#f4ead2', name: 'Stamp paper' },
           { hex: '#5fa9b0', name: 'Print turquoise' },
@@ -560,16 +552,14 @@ const quizBody = (
     </Act>
 
     <Act bg={QZ.cream} fg={QZ.navy} accent={QZ.navy}>
-      <Chapter num="02" title="One stamp per question" note="Every question got its own illustration in the same halftone print style. Scroll to postmark the sheet; open any stamp to see it whole." />
-      <StampSheet
-        items={quizQuestions.map((q) => ({ src: q.img, alt: q.alt }))}
+      <Chapter num="03" title="The illustrations" />
+      <DriftRows
+        items={[
+          { src: qi('banner-share'), alt: 'Key art of the quiz with stamp portraits and the title', ratio: '1200 / 630' },
+          ...quizQuestions.map((q) => ({ src: q.img, alt: q.alt, ratio: '1 / 1' })),
+          { src: qi('shark'), alt: 'A shark wearing sunglasses and headphones', ratio: '1 / 1' },
+        ]}
       />
-      <Gap size="l" />
-    </Act>
-
-    <Act bg={QZ.navy} fg={QZ.cream} accent={QZ.sky}>
-      <Chapter num="03" title="Try it here" note="Real questions from the quiz, each with its image. Did it happen or not?" />
-      <TruthOrFake questions={quizQuestions} playUrl={QUIZ_URL} />
       <Gap size="l" />
     </Act>
   </>
@@ -602,7 +592,7 @@ const partnerBody = (
           { src: pv('part-1.mp4'), poster: pv('part-1.webp'), srcMobile: pv('part-1-mobile.mp4'), posterMobile: pv('part-1-mobile.webp'), num: '01', title: '0:31' },
           { src: pv('part-2.mp4'), poster: pv('part-2.webp'), num: '02', title: '0:28' },
           { src: pv('part-3.mp4'), poster: pv('part-3.webp'), srcMobile: pv('part-3-mobile.mp4'), posterMobile: pv('part-3-mobile.webp'), num: '03', title: '0:30' },
-          { src: pv('part-4.mp4'), poster: pv('part-4.webp'), num: '04', title: '0:51' },
+          { src: pv('part-4.mp4'), poster: pv('part-4.webp'), srcMobile: pv('part-4-mobile.mp4'), posterMobile: pv('part-4-mobile.webp'), num: '04', title: '0:51' },
         ]}
       />
       <Gap size="l" />

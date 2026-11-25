@@ -159,8 +159,8 @@ function Frame({
   // While scrolling the frame swells outward a little, as if the film is being pulled (a touch more in height)
   const scaleX = useTransform([p, roll, stretch], ([a, b, s]) => sizeAt(at(a, b).d) * (1 + (s as number) * 0.6))
   const scaleY = useTransform([p, roll, stretch], ([a, b, s]) => sizeAt(at(a, b).d) * (1 + (s as number)))
-  // Counter-move the picture so it reads as fixed behind the moving window
-  const imgY = useTransform([p, roll], ([a, b]) => -Math.max(-1.3, Math.min(1.3, at(a, b).d)) * 0.12 * h)
+  // The picture rises inside its window as the film moves up, a little ahead of the window, so everything travels upward together
+  const imgY = useTransform([p, roll], ([a, b]) => Math.max(-1.3, Math.min(1.3, at(a, b).d)) * 0.1 * h)
   // Neighbours go black and white; while the film rolls in, frames come up out of the dark instead
   const filter = useTransform([p, roll], ([a, b]) => {
     const r = Math.min(1, Math.abs(b as number))
@@ -197,11 +197,12 @@ function Frame({
           else onPick(index)
         }}
       >
-        {/* Every picture rises slowly inside its window, all in step, revealing a little more */}
+        {/* Every picture rises slowly inside its window, all in step: always upward, never back down */}
         <motion.div
           className="v2-window-pan"
-          animate={still ? { y: '0%' } : { y: ['4%', '-4%'] }}
-          transition={still ? { duration: 0.6 } : { duration: DRIFT, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+          initial={{ y: '4%' }}
+          animate={{ y: '-4%' }}
+          transition={{ duration: DRIFT * 2.2, ease: [0.25, 0.1, 0.25, 1] }}
         >
           <motion.img src={project.cover.src} alt={project.cover.alt} style={{ y: imgY, filter, objectPosition: coverPos(project), top: project.frame.fit?.top, height: project.frame.fit?.h, ...(project.frame.fit?.whole ? { objectFit: 'contain', background: project.frame.fit.whole } : {}) }} draggable={false} />
         </motion.div>
@@ -338,7 +339,9 @@ export function Home() {
     }
     const onMove = (e: PointerEvent) => {
       const x = e.clientX / window.innerWidth
-      if (x > 0.86) setList(true)
+      // The list opens only past the pictures, so the whole picture stays clickable
+      const onFrame = e.target instanceof Element && !!e.target.closest('.v2-window')
+      if (x > 0.92 && !onFrame) setList(true)
       else if (x < 0.55) setList(false)
     }
     window.addEventListener('pointermove', onMove)
@@ -427,8 +430,9 @@ export function Home() {
               <motion.div
                 className="v2-plane-drift"
                 style={{ rotateY: leanY, rotateX: leanX }}
-                animate={list ? { y: 0 } : { y: [10, -10] }}
-                transition={list ? { duration: 0.6 } : { duration: DRIFT, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+                initial={{ y: 14 }}
+                animate={{ y: -14 }}
+                transition={{ duration: DRIFT * 2.2, ease: [0.25, 0.1, 0.25, 1] }}
               >
                 {PROJECTS.map((pr, i) => (
                   <Frame key={pr.slug} project={pr} index={i} p={p} roll={roll} still={list} stretch={stretch} hs={hs} gap={gap} w={w} active={i === idx} onOpen={open} onPick={scrollToIndex} />
@@ -446,7 +450,7 @@ export function Home() {
             {/* No exit wait here: a quick flick through the strip changes the key faster than an exit can finish */}
             {ready && (
                 <motion.div key={project.slug} className="v2-info-inner">
-                  <h2 className="v2-info-word">
+                  <h2 className="v2-info-word" style={{ '--len': project.word.length } as CSSProperties}>
                     <span className="v2-mask">
                       <motion.a
                         href={href.project(project.slug)}
@@ -506,7 +510,7 @@ export function Home() {
                   {/* Each letter fills like liquid: a wavy surface rises inside the outline */}
                   <p className="v2-boot-title" aria-label={PERSON.name}>
                     {Array.from(PERSON.name).map((ch, k) => (
-                      <span key={k} className="v2-boot-ch" style={{ '--i': k } as CSSProperties} aria-hidden="true">
+                      <span key={k} className="v2-boot-ch" aria-hidden="true">
                         <span className="v2-boot-outline">{ch === ' ' ? '\u00A0' : ch}</span>
                         <span className="v2-boot-fill" style={{ color: PROJECTS[0].colors.bg }}>
                           {ch === ' ' ? '\u00A0' : ch}

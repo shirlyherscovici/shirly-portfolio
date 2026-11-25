@@ -719,194 +719,62 @@ export function NeonMarquee({ words }: { words: string[] }) {
  * pins itself up as you scroll, like the posters over a teenage bed. Click any
  * piece to see it whole.
  * ==================================================================== */
-export type Pin = Img & { at: [number, number, number, number] } // left %, top %, width %, tilt
-
-function PinPiece({ m, i, n, p, open }: { m: Pin; i: number; n: number; p: MotionValue<number>; open: (m: Img) => void }) {
-  const [l, t, w, tilt] = m.at
-  const start = 0.04 + (i / n) * 0.55
-  const end = start + 0.2
-  const seed = ((i * 37) % 11) - 5
-  const y = useTransform(p, [start, end], ['85vh', '0vh'])
-  const x = useTransform(p, [start, end], [`${seed * 4}vw`, '0vw'])
-  const rotate = useTransform(p, [start, end], [tilt + seed * 5, tilt])
-  const scale = useTransform(p, [start, end - 0.04, end], [1.25, 0.97, 1])
-  const opacity = useTransform(p, [start, start + 0.03], [0, 1])
+/* ======================================================================
+ * Moving rows of pictures: two rows that slide sideways in opposite
+ * directions as you scroll. Click any picture to see it whole.
+ * ==================================================================== */
+function DriftRow({ items, dir, p, open }: { items: Img[]; dir: 1 | -1; p: MotionValue<number>; open: (m: Img) => void }) {
+  const x = useTransform(p, [0, 1], dir === 1 ? ['-4%', '-18%'] : ['-18%', '-4%'])
+  // the row repeats, so it never runs out while it slides
+  const loop = [...items, ...items, ...items]
   return (
-    <motion.div className="cs-pin" style={{ left: `${l}%`, top: `${t}%`, width: `${w}%`, x, y, rotate, scale, opacity }}>
-      <button type="button" onClick={() => open(m)} aria-label={`Enlarge: ${m.alt}`}>
-        <img src={m.src} alt="" loading="lazy" draggable={false} />
-      </button>
+    <motion.div className="cs-drift-row" style={{ x }}>
+      {loop.map((m, i) => {
+        const copy = i >= items.length
+        return (
+          <button
+            key={i}
+            type="button"
+            className="cs-drift-item"
+            style={{ aspectRatio: m.ratio }}
+            onClick={() => open(m)}
+            aria-label={`Enlarge: ${m.alt}`}
+            aria-hidden={copy || undefined}
+            tabIndex={copy ? -1 : undefined}
+          >
+            <img src={m.src} alt="" loading="lazy" draggable={false} />
+          </button>
+        )
+      })}
     </motion.div>
   )
 }
 
-export function PinWall({ items, note }: { items: Pin[]; note?: string }) {
+export function DriftRows({ items }: { items: Img[] }) {
+  const box = useRef<HTMLDivElement>(null)
   const open = useLightbox()
-  const phone = usePhone()
-  const reduce = useReducedMotion()
-  if (!phone && !reduce) return <PinWallScroll items={items} note={note} open={open} />
-  {
-    return (
-      <div className="cs-pinboard">
-        {items.map((m, i) => (
-          <motion.div
-            key={m.src}
-            className="cs-pin is-flow"
-            initial={reduce ? false : { y: 60, rotate: m.at[3] * 3, opacity: 0 }}
-            whileInView={{ y: 0, rotate: m.at[3], opacity: 1 }}
-            viewport={{ once: true, margin: '-10% 0px' }}
-            transition={{ duration: 0.7, ease, delay: (i % 2) * 0.08 }}
-          >
-            <button type="button" onClick={() => open(m)} aria-label={`Enlarge: ${m.alt}`}>
-              <img src={m.src} alt="" loading="lazy" />
-            </button>
-          </motion.div>
-        ))}
-      </div>
-    )
-  }
-}
-
-function PinWallScroll({ items, note, open }: { items: Pin[]; note?: string; open: (m: Img) => void }) {
-  const box = useRef<HTMLDivElement>(null)
-  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start start', 'end end'] })
+  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start end', 'end start'] })
+  const half = Math.ceil(items.length / 2)
   return (
-    <section ref={box} className="cs-wall" style={{ height: '260vh' }}>
-      <div className="cs-wall-stage">
-        <div className="cs-wall-board">
-          {items.map((m, i) => (
-            <PinPiece key={m.src} m={m} i={i} n={items.length} p={p} open={open} />
-          ))}
-          {note && <p className="cs-wall-note">{note}</p>}
-        </div>
-      </div>
-    </section>
+    <div ref={box} className="cs-drift">
+      <DriftRow items={items.slice(0, half)} dir={1} p={p} open={open} />
+      <DriftRow items={items.slice(half)} dir={-1} p={p} open={open} />
+    </div>
   )
 }
 
-/* ======================================================================
- * Quiz: the design language, read off the key art. The picture stays put
- * while the scroll moves a magnifier across its parts, one at a time.
- * ==================================================================== */
-export type Part = { label: string; text: string; box: [number, number, number, number] } // x0, y0, x1, y1 in %
-
-export function Anatomy({ src, alt, ratio, parts, palette }: { src: string; alt: string; ratio: number; parts: Part[]; palette?: { hex: string; name: string }[] }) {
-  const box = useRef<HTMLDivElement>(null)
-  const reduce = useReducedMotion()
-  const steps = parts.length + 1
-  const [at, setAt] = useState(0)
-  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start start', 'end end'] })
-  useMotionValueEvent(p, 'change', (v) => setAt(Math.min(steps - 1, Math.max(0, Math.floor(v * steps * 0.999)))))
-  const part = at > 0 ? parts[at - 1] : null
-  // zoom so the part fills most of the frame, centred
-  let scale = 1
-  let x = '0%'
-  let y = '0%'
-  if (part) {
-    const [x0, y0, x1, y1] = part.box
-    scale = Math.min(3.2, 0.82 / Math.max((x1 - x0) / 100, (y1 - y0) / 100))
-    x = `${(50 - (x0 + x1) / 2) * scale}%`
-    y = `${(50 - (y0 + y1) / 2) * scale}%`
-  }
+/* A palette, each colour as a little stamp */
+export function StampPalette({ colors }: { colors: { hex: string; name: string }[] }) {
   return (
-    <>
-    <section ref={box} className="cs-anat" style={{ height: `${steps * 70 + 60}vh` }}>
-      <div className="cs-anat-stage">
-        <div className="cs-anat-frame" style={{ aspectRatio: String(ratio) }}>
-          <motion.img
-            src={src}
-            alt={alt}
-            animate={{ scale, x, y }}
-            transition={reduce ? { duration: 0 } : { duration: 0.9, ease }}
-          />
-          {part && <span className="cs-anat-ring" aria-hidden="true" key={at} />}
-        </div>
-        <div className="cs-anat-card" aria-live="polite">
-          <p className="cs-label">
-            {part ? `${String(at).padStart(2, '0')} / ${String(parts.length).padStart(2, '0')}` : 'The key art'}
-          </p>
-          <motion.div key={at} initial={reduce ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease }}>
-            <h3>{part ? part.label : 'Five parts, one language'}</h3>
-            <p>{part ? part.text : 'Scroll to take the key art apart.'}</p>
-          </motion.div>
-          <div className="cs-anat-dots" aria-hidden="true">
-            {parts.map((q, i) => (
-              <span key={q.label} className={i < at ? 'on' : ''} />
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-      {palette && (
-        <div className="cs-anat-palette">
-          {palette.map((c) => (
-            <figure key={c.hex}>
-              <span style={{ background: c.hex }} />
-              <figcaption>
-                <strong>{c.name}</strong> {c.hex}
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      )}
-    </>
-  )
-}
-
-/* ======================================================================
- * Quiz: every question as a stamp on one sheet. As you scroll, a postmark
- * roller runs down the sheet and cancels each row it passes.
- * ==================================================================== */
-function Postmark() {
-  return (
-    <svg className="cs-postmark" viewBox="0 0 200 120" aria-hidden="true">
-      <circle cx="60" cy="60" r="44" fill="none" stroke="currentColor" strokeWidth="5" />
-      <circle cx="60" cy="60" r="34" fill="none" stroke="currentColor" strokeWidth="2" />
-      <text x="60" y="70" textAnchor="middle" fontSize="28" fontWeight="800" fill="currentColor" fontFamily="sans-serif">
-        N12
-      </text>
-      {[30, 48, 66, 84].map((yy) => (
-        <path key={yy} d={`M108 ${yy} q11 -9 22 0 t22 0 t22 0 t22 0`} fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+    <div className="cs-anat-palette">
+      {colors.map((c) => (
+        <figure key={c.hex}>
+          <span style={{ background: c.hex }} />
+          <figcaption>
+            <strong>{c.name}</strong> {c.hex}
+          </figcaption>
+        </figure>
       ))}
-    </svg>
-  )
-}
-
-export function StampSheet({ items, cols = 4 }: { items: Img[]; cols?: number }) {
-  const box = useRef<HTMLDivElement>(null)
-  const open = useLightbox()
-  const phone = usePhone()
-  const reduce = useReducedMotion()
-  const rows = Math.ceil(items.length / cols)
-  const [done, setDone] = useState(reduce ? rows : 0)
-  const { scrollYProgress: p } = useScroll({ target: box, offset: phone ? ['start 0.8', 'end 0.6'] : ['start start', 'end end'] })
-  const r = phone ? Math.ceil(items.length / 2) : rows
-  useMotionValueEvent(p, 'change', (v) => {
-    if (!reduce) setDone(Math.floor(Math.min(1, Math.max(0, (v - 0.08) / 0.8)) * (r + 0.01)))
-  })
-  const roller = useTransform(p, [0.08, 0.88], ['0%', '100%'])
-  return (
-    <section ref={box} className={`cs-sheet-wrap${phone ? ' is-flow' : ''}`} style={phone ? undefined : { height: '240vh' }}>
-      <div className="cs-sheet-stage">
-        <div className="cs-sheet" style={{ ['--cols' as string]: phone ? 2 : cols }}>
-          {items.map((m, i) => {
-            const row = Math.floor(i / (phone ? 2 : cols))
-            return (
-              <button key={m.src} type="button" className={`cs-stamp${row < done ? ' is-cancelled' : ''}`} style={{ ['--tilt' as string]: `${((i * 7) % 5) - 2}deg` }} onClick={() => open(m)} aria-label={`Enlarge: ${m.alt}`}>
-                <span className="cs-stamp-paper">
-                  <img src={m.src} alt="" loading="lazy" />
-                </span>
-                <Postmark />
-              </button>
-            )
-          })}
-          {!phone && !reduce && (
-            <motion.span className="cs-sheet-roller" style={{ top: roller }} aria-hidden="true">
-              <Postmark />
-            </motion.span>
-          )}
-        </div>
-      </div>
-    </section>
+    </div>
   )
 }
