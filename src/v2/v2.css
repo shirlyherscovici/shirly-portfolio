@@ -331,6 +331,7 @@ html.v2-snap {
 }
 
 .v2-pills button {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -356,12 +357,68 @@ html.v2-snap {
   opacity: 1;
 }
 
+/* Strip mode: the name shows next to the pill you point at or tab to */
+.v2-pills button:hover .v2-pill-name,
+.v2-pills button:focus-visible .v2-pill-name {
+  opacity: 1;
+  transform: none;
+}
+
+.v2-pills .v2-index-btn {
+  margin-bottom: 10px;
+  padding: 8px 6px;
+  font-size: 11px;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.v2-pills .v2-index-btn:hover,
+.v2-pills .v2-index-btn:focus-visible {
+  opacity: 1;
+}
+
+/* Name and role, top left on home */
+.v2-brand h1 {
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+.v2-brand-role {
+  margin: 4px 0 0;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  opacity: 0.72;
+}
+
+/* Comfortable touch targets */
+@media (pointer: coarse) {
+  .v2-header .v2-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    min-width: 44px;
+    justify-content: center;
+  }
+
+  .v2-header .v2-link::after {
+    bottom: 8px;
+  }
+
+  .v2-pills button {
+    padding: 10px 12px;
+  }
+}
+
 .v2-pills button.on .v2-pill {
   height: 26px;
   opacity: 1;
 }
 
 .v2-pill-name {
+  /* Takes no room while hidden, so the pills sit clear of the frames */
+  position: absolute;
+  right: calc(100% + 2px);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.12em;

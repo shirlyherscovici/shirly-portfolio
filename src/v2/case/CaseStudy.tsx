@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion'
 import { PERSON, PROJECTS, type Project } from '../data'
-import { useFlight, useTone } from '../store'
+import { href, useFlight, useTone } from '../store'
 import { Credits, LightboxProvider } from './blocks'
 import { CASES } from './pages'
 import './case.css'
@@ -172,6 +172,11 @@ export function CaseStudy({ project }: { project: Project }) {
         <article className="cs-body" style={{ background: tone.bg, color: tone.fg }}>
           {c.body}
           <Credits items={c.credits} email={PERSON.email} />
+          <p className="cs-allwork">
+            <a href={href.home} className="v2-label v2-link">
+              <span aria-hidden="true">←</span> All work
+            </a>
+          </p>
         </article>
 
         {/* ---------- Next project ---------- */}

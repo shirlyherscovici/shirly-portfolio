@@ -45,123 +45,6 @@ export const DARK = { bg: '#111111', fg: '#ececec' }
 
 export const PROJECTS: Project[] = [
   {
-    slug: 'music-from-the-screen',
-    word: 'Soundtrack',
-    frame: { ratio: 1 },
-    name: 'Music from the Screen',
-    kind: 'Key art · UI · Social',
-    colors: { bg: '#ff4f9a', fg: '#1d0b45' },
-    hero: { bg: '#ffd3e6', fg: '#1d0b45' },
-    cover: { kind: 'image', src: v2('galgalatz/banner-cover.webp'), alt: 'Neon key art for Music from the Screen, N12 × Galgalatz' },
-    peek: v2('galgalatz/neon-box.webp'),
-    intro:
-      'A chart of songs from Israeli cinema, for N12 and Galgalatz. I created the neon key art, designed the mobile voting flow and carried the look through the social posts of the campaign.',
-    credits: [
-      { label: 'Role', value: 'Key art, UI design, motion' },
-      { label: 'Client', value: 'N12 × Galgalatz' },
-    ],
-    chapters: [
-      {
-        title: 'Key art',
-        blocks: [
-          {
-            type: 'pair',
-            media: [
-              { kind: 'image', src: v2('galgalatz/banner-cover.webp'), alt: 'Square key art with the neon sign', ratio: '1/1' },
-              { kind: 'image', src: v2('galgalatz/poster-galgalts.webp'), alt: 'Vertical poster version', ratio: '1/1' },
-            ],
-          },
-        ],
-      },
-      {
-        title: 'Voting flow',
-        blocks: [
-          { type: 'full', media: { kind: 'image', src: v2('galgalatz/game-uiux.webp'), alt: 'Voting flow UI screens', fit: 'contain', ratio: '16/10' } },
-          {
-            type: 'row',
-            media: [
-              { kind: 'image', src: v2('galgalatz/1-galgaltz-front.webp'), alt: 'Voting screen', ratio: '9/16', fit: 'contain' },
-              { kind: 'image', src: v2('galgalatz/3-galgaltz-front.webp'), alt: 'Voting screen', ratio: '9/16', fit: 'contain' },
-              { kind: 'image', src: v2('galgalatz/5-galgaltz-front.webp'), alt: 'Voting screen', ratio: '9/16', fit: 'contain' },
-            ],
-          },
-        ],
-      },
-      {
-        title: 'Social',
-        blocks: [
-          {
-            type: 'gallery',
-            media: [
-              { kind: 'image', src: v2('galgalatz/img-2.webp'), alt: 'Social post', ratio: '4/5' },
-              { kind: 'image', src: v2('galgalatz/img-3.webp'), alt: 'Social post', ratio: '4/5' },
-              { kind: 'image', src: v2('galgalatz/img-4.webp'), alt: 'Social post', ratio: '4/5' },
-              { kind: 'image', src: v2('galgalatz/img-7.webp'), alt: 'Social post', ratio: '4/5' },
-              { kind: 'image', src: v2('galgalatz/img-1.webp'), alt: 'Social post', ratio: '4/5' },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    slug: 'people-in-motion',
-    word: 'Motion',
-    frame: { ratio: 16 / 9 },
-    name: 'People in Motion',
-    kind: '2D animation · Motion design',
-    colors: { bg: '#ffd23f', fg: '#174a36' },
-    hero: { bg: '#fff0c2', fg: '#174a36' },
-    cover: { kind: 'image', src: v2('motion/people-motion-hero-poster.webp'), alt: 'Animated character in a game-style scene' },
-    loop: asset('/assets/motion/clips/02-ui-game-animation.mp4'),
-    intro: 'A character-led motion project built as a playful game world: character animation, UI and game animation, kinetic typography and transitions.',
-    credits: [{ label: 'Role', value: 'Design, 2D animation, compositing' }],
-    chapters: [
-      {
-        title: 'Highlights',
-        blocks: [
-          {
-            type: 'full',
-            media: {
-              kind: 'video',
-              src: asset('/assets/motion/gameplay_highlight_final.mp4'),
-              poster: v2('motion/people-motion-hero-poster.webp'),
-              alt: 'Highlight cut of the animation',
-              ratio: '16/9',
-            },
-          },
-        ],
-      },
-      {
-        title: 'Craft',
-        blocks: [
-          {
-            type: 'row',
-            media: [
-              { kind: 'video', src: asset('/assets/motion/clips/03-character-animation.mp4'), poster: v2('motion/01-character-selection.webp'), alt: 'Character animation', caption: 'Expressive character movement integrated into animated environments.', ratio: '16/9' },
-              { kind: 'video', src: asset('/assets/motion/clips/02-ui-game-animation.mp4'), poster: v2('motion/02-tetris.webp'), alt: 'UI and game animation', caption: 'Animated interfaces, game systems and responsive graphic elements.', ratio: '16/9' },
-              { kind: 'video', src: asset('/assets/motion/clips/people-kinetic-typography.mp4'), poster: v2('motion/03-mario-platform.webp'), alt: 'Kinetic typography', caption: 'Animated typography, scene transitions and visual continuity across changing worlds.', ratio: '16/9' },
-            ],
-          },
-        ],
-      },
-      {
-        title: 'Worlds',
-        blocks: [
-          {
-            type: 'gallery',
-            media: [
-              { kind: 'image', src: v2('motion/04-gold-digger.webp'), alt: 'Scene still', ratio: '16/9' },
-              { kind: 'image', src: v2('motion/05-icy-tower.webp'), alt: 'Scene still', ratio: '16/9' },
-              { kind: 'image', src: v2('motion/02-tetris.webp'), alt: 'Scene still', ratio: '16/9' },
-              { kind: 'image', src: v2('motion/03-mario-platform.webp'), alt: 'Scene still', ratio: '16/9' },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
     slug: 'pilot-rescue',
     word: 'Rescue',
     frame: { ratio: 16 / 9 },
@@ -220,6 +103,20 @@ export const PROJECTS: Project[] = [
         ],
       },
     ],
+  },
+  {
+    slug: 'louvre',
+    word: 'Louvre',
+    frame: { ratio: 16 / 9 },
+    name: 'The Louvre Heist',
+    kind: 'AI film · N12',
+    colors: { bg: '#14171b', fg: '#d9b25f' },
+    hero: { bg: '#ece6da', fg: '#14171b' },
+    cover: { kind: 'image', src: v2('louvre/cover.webp'), alt: 'Aerial view of Paris and the Louvre at dusk' },
+    peek: v2('louvre/crown-flight.webp'),
+    intro: 'A 70-second AI film for N12 that rebuilds the Louvre jewel heist shot by shot, delivered in 16:9 for web and 9:16 for mobile.',
+    credits: [{ label: 'Client', value: 'N12' }],
+    chapters: [],
   },
   {
     slug: 'amy',
@@ -290,18 +187,61 @@ export const PROJECTS: Project[] = [
     ],
   },
   {
-    slug: 'louvre',
-    word: 'Louvre',
+    slug: 'people-in-motion',
+    word: 'Motion',
     frame: { ratio: 16 / 9 },
-    name: 'The Louvre Heist',
-    kind: 'AI film · N12',
-    colors: { bg: '#14171b', fg: '#d9b25f' },
-    hero: { bg: '#ece6da', fg: '#14171b' },
-    cover: { kind: 'image', src: v2('louvre/cover.webp'), alt: 'Aerial view of Paris and the Louvre at dusk' },
-    peek: v2('louvre/crown-flight.webp'),
-    intro: 'A 70-second AI film for N12 that rebuilds the Louvre jewel heist shot by shot, delivered in 16:9 for web and 9:16 for mobile.',
-    credits: [{ label: 'Client', value: 'N12' }],
-    chapters: [],
+    name: 'People in Motion',
+    kind: '2D animation · Motion design',
+    colors: { bg: '#ffd23f', fg: '#174a36' },
+    hero: { bg: '#fff0c2', fg: '#174a36' },
+    cover: { kind: 'image', src: v2('motion/people-motion-hero-poster.webp'), alt: 'Animated character in a game-style scene' },
+    loop: asset('/assets/motion/clips/02-ui-game-animation.mp4'),
+    intro: 'A character-led motion project built as a playful game world: character animation, UI and game animation, kinetic typography and transitions.',
+    credits: [{ label: 'Role', value: 'Design, 2D animation, compositing' }],
+    chapters: [
+      {
+        title: 'Highlights',
+        blocks: [
+          {
+            type: 'full',
+            media: {
+              kind: 'video',
+              src: asset('/assets/motion/gameplay_highlight_final.mp4'),
+              poster: v2('motion/people-motion-hero-poster.webp'),
+              alt: 'Highlight cut of the animation',
+              ratio: '16/9',
+            },
+          },
+        ],
+      },
+      {
+        title: 'Craft',
+        blocks: [
+          {
+            type: 'row',
+            media: [
+              { kind: 'video', src: asset('/assets/motion/clips/03-character-animation.mp4'), poster: v2('motion/01-character-selection.webp'), alt: 'Character animation', caption: 'Expressive character movement integrated into animated environments.', ratio: '16/9' },
+              { kind: 'video', src: asset('/assets/motion/clips/02-ui-game-animation.mp4'), poster: v2('motion/02-tetris.webp'), alt: 'UI and game animation', caption: 'Animated interfaces, game systems and responsive graphic elements.', ratio: '16/9' },
+              { kind: 'video', src: asset('/assets/motion/clips/people-kinetic-typography.mp4'), poster: v2('motion/03-mario-platform.webp'), alt: 'Kinetic typography', caption: 'Animated typography, scene transitions and visual continuity across changing worlds.', ratio: '16/9' },
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Worlds',
+        blocks: [
+          {
+            type: 'gallery',
+            media: [
+              { kind: 'image', src: v2('motion/04-gold-digger.webp'), alt: 'Scene still', ratio: '16/9' },
+              { kind: 'image', src: v2('motion/05-icy-tower.webp'), alt: 'Scene still', ratio: '16/9' },
+              { kind: 'image', src: v2('motion/02-tetris.webp'), alt: 'Scene still', ratio: '16/9' },
+              { kind: 'image', src: v2('motion/03-mario-platform.webp'), alt: 'Scene still', ratio: '16/9' },
+            ],
+          },
+        ],
+      },
+    ],
   },
   {
     slug: 'eighties',
@@ -330,6 +270,66 @@ export const PROJECTS: Project[] = [
     intro: 'Retro pop-art illustrations for a trivia quiz, one picture per question, all in the same halftone print style.',
     credits: [],
     chapters: [],
+  },
+  {
+    slug: 'music-from-the-screen',
+    word: 'Soundtrack',
+    frame: { ratio: 1 },
+    name: 'Music from the Screen',
+    kind: 'Key art · UI · Social',
+    colors: { bg: '#ff4f9a', fg: '#1d0b45' },
+    hero: { bg: '#ffd3e6', fg: '#1d0b45' },
+    cover: { kind: 'image', src: v2('galgalatz/banner-cover.webp'), alt: 'Neon key art for Music from the Screen, N12 × Galgalatz' },
+    peek: v2('galgalatz/neon-box.webp'),
+    intro:
+      'A chart of songs from Israeli cinema, for N12 and Galgalatz. I created the neon key art, designed the mobile voting flow and carried the look through the social posts of the campaign.',
+    credits: [
+      { label: 'Role', value: 'Key art, UI design, motion' },
+      { label: 'Client', value: 'N12 × Galgalatz' },
+    ],
+    chapters: [
+      {
+        title: 'Key art',
+        blocks: [
+          {
+            type: 'pair',
+            media: [
+              { kind: 'image', src: v2('galgalatz/banner-cover.webp'), alt: 'Square key art with the neon sign', ratio: '1/1' },
+              { kind: 'image', src: v2('galgalatz/poster-galgalts.webp'), alt: 'Vertical poster version', ratio: '1/1' },
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Voting flow',
+        blocks: [
+          { type: 'full', media: { kind: 'image', src: v2('galgalatz/game-uiux.webp'), alt: 'Voting flow UI screens', fit: 'contain', ratio: '16/10' } },
+          {
+            type: 'row',
+            media: [
+              { kind: 'image', src: v2('galgalatz/1-galgaltz-front.webp'), alt: 'Voting screen', ratio: '9/16', fit: 'contain' },
+              { kind: 'image', src: v2('galgalatz/3-galgaltz-front.webp'), alt: 'Voting screen', ratio: '9/16', fit: 'contain' },
+              { kind: 'image', src: v2('galgalatz/5-galgaltz-front.webp'), alt: 'Voting screen', ratio: '9/16', fit: 'contain' },
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Social',
+        blocks: [
+          {
+            type: 'gallery',
+            media: [
+              { kind: 'image', src: v2('galgalatz/img-2.webp'), alt: 'Social post', ratio: '4/5' },
+              { kind: 'image', src: v2('galgalatz/img-3.webp'), alt: 'Social post', ratio: '4/5' },
+              { kind: 'image', src: v2('galgalatz/img-4.webp'), alt: 'Social post', ratio: '4/5' },
+              { kind: 'image', src: v2('galgalatz/img-7.webp'), alt: 'Social post', ratio: '4/5' },
+              { kind: 'image', src: v2('galgalatz/img-1.webp'), alt: 'Social post', ratio: '4/5' },
+            ],
+          },
+        ],
+      },
+    ],
   },
 ]
 

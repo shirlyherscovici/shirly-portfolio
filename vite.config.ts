@@ -14,7 +14,6 @@ export default defineConfig({
   base: '/shirly-portfolio/',
   plugins: [react()],
   server: {
-    host: true,
     // Was a hardcoded 5173 — that blocked the harness from reassigning a
     // free port when another session's dev server already holds 5173 (this
     // app has no OAuth/webhook/CORS dependency on that specific port).

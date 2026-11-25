@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'framer-motion'
 import { PROJECTS, SHELL } from './data'
 import { FlightProvider, ToneProvider, go, href, useFlight, useRoute, useTone } from './store'
 import { Home } from './Home'
@@ -106,10 +106,12 @@ function Shell() {
 
 export default function App() {
   return (
-    <ToneProvider>
-      <FlightProvider>
-        <Shell />
-      </FlightProvider>
-    </ToneProvider>
+    <MotionConfig reducedMotion="user">
+      <ToneProvider>
+        <FlightProvider>
+          <Shell />
+        </FlightProvider>
+      </ToneProvider>
+    </MotionConfig>
   )
 }

@@ -1038,3 +1038,9 @@
   width: min(100%, 420px, 62svh);
   margin-inline: auto;
 }
+
+.cs .cs-allwork {
+  margin: 0;
+  padding: 0 var(--gutter, 24px) clamp(56px, 8vw, 96px);
+  text-align: center;
+}
