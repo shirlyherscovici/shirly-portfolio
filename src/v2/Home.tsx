@@ -371,12 +371,19 @@ export function Home() {
     return () => window.removeEventListener('pointermove', onMove)
   }, [canHover, list, mx, my])
 
+  /* Scrolling pulls the frames a little larger, and they keep that size (the stretch never springs back).
+   * The amount follows the fastest scroll so far, up to a cap; list mode shows them at normal size. */
   const vel = useVelocity(p)
+  const grown = useMotionValue(0)
+  useMotionValueEvent(vel, 'change', (v) => {
+    const want = Math.min(0.09, Math.abs(v) * 0.07)
+    if (want > grown.get()) grown.set(want)
+  })
   const stretchOn = useMotionValue(1)
   useEffect(() => stretchOn.set(list ? 0 : 1), [list, stretchOn])
   const stretch = useSpring(
-    useTransform([vel, stretchOn], ([v, on]) => Math.min(0.09, Math.abs(v as number) * 0.07) * (on as number)),
-    { stiffness: 80, damping: 20 },
+    useTransform([grown, stretchOn], ([g, on]) => (g as number) * (on as number)),
+    { stiffness: 60, damping: 20 },
   )
 
   const fade = { opacity: list ? 0 : 1, transition: { duration: 0.4 } }
