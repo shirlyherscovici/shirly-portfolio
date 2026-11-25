@@ -581,7 +581,7 @@
   inset: 0;
   background: #1c1c1c;
   clip-path: inset(0 0 100% 0);
-  transition: clip-path 0.7s var(--cs-ease);
+  transition: clip-path 0.45s var(--cs-ease);
 }
 
 .cs .cs-flip-before img {

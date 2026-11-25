@@ -469,8 +469,30 @@ export function FlipWall({ pairs }: { pairs: { before: Img; after: Img }[] }) {
 }
 function FlipCard({ p, i }: { p: { before: Img; after: Img }; i: number }) {
   const [shown, setShown] = useState(false)
+  /* Load and decode the original well before the wall reaches the screen,
+   * so the flip shows it at once instead of waiting for it to arrive */
+  const card = useRef<HTMLButtonElement>(null)
+  const [near, setNear] = useState(false)
+  useEffect(() => {
+    const el = card.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return
+        setNear(true)
+        io.disconnect()
+        const pre = new Image()
+        pre.src = p.before.src
+        pre.decode?.().catch(() => {})
+      },
+      { rootMargin: '900px 0px' },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [p.before.src])
   return (
     <motion.button
+      ref={card}
       type="button"
       className={`cs-flip ${shown ? 'is-before' : ''}`}
       aria-pressed={shown}
@@ -485,7 +507,7 @@ function FlipCard({ p, i }: { p: { before: Img; after: Img }; i: number }) {
     >
       <img src={p.after.src} alt="" loading="lazy" />
       <span className="cs-flip-before">
-        <img src={p.before.src} alt="" loading="lazy" />
+        <img src={p.before.src} alt="" loading={near ? 'eager' : 'lazy'} decoding="sync" />
       </span>
       <span className="cs-flip-tag">{shown ? 'Original' : 'Final'}</span>
     </motion.button>
