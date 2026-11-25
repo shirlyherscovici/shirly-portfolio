@@ -1973,3 +1973,245 @@
 @media (prefers-reduced-motion: reduce) {
   .cs .cs-reel-sound.is-on .cs-reel-eq i { animation: none; height: 10px; }
 }
+
+/* ---------- One real number ---------- */
+.cs .cs-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.cs .cs-stat {
+  text-align: center;
+}
+
+.cs .cs-stat-num {
+  margin: 10px 0 8px;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(44px, 8vw, 120px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--accent, currentColor);
+}
+
+.cs .cs-stat-num span {
+  opacity: 0.45;
+  font-size: 0.6em;
+  vertical-align: 0.15em;
+}
+
+.cs .cs-stat-note {
+  margin: 0;
+  opacity: 0.75;
+}
+
+/* ======================================================================
+ * The Partner: episodes wiping in, the format morph, the part player
+ * ==================================================================== */
+.cs .cs-ep {
+  position: relative;
+  background: #05090b;
+}
+
+.cs .cs-ep-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  overflow: clip;
+}
+
+.cs .cs-ep-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #05090b;
+}
+
+.cs .cs-ep-layer video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* darken the bottom-left so the text holds over any frame */
+.cs .cs-ep-layer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(20deg, rgba(5, 9, 11, 0.85) 0%, rgba(5, 9, 11, 0.2) 45%, transparent 70%);
+  pointer-events: none;
+}
+
+.cs .cs-ep-text {
+  position: absolute;
+  left: var(--gutter);
+  bottom: clamp(40px, 9vh, 96px);
+  z-index: 2;
+  color: #efe6d6;
+}
+
+.cs .cs-ep-num {
+  display: block;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(120px, 22vw, 340px);
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px #e8a44a;
+  margin-bottom: 18px;
+}
+
+.cs .cs-ep-text .cs-label {
+  color: #e8a44a;
+  margin: 0;
+}
+
+.cs .cs-ep-title {
+  margin: 6px 0 0;
+  font-size: 15px;
+  opacity: 0.75;
+}
+
+.cs .cs-ep-rail {
+  position: absolute;
+  right: var(--gutter);
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 10;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cs .cs-ep-rail li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-end;
+  color: #efe6d6;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  opacity: 0.4;
+  transition: opacity 0.4s;
+}
+
+.cs .cs-ep-rail li::after {
+  content: '';
+  width: 18px;
+  height: 2px;
+  background: currentColor;
+  transition: width 0.5s var(--cs-ease), background-color 0.4s;
+}
+
+.cs .cs-ep-rail li.done { opacity: 0.7; }
+.cs .cs-ep-rail li.on { opacity: 1; }
+.cs .cs-ep-rail li.on::after { width: 44px; background: #d61f2c; }
+
+/* Format morph */
+.cs .cs-morph {
+  position: relative;
+}
+
+.cs .cs-morph-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  overflow: hidden;
+  overflow: clip;
+}
+
+.cs .cs-morph-frame {
+  position: relative;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 50px 90px -40px rgba(0, 0, 0, 0.8);
+}
+
+.cs .cs-morph-frame video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cs .cs-morph-labels {
+  position: relative;
+  height: 1.4em;
+  width: 100%;
+  text-align: center;
+}
+
+.cs .cs-morph-labels p {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+}
+
+/* Part player */
+.cs .cs-player-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: clamp(18px, 3vw, 32px);
+}
+
+.cs .cs-player-tabs button {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px 10px;
+  padding: 0 0 12px;
+  border: 0;
+  border-bottom: 2px solid rgba(239, 230, 214, 0.2);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.3s, border-color 0.3s;
+}
+
+.cs .cs-player-tabs button img {
+  grid-column: 1 / -1;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.cs .cs-player-tabs button.on,
+.cs .cs-player-tabs button:hover {
+  opacity: 1;
+  border-color: #d61f2c;
+}
+
+.cs .cs-player-title { font-weight: 600; }
+.cs .cs-player-len { font-size: 13px; opacity: 0.7; }
+
+@media (max-width: 760px) {
+  .cs .cs-player-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cs .cs-ep-rail { right: 14px; }
+  .cs .cs-ep-rail li::after { width: 10px; }
+  .cs .cs-ep-rail li.on::after { width: 24px; }
+}

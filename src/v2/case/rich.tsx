@@ -418,3 +418,121 @@ export function RetroGrid({ children }: { children?: ReactNode }) {
     </div>
   )
 }
+
+/* ======================================================================
+ * Episodes (The Partner): one full-screen stage; as you scroll, each part
+ * wipes in over the last one, its number slides past and a rail fills.
+ * ==================================================================== */
+export type Episode = { loop: string; poster: string; num: string; title: string; quote?: string }
+
+function EpisodeLayer({ e, i, n, p }: { e: Episode; i: number; n: number; p: MotionValue<number> }) {
+  const v = useRef<HTMLVideoElement>(null)
+  useInViewPlay(v)
+  const start = i / n
+  // each layer opens as a widening band from the middle of the screen
+  const open = useTransform(p, [start - 0.6 / n, start], [50, 0], { clamp: true })
+  const clip = useTransform(open, (o) => (i === 0 ? 'inset(0% 0% 0% 0%)' : `inset(${o}% 0% ${o}% 0%)`))
+  const scale = useTransform(p, [start - 0.6 / n, start + 1 / n], [1.25, 1])
+  const textY = useTransform(p, [start - 0.3 / n, start + 0.2 / n, start + 0.85 / n], [80, 0, -40])
+  const textO = useTransform(p, [start - 0.3 / n, start + 0.15 / n, start + 0.8 / n, start + 1 / n], i === n - 1 ? [0, 1, 1, 1] : [0, 1, 1, 0])
+  return (
+    <motion.div className="cs-ep-layer" style={{ clipPath: clip, zIndex: i + 1 }}>
+      <motion.video ref={v} src={e.loop} poster={e.poster} muted loop playsInline preload="none" aria-hidden="true" style={{ scale }} />
+      <motion.div className="cs-ep-text" style={{ y: textY, opacity: textO }}>
+        <span className="cs-ep-num" aria-hidden="true">{e.num}</span>
+        <p className="cs-label">Part {e.num}</p>
+        <p className="cs-ep-title">{e.title}</p>
+        {e.quote && <p className="cs-ep-quote">{e.quote}</p>}
+      </motion.div>
+    </motion.div>
+  )
+}
+
+export function EpisodeScroll({ episodes }: { episodes: Episode[] }) {
+  const box = useRef<HTMLDivElement>(null)
+  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start start', 'end end'] })
+  const [at, setAt] = useState(0)
+  useMotionValueEvent(p, 'change', (v) => setAt(Math.min(episodes.length - 1, Math.floor(v * episodes.length * 0.999))))
+  return (
+    <section ref={box} className="cs-ep" style={{ height: `${episodes.length * 100 + 60}vh` }}>
+      <div className="cs-ep-stage">
+        {episodes.map((e, i) => (
+          <EpisodeLayer key={e.loop} e={e} i={i} n={episodes.length} p={p} />
+        ))}
+        <ol className="cs-ep-rail" aria-label="Parts">
+          {episodes.map((e, i) => (
+            <li key={e.num} className={i === at ? 'on' : i < at ? 'done' : ''}>
+              <span>{e.num}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  )
+}
+
+/* ======================================================================
+ * Format morph: the wide cut narrows into the vertical cut as you scroll,
+ * the same moment in both, so the reframing is visible.
+ * ==================================================================== */
+export function FormatMorph({ wide, tall, poster, tallPoster }: { wide: string; tall: string; poster: string; tallPoster: string }) {
+  const box = useRef<HTMLDivElement>(null)
+  const a = useRef<HTMLVideoElement>(null)
+  const b = useRef<HTMLVideoElement>(null)
+  useInViewPlay(a)
+  useInViewPlay(b)
+  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start start', 'end end'] })
+  const [vw, setVw] = useState(() => window.innerWidth)
+  const [vh, setVh] = useState(() => window.innerHeight)
+  useEffect(() => {
+    const r = () => (setVw(window.innerWidth), setVh(window.innerHeight))
+    window.addEventListener('resize', r)
+    return () => window.removeEventListener('resize', r)
+  }, [])
+  const h = Math.min(vh * 0.74, ((vw * 0.9) * 9) / 16)
+  const width = useTransform(p, [0.15, 0.75], [(h * 16) / 9, (h * 9) / 16])
+  const radius = useTransform(p, [0.15, 0.75], [6, 28])
+  const tallO = useTransform(p, [0.45, 0.65], [0, 1])
+  const wideLabel = useTransform(p, [0.3, 0.45], [1, 0])
+  const tallLabel = useTransform(p, [0.55, 0.7], [0, 1])
+  return (
+    <section ref={box} className="cs-morph" style={{ height: '260vh' }}>
+      <div className="cs-morph-stage">
+        <motion.div className="cs-morph-frame" style={{ width, height: h, borderRadius: radius }}>
+          <video ref={a} src={wide} poster={poster} muted loop playsInline preload="none" aria-label="Wide 16:9 cut" />
+          <motion.video ref={b} src={tall} poster={tallPoster} muted loop playsInline preload="none" aria-label="Vertical 9:16 cut" style={{ opacity: tallO }} />
+        </motion.div>
+        <div className="cs-morph-labels">
+          <motion.p className="cs-label" style={{ opacity: wideLabel }}>16:9 · web and TV</motion.p>
+          <motion.p className="cs-label" style={{ opacity: tallLabel }}>9:16 · social and mobile</motion.p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ======================================================================
+ * Episode player: every part in full, with sound, one at a time
+ * ==================================================================== */
+export type Part = { src: string; poster: string; num: string; title: string; length: string }
+
+export function EpisodePlayer({ parts, children }: { parts: Part[]; children: (p: Part) => ReactNode }) {
+  const [at, setAt] = useState(0)
+  return (
+    <div className="cs-player">
+      <div className="cs-wrap-wide">
+        <div className="cs-player-tabs" role="tablist" aria-label="Parts">
+          {parts.map((p, i) => (
+            <button key={p.src} type="button" role="tab" aria-selected={i === at} className={i === at ? 'on' : ''} onClick={() => setAt(i)}>
+              <img src={p.poster} alt="" loading="lazy" />
+              <span className="cs-step">{p.num}</span>
+              <span className="cs-player-title">{p.title}</span>
+              <span className="cs-player-len">{p.length}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div key={parts[at].src}>{children(parts[at])}</div>
+    </div>
+  )
+}

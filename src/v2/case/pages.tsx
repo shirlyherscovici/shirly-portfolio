@@ -22,13 +22,13 @@ import {
   Visual,
   type Img,
 } from './blocks'
-import { ClipReel, PhoneStory, RealVsFilm, RetroGrid, TruthOrFake, Vault, type Question, type Scene } from './rich'
+import { ClipReel, EpisodePlayer, EpisodeScroll, FormatMorph, PhoneStory, RealVsFilm, RetroGrid, TruthOrFake, Vault, type Question, type Scene } from './rich'
 
 const v2 = (p: string) => asset(`/v2/${p}`)
 const A = (p: string) => asset(`/assets/${p}`)
 
 export type Case = {
-  theme: 'amy' | 'motion' | 'rescue' | 'soundtrack' | 'louvre' | 'eighties' | 'quiz'
+  theme: 'amy' | 'motion' | 'rescue' | 'soundtrack' | 'louvre' | 'eighties' | 'quiz' | 'partner'
   /** Colours of the first act, used before any act reaches the middle of the screen */
   acts: { bg: string; fg: string }
   heroVideo?: string
@@ -56,6 +56,7 @@ const amyBody = (
           { label: 'Client', value: 'N12' },
           { label: 'Role', value: 'Art direction, graphic design' },
           { label: 'Disciplines', value: 'Art direction · Visual design · Campaign strategy' },
+          { label: 'Impact', value: 'Views 24,500 → 67,418' },
         ]}
         link={{ label: 'View live project', href: 'https://special.n12.co.il/AmyWinehouse' }}
         linkStyle={{ background: AMY.red, color: AMY.paper }}
@@ -63,6 +64,16 @@ const amyBody = (
       <div className="cs-wrap-wide cs-amy-open">
         <Compare before={{ src: v2('amy/005-before.webp'), alt: 'Original archive photo' }} after={{ src: v2('amy/005-after.webp'), alt: 'Final treatment', ratio: '1 / 1' }} labels={['Original', 'Final']} />
         <p className="cs-caption">Drag the line: the archive photo, and the same photo in the campaign’s treatment.</p>
+      </div>
+      <Gap size="s" />
+      <div className="cs-wrap cs-stat">
+        <Reveal>
+          <p className="cs-label">Impact</p>
+          <p className="cs-stat-num">
+            24,500 <span aria-hidden="true">→</span><span className="cs-sr"> to </span> 67,418
+          </p>
+          <p className="cs-stat-note">Views of the special grew from 24,500 to 67,418.</p>
+        </Reveal>
       </div>
       <Gap />
 
@@ -363,6 +374,8 @@ const louvreBody = (
           { label: 'Length', value: '1:10' },
           { label: 'Formats', value: '16:9 · 9:16' },
         ]}
+        link={{ label: 'Visit the live site', href: 'https://special.n12.co.il/louvre' }}
+        linkStyle={{ background: LV.gold, color: LV.night }}
       />
       <Chapter num="01" title="The full film" note="The complete 1:10 piece as it aired. Press play, sound on." />
       <Film src={v2('louvre/louvre-film.mp4')} poster={v2('louvre/poster.webp')} alt="The Louvre Heist, full film, 16:9" tag="Full film · 1:10 · 16:9" />
@@ -517,7 +530,7 @@ const quizBody = (
           { label: 'Role', value: 'AI image design for the trivia' },
           { label: 'Disciplines', value: 'Illustration · AI image generation' },
         ]}
-        link={{ label: 'Play the quiz on N12 ↗', href: QUIZ_URL }}
+        link={{ label: 'Play the quiz on N12', href: QUIZ_URL }}
         linkStyle={{ background: QZ.navy, color: QZ.cream }}
       />
       <Visual m={{ src: qi('banner-share'), alt: 'Key art of the quiz with stamp portraits and the title', label: 'Key art', ratio: '1200 / 630' }} />
@@ -532,7 +545,73 @@ const quizBody = (
   </>
 )
 
+/* ======================================================================
+ * 08 · THE PARTNER — a podcast, animated
+ * ==================================================================== */
+const PA = { night: '#0b1d24', teal: '#12333d', amber: '#e8a44a', cream: '#efe6d6', red: '#d61f2c' }
+const pv = (n: string) => v2(`partner/${n}`)
+const partnerBody = (
+  <>
+    <Act bg={PA.night} fg={PA.cream} accent={PA.amber}>
+      <Intro
+        title="The Partner"
+        text="A short series from N12’s daily podcast One a Day. The story only existed as audio, so I animated it with Flow: every scene is built from the transcript, and the speaker’s words stay on screen."
+        meta={[
+          { label: 'Client', value: 'N12 · One a Day podcast' },
+          { label: 'Role', value: 'AI animation with Flow' },
+          { label: 'Parts', value: '4' },
+          { label: 'Formats', value: '16:9 · 9:16' },
+        ]}
+      />
+      <Gap size="s" />
+    </Act>
+
+    <Act bg="#05090b" fg={PA.cream} accent={PA.amber}>
+      <EpisodeScroll
+        episodes={[
+          { loop: pv('loop-1.mp4'), poster: pv('loop-1.webp'), num: '01', title: '0:31' },
+          { loop: pv('loop-2.mp4'), poster: pv('loop-2.webp'), num: '02', title: '0:28' },
+          { loop: pv('loop-3.mp4'), poster: pv('loop-3.webp'), num: '03', title: '0:30' },
+          { loop: pv('loop-4.mp4'), poster: pv('loop-4.webp'), num: '04', title: '0:51' },
+        ]}
+      />
+    </Act>
+
+    <Act bg={PA.teal} fg={PA.cream} accent={PA.amber}>
+      <Gap />
+      <Chapter num="02" title="One story, two formats" note="Keep scrolling: the wide cut for web narrows into the vertical cut made for the feed, at the same moment of the story." />
+      <FormatMorph wide={pv('loop-3.mp4')} poster={pv('loop-3.webp')} tall={pv('morph-tall.mp4')} tallPoster={pv('morph-tall.webp')} />
+    </Act>
+
+    <Act bg={PA.night} fg={PA.cream} accent={PA.amber}>
+      <Gap />
+      <Chapter num="03" title="Watch the parts" note="All four parts in full. Pick one, press play, sound on." />
+      <EpisodePlayer
+        parts={[
+          { src: pv('part-1.mp4'), poster: pv('part-1.webp'), num: '01', title: 'Part one', length: '0:31' },
+          { src: pv('part-2.mp4'), poster: pv('part-2.webp'), num: '02', title: 'Part two', length: '0:28' },
+          { src: pv('part-3.mp4'), poster: pv('part-3.webp'), num: '03', title: 'Part three', length: '0:30' },
+          { src: pv('part-4.mp4'), poster: pv('part-4.webp'), num: '04', title: 'Part four', length: '0:51' },
+        ]}
+      >
+        {(p) => <Film src={p.src} poster={p.poster} alt={`The Partner, part ${p.num}`} tag={`Part ${p.num} · ${p.length}`} />}
+      </EpisodePlayer>
+      <Gap size="l" />
+    </Act>
+  </>
+)
+
 export const CASES: Record<string, Case> = {
+  partner: {
+    theme: 'partner',
+    acts: { bg: PA.night, fg: PA.cream },
+    credits: [
+      { label: 'Client', value: 'N12 · One a Day podcast' },
+      { label: 'Role', value: 'AI animation with Flow' },
+      { label: 'Formats', value: '16:9 · 9:16' },
+    ],
+    body: partnerBody,
+  },
   amy: {
     theme: 'amy',
     acts: { bg: AMY.paper, fg: AMY.ink },
@@ -540,6 +619,7 @@ export const CASES: Record<string, Case> = {
       { label: 'Client', value: 'N12' },
       { label: 'Role', value: 'Art direction, graphic design' },
       { label: 'Type', value: 'Editorial identity · Art direction' },
+      { label: 'Impact', value: 'Views 24,500 → 67,418' },
     ],
     body: amyBody,
   },
