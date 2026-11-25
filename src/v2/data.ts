@@ -15,7 +15,6 @@ export type Block =
   | { type: 'compare'; before: MediaItem; after: MediaItem }
   | { type: 'split'; label: string; ai: string; me: string }
 
-export type Chapter = { title: string; text?: string; blocks: Block[] }
 
 export type Project = {
   slug: string
@@ -36,7 +35,6 @@ export type Project = {
   intro: string
   link?: { label: string; href: string }
   credits: { label: string; value: string }[]
-  chapters: Chapter[]
 }
 
 export const SHELL = { bg: '#181818', fg: '#f0f0f0', paper: '#f0efeb', ink: '#181818' }
@@ -61,48 +59,6 @@ export const PROJECTS: Project[] = [
       { label: 'Client', value: 'N12' },
       { label: 'Timeline', value: '4 hours to prime time' },
     ],
-    chapters: [
-      {
-        title: 'The film',
-        blocks: [
-          {
-            type: 'full',
-            media: {
-              kind: 'video',
-              src: asset('/assets/navigator/main-film.mp4'),
-              poster: v2('ai/main-film-frame.webp'),
-              captions: asset('/assets/navigator/captions-en.vtt'),
-              alt: 'USA Pilot Rescue final film',
-              ratio: '16/9',
-            },
-          },
-        ],
-      },
-      {
-        title: 'Frames',
-        blocks: [
-          {
-            type: 'row',
-            media: [
-              { kind: 'image', src: v2('ai/pilot-crawling-transmitting-202604051655.webp'), alt: 'Pilot on the ground', caption: 'Directed character, environment and cinematic mood.', ratio: '16/9' },
-              { kind: 'image', src: v2('ai/2.webp'), alt: 'Command scene', caption: 'Controlled environment, information and visual continuity.', ratio: '16/9' },
-              { kind: 'image', src: v2('ai/7.webp'), alt: 'Extraction scene', caption: 'Consistent people, aircraft and environment across the sequence.', ratio: '16/9' },
-            ],
-          },
-        ],
-      },
-      {
-        title: 'AI and me',
-        blocks: [
-          {
-            type: 'split',
-            label: 'Division of work',
-            ai: 'Generated frames and motion from my direction.',
-            me: 'Frame direction, continuity, compositing, edit and broadcast delivery.',
-          },
-        ],
-      },
-    ],
   },
   {
     slug: 'louvre',
@@ -116,7 +72,6 @@ export const PROJECTS: Project[] = [
     peek: v2('louvre/crown-flight.webp'),
     intro: 'A 70-second AI film for N12 that rebuilds the Louvre jewel heist shot by shot, delivered in 16:9 for web and 9:16 for mobile.',
     credits: [{ label: 'Client', value: 'N12' }],
-    chapters: [],
   },
   {
     slug: 'amy',
@@ -135,56 +90,6 @@ export const PROJECTS: Project[] = [
       { label: 'Role', value: 'Art direction, graphic design' },
       { label: 'Client', value: 'N12' },
     ],
-    chapters: [
-      {
-        title: 'Directions',
-        blocks: [
-          {
-            type: 'row',
-            media: [
-              { kind: 'image', src: v2('amy/concept-1.webp'), alt: 'Exploration', caption: 'Strong contrast, portraiture and immediate visual impact.', ratio: '16/9' },
-              { kind: 'image', src: v2('amy/concept-2.webp'), alt: 'Exploration', caption: 'Color, portrait placement and tattoo-inspired visual language.', ratio: '16/9' },
-              { kind: 'image', src: v2('amy/concept-3.webp'), alt: 'Exploration', caption: 'Monochrome treatment and a quieter editorial tone.', ratio: '16/9' },
-            ],
-          },
-        ],
-      },
-      {
-        title: 'Final identity',
-        text: 'Tattoo culture, distressed print textures and 27 Club references in one cohesive identity.',
-        blocks: [
-          { type: 'full', media: { kind: 'image', src: v2('amy/hero-banner.webp'), alt: 'Final banner', ratio: '1304/800' } },
-        ],
-      },
-      {
-        title: 'Before and after',
-        blocks: [
-          {
-            type: 'compare',
-            before: { kind: 'image', src: v2('amy/005-before.webp'), alt: 'Original archive photo', ratio: '1/1' },
-            after: { kind: 'image', src: v2('amy/005-after.webp'), alt: 'Final treatment', ratio: '1/1' },
-          },
-          {
-            type: 'compare',
-            before: { kind: 'image', src: v2('amy/008-before.webp'), alt: 'Original archive photo', ratio: '1/1' },
-            after: { kind: 'image', src: v2('amy/008-after.webp'), alt: 'Final treatment', ratio: '1/1' },
-          },
-        ],
-      },
-      {
-        title: 'Responsive',
-        blocks: [
-          { type: 'full', media: { kind: 'image', src: v2('amy/grid-desktop.webp'), alt: 'Desktop layout', ratio: '16/9' } },
-          {
-            type: 'pair',
-            media: [
-              { kind: 'image', src: v2('amy/amy-phones-front.webp'), alt: 'Mobile screens', ratio: '3/4', fit: 'contain' },
-              { kind: 'image', src: v2('amy/grid-mobile.webp'), alt: 'Mobile layout', ratio: '3/4' },
-            ],
-          },
-        ],
-      },
-    ],
   },
   {
     slug: 'people-in-motion',
@@ -198,50 +103,6 @@ export const PROJECTS: Project[] = [
     loop: asset('/assets/motion/clips/02-ui-game-animation.mp4'),
     intro: 'A character-led motion project built as a playful game world: character animation, UI and game animation, kinetic typography and transitions.',
     credits: [{ label: 'Role', value: 'Design, 2D animation, compositing' }],
-    chapters: [
-      {
-        title: 'Highlights',
-        blocks: [
-          {
-            type: 'full',
-            media: {
-              kind: 'video',
-              src: asset('/assets/motion/gameplay_highlight_final.mp4'),
-              poster: v2('motion/people-motion-hero-poster.webp'),
-              alt: 'Highlight cut of the animation',
-              ratio: '16/9',
-            },
-          },
-        ],
-      },
-      {
-        title: 'Craft',
-        blocks: [
-          {
-            type: 'row',
-            media: [
-              { kind: 'video', src: asset('/assets/motion/clips/03-character-animation.mp4'), poster: v2('motion/01-character-selection.webp'), alt: 'Character animation', caption: 'Expressive character movement integrated into animated environments.', ratio: '16/9' },
-              { kind: 'video', src: asset('/assets/motion/clips/02-ui-game-animation.mp4'), poster: v2('motion/02-tetris.webp'), alt: 'UI and game animation', caption: 'Animated interfaces, game systems and responsive graphic elements.', ratio: '16/9' },
-              { kind: 'video', src: asset('/assets/motion/clips/people-kinetic-typography.mp4'), poster: v2('motion/03-mario-platform.webp'), alt: 'Kinetic typography', caption: 'Animated typography, scene transitions and visual continuity across changing worlds.', ratio: '16/9' },
-            ],
-          },
-        ],
-      },
-      {
-        title: 'Worlds',
-        blocks: [
-          {
-            type: 'gallery',
-            media: [
-              { kind: 'image', src: v2('motion/04-gold-digger.webp'), alt: 'Scene still', ratio: '16/9' },
-              { kind: 'image', src: v2('motion/05-icy-tower.webp'), alt: 'Scene still', ratio: '16/9' },
-              { kind: 'image', src: v2('motion/02-tetris.webp'), alt: 'Scene still', ratio: '16/9' },
-              { kind: 'image', src: v2('motion/03-mario-platform.webp'), alt: 'Scene still', ratio: '16/9' },
-            ],
-          },
-        ],
-      },
-    ],
   },
   {
     slug: 'eighties',
@@ -249,27 +110,25 @@ export const PROJECTS: Project[] = [
     frame: { ratio: 16 / 9 },
     name: 'Yardena & Ofira — an 80s room',
     kind: 'AI film · Art direction',
-    colors: { bg: '#e0457b', fg: '#fbe3e6' },
-    hero: { bg: '#fbe3e6', fg: '#272c66' },
+    colors: { bg: '#ff3e9a', fg: '#1a0b2e' },
+    hero: { bg: '#1a0b2e', fg: '#ff3e9a' },
     cover: { kind: 'image', src: v2('eighties/cover.webp'), alt: 'A teenage bedroom of the 1980s with posters and a cassette radio' },
     peek: v2('eighties/magazine.webp'),
     intro: 'A 35-second AI film set in a teenage bedroom of the 1980s, built around the pop rivalry of Yardena Arazi and Ofra Haza.',
     credits: [],
-    chapters: [],
   },
   {
     slug: 'quiz',
     word: 'Quiz',
-    frame: { ratio: 1 },
+    frame: { ratio: 1200 / 630 },
     name: 'Was It or Wasn’t It?',
-    kind: 'Illustration series',
-    colors: { bg: '#3fa9b5', fg: '#2e1d14' },
-    hero: { bg: '#f4ead2', fg: '#2e1d14' },
-    cover: { kind: 'image', src: v2('quiz/ben-gurion.webp'), alt: 'Pop-art portrait of David Ben-Gurion in sunglasses' },
-    peek: v2('quiz/shark.webp'),
+    kind: 'AI images · N12 trivia',
+    colors: { bg: '#15335e', fg: '#f4ead2' },
+    hero: { bg: '#f4ead2', fg: '#15335e' },
+    cover: { kind: 'image', src: v2('quiz/banner-share.webp'), alt: 'Key art of the Was It or Wasn’t It quiz, with stamp portraits' },
+    peek: v2('quiz/ben-gurion.webp'),
     intro: 'Retro pop-art illustrations for a trivia quiz, one picture per question, all in the same halftone print style.',
     credits: [],
-    chapters: [],
   },
   {
     slug: 'music-from-the-screen',
@@ -277,58 +136,15 @@ export const PROJECTS: Project[] = [
     frame: { ratio: 1 },
     name: 'Music from the Screen',
     kind: 'Key art · UI · Social',
-    colors: { bg: '#ff4f9a', fg: '#1d0b45' },
-    hero: { bg: '#ffd3e6', fg: '#1d0b45' },
-    cover: { kind: 'image', src: v2('galgalatz/banner-cover.webp'), alt: 'Neon key art for Music from the Screen, N12 × Galgalatz' },
-    peek: v2('galgalatz/neon-box.webp'),
+    colors: { bg: '#f8a9fb', fg: '#14052e' },
+    hero: { bg: '#14052e', fg: '#f8a9fb' },
+    cover: { kind: 'image', src: v2('galgalatz/cover-phones.webp'), alt: 'Three screens of the Music from the Screen voting flow, N12 × Galgalatz' },
+    peek: v2('galgalatz/rank-01.webp'),
     intro:
       'A chart of songs from Israeli cinema, for N12 and Galgalatz. I created the neon key art, designed the mobile voting flow and carried the look through the social posts of the campaign.',
     credits: [
       { label: 'Role', value: 'Key art, UI design, motion' },
       { label: 'Client', value: 'N12 × Galgalatz' },
-    ],
-    chapters: [
-      {
-        title: 'Key art',
-        blocks: [
-          {
-            type: 'pair',
-            media: [
-              { kind: 'image', src: v2('galgalatz/banner-cover.webp'), alt: 'Square key art with the neon sign', ratio: '1/1' },
-              { kind: 'image', src: v2('galgalatz/poster-galgalts.webp'), alt: 'Vertical poster version', ratio: '1/1' },
-            ],
-          },
-        ],
-      },
-      {
-        title: 'Voting flow',
-        blocks: [
-          { type: 'full', media: { kind: 'image', src: v2('galgalatz/game-uiux.webp'), alt: 'Voting flow UI screens', fit: 'contain', ratio: '16/10' } },
-          {
-            type: 'row',
-            media: [
-              { kind: 'image', src: v2('galgalatz/1-galgaltz-front.webp'), alt: 'Voting screen', ratio: '9/16', fit: 'contain' },
-              { kind: 'image', src: v2('galgalatz/3-galgaltz-front.webp'), alt: 'Voting screen', ratio: '9/16', fit: 'contain' },
-              { kind: 'image', src: v2('galgalatz/5-galgaltz-front.webp'), alt: 'Voting screen', ratio: '9/16', fit: 'contain' },
-            ],
-          },
-        ],
-      },
-      {
-        title: 'Social',
-        blocks: [
-          {
-            type: 'gallery',
-            media: [
-              { kind: 'image', src: v2('galgalatz/img-2.webp'), alt: 'Social post', ratio: '4/5' },
-              { kind: 'image', src: v2('galgalatz/img-3.webp'), alt: 'Social post', ratio: '4/5' },
-              { kind: 'image', src: v2('galgalatz/img-4.webp'), alt: 'Social post', ratio: '4/5' },
-              { kind: 'image', src: v2('galgalatz/img-7.webp'), alt: 'Social post', ratio: '4/5' },
-              { kind: 'image', src: v2('galgalatz/img-1.webp'), alt: 'Social post', ratio: '4/5' },
-            ],
-          },
-        ],
-      },
     ],
   },
 ]

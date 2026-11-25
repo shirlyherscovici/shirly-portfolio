@@ -1,0 +1,386 @@
+/* Richer, project-specific interactions for the case studies:
+ * a cinematic clip reel, a phone that tells the story while you scroll, a vault of real
+ * objects, real-vs-film scenes, a playable quiz and an 80s grid floor. */
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { AnimatePresence, motion, useScroll, useTransform, useMotionValueEvent, type MotionValue } from 'framer-motion'
+import { ease, type Img } from './blocks'
+
+/* Play a muted clip only while it is on screen */
+function useInViewPlay(ref: React.RefObject<HTMLVideoElement>) {
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        if (el.preload === 'none') el.preload = 'auto'
+        el.play().catch(() => {})
+      } else el.pause()
+    }, { rootMargin: '0px 200px' })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [ref])
+}
+
+/* ======================================================================
+ * Clip reel: a dark, letterboxed row of scenes that slides sideways as you
+ * scroll down. The scene in the middle grows and lights up, like a streaming row.
+ * ==================================================================== */
+export type Scene = { video: string; poster: string; title: string; note?: string }
+
+function ReelCard({ s, i, n, p }: { s: Scene; i: number; n: number; p: MotionValue<number> }) {
+  const v = useRef<HTMLVideoElement>(null)
+  useInViewPlay(v)
+  const at = n > 1 ? i / (n - 1) : 0
+  const near = useTransform(p, (x) => Math.max(0, 1 - Math.abs(x - at) * (n - 1)))
+  const scale = useTransform(near, [0, 1], [0.84, 1])
+  const bright = useTransform(near, [0, 1], ['brightness(0.45) saturate(0.6)', 'brightness(1) saturate(1)'])
+  const cap = useTransform(near, [0.4, 1], [0, 1])
+  return (
+    <motion.figure className="cs-reel-card" style={{ scale }}>
+      <motion.div className="cs-reel-media" style={{ filter: bright }}>
+        <video ref={v} src={s.video} poster={s.poster} muted loop playsInline preload="none" aria-label={s.title} />
+      </motion.div>
+      <motion.figcaption style={{ opacity: cap }}>
+        <span className="cs-label">Scene {String(i + 1).padStart(2, '0')}</span>
+        <strong>{s.title}</strong>
+        {s.note && <span className="cs-reel-note">{s.note}</span>}
+      </motion.figcaption>
+    </motion.figure>
+  )
+}
+
+export function ClipReel({ scenes, title }: { scenes: Scene[]; title?: string }) {
+  const box = useRef<HTMLDivElement>(null)
+  const track = useRef<HTMLDivElement>(null)
+  const [dist, setDist] = useState(0)
+  useLayoutEffect(() => {
+    const m = () => setDist(Math.max(0, (track.current?.scrollWidth ?? 0) - window.innerWidth))
+    m()
+    const ro = new ResizeObserver(m)
+    if (track.current) ro.observe(track.current)
+    window.addEventListener('resize', m)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', m)
+    }
+  }, [])
+  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start start', 'end end'] })
+  const x = useTransform(p, (v) => -v * dist)
+  const bar = useTransform(p, (v) => `${v * 100}%`)
+  return (
+    <section ref={box} className="cs-reel" style={{ height: `${Math.round((scenes.length * 0.5 + 1) * 100)}vh` }}>
+      <div className="cs-reel-stage">
+        {title && <p className="cs-label cs-reel-title">{title}</p>}
+        <motion.div ref={track} className="cs-reel-track" style={{ x }}>
+          {scenes.map((s, i) => (
+            <ReelCard key={s.video} s={s} i={i} n={scenes.length} p={p} />
+          ))}
+        </motion.div>
+        <div className="cs-reel-bar" aria-hidden="true">
+          <motion.span style={{ width: bar }} />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ======================================================================
+ * Phone story: the phone stays in the middle while the screens change with
+ * the scroll; the campaign posts drift in around it at their own speeds.
+ * ==================================================================== */
+export type PhoneStep = { screen: string; alt: string; label: string; text: string }
+export type Floater = { src: string; alt: string; x: string; y: string; w: string; rot: number; speed: number; from: number }
+
+function Float({ f, p }: { f: Floater; p: MotionValue<number> }) {
+  const y = useTransform(p, [0, 1], [`${f.speed * 40}vh`, `${-f.speed * 40}vh`])
+  const o = useTransform(p, [f.from - 0.08, f.from + 0.04], [0, 1])
+  const r = useTransform(p, [0, 1], [f.rot - 6, f.rot + 6])
+  return (
+    <motion.img className="cs-phone-float" src={f.src} alt={f.alt} loading="lazy" style={{ left: f.x, top: f.y, width: f.w, y, opacity: o, rotate: r }} />
+  )
+}
+
+export function PhoneStory({ steps, floats }: { steps: PhoneStep[]; floats: Floater[] }) {
+  const box = useRef<HTMLDivElement>(null)
+  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start start', 'end end'] })
+  const [at, setAt] = useState(0)
+  useMotionValueEvent(p, 'change', (v) => setAt(Math.min(steps.length - 1, Math.max(0, Math.floor(v * steps.length * 0.999)))))
+  const tilt = useTransform(p, [0, 0.5, 1], [-6, 0, 6])
+  return (
+    <section ref={box} className="cs-phone-story" style={{ height: `${steps.length * 90 + 40}vh` }}>
+      <div className="cs-phone-stage">
+        {floats.map((f) => (
+          <Float key={f.src} f={f} p={p} />
+        ))}
+        <motion.div className="cs-phone" style={{ rotate: tilt }}>
+          <AnimatePresence initial={false}>
+            <motion.img
+              key={steps[at].screen}
+              src={steps[at].screen}
+              alt={steps[at].alt}
+              initial={{ opacity: 0, y: 30, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -30, scale: 0.97 }}
+              transition={{ duration: 0.6, ease }}
+            />
+          </AnimatePresence>
+        </motion.div>
+        <ol className="cs-phone-steps">
+          {steps.map((s, i) => (
+            <li key={s.label} className={i === at ? 'on' : ''}>
+              <span className="cs-step">{String(i + 1).padStart(2, '0')}</span>
+              <span className="cs-label">{s.label}</span>
+              <p>{s.text}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  )
+}
+
+/* ======================================================================
+ * Real vs film: pick a scene, flip between the real photo and the frame
+ * from the film.
+ * ==================================================================== */
+export type Pair = { title: string; real: Img; film: Img; note: string }
+
+export function RealVsFilm({ pairs }: { pairs: Pair[] }) {
+  const [at, setAt] = useState(0)
+  const [film, setFilm] = useState(false)
+  const s = pairs[at]
+  return (
+    <div className="cs-wrap-wide cs-rvf">
+      <div className="cs-rvf-stage">
+        <AnimatePresence initial={false} mode="popLayout">
+          <motion.img
+            key={(film ? s.film.src : s.real.src) + at}
+            src={film ? s.film.src : s.real.src}
+            alt={film ? s.film.alt : s.real.alt}
+            className={film ? 'is-film' : 'is-real'}
+            initial={{ opacity: 0, scale: 1.04, filter: 'blur(6px)' }}
+            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.6, ease }}
+          />
+        </AnimatePresence>
+        <div className="cs-rvf-switch" role="group" aria-label="Show">
+          <button type="button" aria-pressed={!film} onClick={() => setFilm(false)}>
+            Real photo
+          </button>
+          <button type="button" aria-pressed={film} onClick={() => setFilm(true)}>
+            In the film
+          </button>
+          <motion.span className="cs-rvf-knob" animate={{ x: film ? '100%' : '0%' }} transition={{ duration: 0.45, ease }} aria-hidden="true" />
+        </div>
+      </div>
+      <div className="cs-rvf-list" role="tablist" aria-label="Scenes">
+        {pairs.map((x, i) => (
+          <button
+            key={x.title}
+            type="button"
+            role="tab"
+            aria-selected={i === at}
+            className={i === at ? 'on' : ''}
+            onClick={() => {
+              setAt(i)
+              setFilm(false)
+            }}
+          >
+            <span className="cs-step">{String(i + 1).padStart(2, '0')}</span>
+            <span className="cs-rvf-title">{x.title}</span>
+            <span className="cs-rvf-note">{x.note}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ======================================================================
+ * Vault: the real pieces, each in its own lit case. Open one to see it large
+ * and step through the rest.
+ * ==================================================================== */
+export type Piece = { src: string; name: string; detail: string }
+
+export function Vault({ pieces }: { pieces: Piece[] }) {
+  const [open, setOpen] = useState<number | null>(null)
+  const close = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    if (open === null) return
+    const back = document.activeElement as HTMLElement | null
+    close.current?.focus()
+    const html = document.documentElement
+    const prev = html.style.overflow
+    html.style.overflow = 'hidden'
+    const k = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(null)
+      if (e.key === 'ArrowRight') setOpen((o) => (o === null ? o : (o + 1) % pieces.length))
+      if (e.key === 'ArrowLeft') setOpen((o) => (o === null ? o : (o - 1 + pieces.length) % pieces.length))
+    }
+    window.addEventListener('keydown', k)
+    return () => {
+      window.removeEventListener('keydown', k)
+      html.style.overflow = prev
+      back?.focus?.()
+    }
+  }, [open, pieces.length])
+  const cur = open === null ? null : pieces[open]
+  return (
+    <div className="cs-wrap-wide">
+      <div className="cs-vault">
+        {pieces.map((p, i) => (
+          <motion.button
+            key={p.src}
+            type="button"
+            className="cs-vault-case"
+            onClick={() => setOpen(i)}
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-10% 0px' }}
+            transition={{ duration: 0.8, ease, delay: (i % 4) * 0.07 }}
+          >
+            <span className="cs-vault-light" aria-hidden="true" />
+            <img src={p.src} alt="" loading="lazy" />
+            <span className="cs-vault-name">{p.name}</span>
+          </motion.button>
+        ))}
+      </div>
+      <AnimatePresence>
+        {cur && (
+          <motion.div className="cs-vault-open" role="dialog" aria-modal="true" aria-label={cur.name} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOpen(null)}>
+            <motion.figure key={cur.src} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease }} onClick={(e) => e.stopPropagation()}>
+              <img src={cur.src} alt={cur.name} />
+              <figcaption>
+                <span className="cs-label">
+                  {String((open ?? 0) + 1).padStart(2, '0')} / {String(pieces.length).padStart(2, '0')}
+                </span>
+                <strong>{cur.name}</strong>
+                <span>{cur.detail}</span>
+              </figcaption>
+            </motion.figure>
+            <button type="button" className="cs-vault-nav is-prev" aria-label="Previous piece" onClick={(e) => (e.stopPropagation(), setOpen(((open ?? 0) - 1 + pieces.length) % pieces.length))}>
+              ←
+            </button>
+            <button type="button" className="cs-vault-nav is-next" aria-label="Next piece" onClick={(e) => (e.stopPropagation(), setOpen(((open ?? 0) + 1) % pieces.length))}>
+              →
+            </button>
+            <button ref={close} type="button" className="cs-lightbox-close" aria-label="Close">
+              ×
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+/* ======================================================================
+ * Truth or fake: the quiz's own game, played with its illustrations.
+ * ==================================================================== */
+export type Question = { img: string; alt: string; claim: string; truth: boolean; why: string }
+
+export function TruthOrFake({ questions, playUrl }: { questions: Question[]; playUrl: string }) {
+  const [i, setI] = useState(0)
+  const [pick, setPick] = useState<boolean | null>(null)
+  const [score, setScore] = useState(0)
+  const done = i >= questions.length
+  const q = questions[Math.min(i, questions.length - 1)]
+  const answer = (v: boolean) => {
+    if (pick !== null) return
+    setPick(v)
+    if (v === q.truth) setScore((s) => s + 1)
+  }
+  const next = () => {
+    setPick(null)
+    setI((x) => x + 1)
+  }
+  const again = () => {
+    setI(0)
+    setScore(0)
+    setPick(null)
+  }
+  return (
+    <div className="cs-wrap-wide cs-tof">
+      <AnimatePresence mode="wait">
+        {!done ? (
+          <motion.div key={i} className="cs-tof-card" initial={{ opacity: 0, x: 60, rotate: 2 }} animate={{ opacity: 1, x: 0, rotate: 0 }} exit={{ opacity: 0, x: -60, rotate: -2 }} transition={{ duration: 0.5, ease }}>
+            <div className="cs-tof-stamp">
+              <img src={q.img} alt={q.alt} />
+              <AnimatePresence>
+                {pick !== null && (
+                  <motion.span
+                    className={`cs-tof-mark ${q.truth ? 'is-true' : 'is-fake'}`}
+                    initial={{ opacity: 0, scale: 1.8, rotate: -24 }}
+                    animate={{ opacity: 1, scale: 1, rotate: -12 }}
+                    transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
+                  >
+                    {q.truth ? 'It happened' : 'Never happened'}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </div>
+            <div className="cs-tof-side">
+              <p className="cs-label">
+                Question {i + 1} / {questions.length} · Score {score}
+              </p>
+              <p className="cs-tof-claim">{q.claim}</p>
+              {pick === null ? (
+                <div className="cs-tof-btns">
+                  <button type="button" onClick={() => answer(true)}>
+                    It happened
+                  </button>
+                  <button type="button" onClick={() => answer(false)}>
+                    Never happened
+                  </button>
+                </div>
+              ) : (
+                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease }}>
+                  <p className={`cs-tof-verdict ${pick === q.truth ? 'is-right' : 'is-wrong'}`}>{pick === q.truth ? 'Right.' : 'Not quite.'}</p>
+                  <p className="cs-tof-why">{q.why}</p>
+                  <button type="button" className="cs-tof-next" onClick={next}>
+                    {i + 1 < questions.length ? 'Next question →' : 'See my score →'}
+                  </button>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div key="done" className="cs-tof-done" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, ease }}>
+            <p className="cs-label">Your score</p>
+            <p className="cs-tof-score">
+              {score} / {questions.length}
+            </p>
+            <div className="cs-tof-btns">
+              <a href={playUrl} target="_blank" rel="noopener noreferrer">
+                Play the full quiz on N12 ↗
+              </a>
+              <button type="button" onClick={again}>
+                Play again
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+/* ======================================================================
+ * 80s grid floor: a neon perspective grid that runs towards you as you scroll.
+ * ==================================================================== */
+export function RetroGrid({ children }: { children?: ReactNode }) {
+  const box = useRef<HTMLDivElement>(null)
+  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start end', 'end start'] })
+  const pos = useTransform(p, (v) => `0px ${v * 640}px`)
+  const sun = useTransform(p, [0, 1], ['18%', '-12%'])
+  return (
+    <div ref={box} className="cs-retro" aria-hidden={children ? undefined : true}>
+      <motion.span className="cs-retro-sun" style={{ y: sun }} />
+      <div className="cs-retro-floor">
+        <motion.span style={{ backgroundPosition: pos }} />
+      </div>
+      {children && <div className="cs-retro-inner">{children}</div>}
+    </div>
+  )
+}

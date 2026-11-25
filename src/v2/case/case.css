@@ -1103,3 +1103,793 @@
     justify-self: start;
   }
 }
+
+/* ======================================================================
+ * Hero: the cover grows out of its box until it fills the hero
+ * ==================================================================== */
+.cs .cs-hero-wrap {
+  position: relative;
+  height: 170vh;
+  height: 170svh;
+}
+
+.cs .cs-hero-wrap > .v2-hero {
+  position: sticky;
+  top: 0;
+}
+
+.cs .cs-hero-full {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  will-change: clip-path;
+}
+
+.cs .cs-hero-img {
+  position: absolute;
+  inset: 0;
+}
+
+.cs .cs-hero-img img,
+.cs .cs-hero-img video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Desktop / mobile versions of one picture */
+@media (max-width: 760px) {
+  .cs .cs-only-desktop { display: none !important; }
+}
+@media (min-width: 761px) {
+  .cs .cs-only-mobile { display: none !important; }
+}
+
+/* ======================================================================
+ * Clip reel (Rescue): cinematic, letterboxed, slides sideways on scroll
+ * ==================================================================== */
+.cs .cs-reel {
+  position: relative;
+  background: #050506;
+  color: #f1ece2;
+}
+
+.cs .cs-reel-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cs .cs-reel-stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.75) 100%);
+}
+
+.cs .cs-reel-title {
+  position: absolute;
+  top: clamp(80px, 12vh, 120px);
+  left: var(--gutter);
+  margin: 0;
+  opacity: 0.6;
+  z-index: 2;
+}
+
+.cs .cs-reel-track {
+  display: flex;
+  gap: clamp(16px, 2.4vw, 40px);
+  padding: 0 calc(50vw - min(31vw, 520px));
+  width: max-content;
+}
+
+.cs .cs-reel-card {
+  margin: 0;
+  width: min(62vw, 1040px);
+  flex: none;
+  transform-origin: center;
+}
+
+.cs .cs-reel-media {
+  aspect-ratio: 2.39 / 1;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #000;
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.9);
+}
+
+.cs .cs-reel-media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cs .cs-reel-card figcaption {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.cs .cs-reel-card figcaption strong {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(22px, 2.4vw, 38px);
+  letter-spacing: -0.02em;
+}
+
+.cs .cs-reel-card figcaption .cs-label {
+  color: #e50914;
+  opacity: 1;
+}
+
+.cs .cs-reel-note {
+  opacity: 0.6;
+  font-size: 14px;
+}
+
+.cs .cs-reel-bar {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: clamp(30px, 6vh, 60px);
+  height: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  z-index: 2;
+}
+
+.cs .cs-reel-bar span {
+  display: block;
+  height: 100%;
+  background: #e50914;
+  transform-origin: left;
+}
+
+@media (max-width: 760px) {
+  .cs .cs-reel-card { width: 84vw; }
+  .cs .cs-reel-track { padding: 0 8vw; }
+}
+
+/* ======================================================================
+ * Phone story (Music from the Screen)
+ * ==================================================================== */
+.cs .cs-phone-story {
+  position: relative;
+}
+
+.cs .cs-phone-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  padding: 0 var(--gutter);
+}
+
+.cs .cs-phone {
+  grid-column: 2;
+  grid-row: 1;
+  position: relative;
+  z-index: 2;
+  height: min(78svh, 720px);
+  aspect-ratio: 941 / 1672;
+  filter: drop-shadow(0 50px 60px rgba(8, 0, 30, 0.55));
+}
+
+.cs .cs-phone img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cs .cs-phone-float {
+  position: absolute;
+  z-index: 1;
+  border-radius: 10px;
+  box-shadow: 0 30px 50px -20px rgba(8, 0, 30, 0.6);
+  pointer-events: none;
+}
+
+.cs .cs-phone-steps {
+  grid-column: 3;
+  grid-row: 1;
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 clamp(24px, 5vw, 90px);
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.cs .cs-phone-steps li {
+  opacity: 0.28;
+  transform: translateX(10px);
+  transition: opacity 0.5s, transform 0.6s var(--cs-ease);
+}
+
+.cs .cs-phone-steps li.on {
+  opacity: 1;
+  transform: none;
+}
+
+.cs .cs-phone-steps li p {
+  margin: 6px 0 0;
+  max-width: 34ch;
+  line-height: 1.5;
+}
+
+.cs .cs-phone-steps .cs-step {
+  margin-right: 10px;
+}
+
+@media (max-width: 900px) {
+  .cs .cs-phone-stage {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    align-content: center;
+    justify-items: center;
+    gap: 18px;
+  }
+  .cs .cs-phone { grid-column: 1; height: 58svh; }
+  .cs .cs-phone-steps { grid-column: 1; grid-row: 2; padding: 0; gap: 0; text-align: center; }
+  .cs .cs-phone-steps li { display: none; transform: none; }
+  .cs .cs-phone-steps li.on { display: block; }
+  .cs .cs-phone-steps li p { margin-inline: auto; }
+  .cs .cs-phone-float { opacity: 0.45 !important; }
+}
+
+/* ======================================================================
+ * Real vs film (Louvre)
+ * ==================================================================== */
+.cs .cs-rvf {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: clamp(20px, 3vw, 48px);
+  align-items: start;
+}
+
+.cs .cs-rvf-stage {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #0b0c0e;
+  box-shadow: var(--cs-shadow);
+}
+
+.cs .cs-rvf-stage img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cs .cs-rvf-stage img.is-real {
+  object-fit: contain;
+}
+
+.cs .cs-rvf-switch {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  z-index: 2;
+}
+
+.cs .cs-rvf-switch button {
+  position: relative;
+  z-index: 1;
+  padding: 10px 18px;
+  min-height: 44px;
+  border: 0;
+  background: none;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+
+.cs .cs-rvf-switch button[aria-pressed='true'] {
+  color: #14171b;
+}
+
+.cs .cs-rvf-knob {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  border-radius: 999px;
+  background: #d9b25f;
+}
+
+.cs .cs-rvf-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cs .cs-rvf-list button {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 14px;
+  text-align: left;
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.3s, background-color 0.3s, border-color 0.3s;
+}
+
+.cs .cs-rvf-list button.on,
+.cs .cs-rvf-list button:hover {
+  opacity: 1;
+  border-color: #d9b25f;
+  background: rgba(217, 178, 95, 0.08);
+}
+
+.cs .cs-rvf-list .cs-step { grid-row: span 2; }
+.cs .cs-rvf-title { font-weight: 600; }
+.cs .cs-rvf-note { font-size: 14px; opacity: 0.75; line-height: 1.45; }
+
+@media (max-width: 860px) {
+  .cs .cs-rvf { grid-template-columns: 1fr; }
+}
+
+/* ======================================================================
+ * Vault (Louvre): each stolen piece in its own lit case
+ * ==================================================================== */
+.cs .cs-vault {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(10px, 1.6vw, 22px);
+}
+
+.cs .cs-vault-case {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border: 1px solid rgba(217, 178, 95, 0.25);
+  border-radius: 6px;
+  background: linear-gradient(180deg, #101215 0%, #050607 100%);
+  overflow: hidden;
+  cursor: zoom-in;
+  padding: 0;
+  color: #ece6da;
+  font: inherit;
+}
+
+.cs .cs-vault-light {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 45% at 50% 42%, rgba(255, 236, 196, 0.2), transparent 70%);
+  opacity: 0.6;
+  transition: opacity 0.5s;
+}
+
+.cs .cs-vault-case img {
+  position: absolute;
+  left: 12%;
+  top: 10%;
+  width: 76%;
+  height: 64%;
+  object-fit: contain;
+  transition: transform 0.8s var(--cs-ease), filter 0.5s;
+  filter: brightness(0.88);
+}
+
+.cs .cs-vault-name {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: left;
+  opacity: 0.85;
+}
+
+@media (any-hover: hover) {
+  .cs .cs-vault-case:hover .cs-vault-light { opacity: 1; }
+  .cs .cs-vault-case:hover img { transform: scale(1.06) translateY(-4px); filter: brightness(1.05); }
+}
+
+.cs .cs-vault-open {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  background: rgba(5, 6, 7, 0.95);
+  color: #ece6da;
+  padding: 60px 80px;
+}
+
+.cs .cs-vault-open figure {
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: clamp(20px, 4vw, 60px);
+  align-items: center;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.cs .cs-vault-open img {
+  width: 100%;
+  max-height: 76vh;
+  object-fit: contain;
+}
+
+.cs .cs-vault-open figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  line-height: 1.55;
+}
+
+.cs .cs-vault-open figcaption strong {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3vw, 44px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.cs .cs-vault-nav {
+  position: absolute;
+  top: 50%;
+  width: 48px;
+  height: 48px;
+  margin-top: -24px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: none;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.cs .cs-vault-nav.is-prev { left: 16px; }
+.cs .cs-vault-nav.is-next { right: 16px; }
+
+@media (max-width: 760px) {
+  .cs .cs-vault { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cs .cs-vault-open { padding: 60px 20px 90px; overflow-y: auto; }
+  .cs .cs-vault-open figure { grid-template-columns: 1fr; }
+  .cs .cs-vault-nav { top: auto; bottom: 20px; margin-top: 0; }
+}
+
+/* ======================================================================
+ * Truth or fake (quiz): postage-stamp cards
+ * ==================================================================== */
+.cs .cs-tof {
+  min-height: 560px;
+}
+
+.cs .cs-tof-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: clamp(24px, 5vw, 80px);
+  align-items: center;
+}
+
+.cs .cs-tof-stamp {
+  position: relative;
+  padding: 9px;
+  background: #f4ead2;
+  /* perforated edge: bites only along the border, the picture stays whole */
+  -webkit-mask: linear-gradient(#000 0 0) content-box, radial-gradient(circle, transparent 5.5px, #000 6px) -9px -9px / 18px 18px;
+  mask: linear-gradient(#000 0 0) content-box, radial-gradient(circle, transparent 5.5px, #000 6px) -9px -9px / 18px 18px;
+  transform: rotate(-2deg);
+}
+
+.cs .cs-tof-stamp img {
+  display: block;
+  box-sizing: border-box;
+  border: 10px solid #f4ead2;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.cs .cs-tof-mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  padding: 10px 20px;
+  border: 4px solid currentColor;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: clamp(20px, 2.6vw, 34px);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: rgba(244, 234, 210, 0.88);
+}
+
+.cs .cs-tof-mark.is-true { color: #1f7a4a; }
+.cs .cs-tof-mark.is-fake { color: #c8362a; }
+
+.cs .cs-tof-claim {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(26px, 3vw, 44px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 14px 0 28px;
+}
+
+.cs .cs-tof-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cs .cs-tof-btns button,
+.cs .cs-tof-btns a,
+.cs .cs-tof-next {
+  padding: 14px 26px;
+  min-height: 48px;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.25s, color 0.25s;
+}
+
+.cs .cs-tof-btns button:hover,
+.cs .cs-tof-btns a:hover,
+.cs .cs-tof-next:hover {
+  background: #f4ead2;
+  color: #15335e;
+}
+
+.cs .cs-tof-verdict { font-weight: 700; font-size: 20px; margin: 0 0 8px; }
+.cs .cs-tof-verdict.is-right { color: #8ff0b6; }
+.cs .cs-tof-verdict.is-wrong { color: #ffb3a8; }
+.cs .cs-tof-why { line-height: 1.6; max-width: 52ch; margin: 0 0 24px; opacity: 0.9; }
+
+.cs .cs-tof-done {
+  text-align: center;
+  padding: 60px 0;
+}
+
+.cs .cs-tof-done .cs-tof-btns { justify-content: center; }
+
+.cs .cs-tof-score {
+  font-family: var(--serif);
+  font-size: clamp(80px, 12vw, 180px);
+  line-height: 1;
+  margin: 10px 0 30px;
+}
+
+.cs .cs-quiz-play {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 24px;
+}
+
+.cs .cs-quiz-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 26px;
+  border-radius: 999px;
+  background: #f4ead2;
+  color: #15335e;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.3s var(--cs-ease);
+}
+
+.cs .cs-quiz-cta:hover { transform: translateY(-2px); }
+
+@media (max-width: 760px) {
+  .cs .cs-tof-card { grid-template-columns: 1fr; }
+  .cs .cs-tof-stamp { max-width: 300px; margin: 0 auto; }
+}
+
+/* ======================================================================
+ * The 80s room: its own decade. Neon, Memphis shapes, VHS and polaroids.
+ * ==================================================================== */
+.cs-eighties {
+  --e-pink: #ff3e9a;
+  --e-teal: #19d3c5;
+  --e-yellow: #ffd400;
+  --e-night: #1a0b2e;
+  --e-cream: #fff4e6;
+}
+
+.cs-eighties .cs-act {
+  position: relative;
+  overflow: clip;
+}
+
+/* Memphis confetti: squiggles, triangles and dots */
+.cs-eighties .cs-act::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.2;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cpath d='M20 40 q10 -14 20 0 t20 0 t20 0' fill='none' stroke='%2319d3c5' stroke-width='5' stroke-linecap='round'/%3E%3Cpolygon points='160,30 190,80 130,80' fill='none' stroke='%23ffd400' stroke-width='5'/%3E%3Ccircle cx='60' cy='160' r='7' fill='%23ff3e9a'/%3E%3Ccircle cx='170' cy='170' r='14' fill='none' stroke='%23ff3e9a' stroke-width='5'/%3E%3Cpath d='M110 120 l14 14 m0 -14 l-14 14' stroke='%23ffd400' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+}
+
+.cs-eighties .cs-chapter-title,
+.cs-eighties .cs-intro-title {
+  font-family: 'Monoton', var(--serif);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: inherit;
+  text-shadow: 0 0 16px rgba(255, 62, 154, 0.6);
+}
+
+.cs-eighties .cs-label,
+.cs-eighties .cs-step {
+  font-family: 'VT323', monospace;
+  font-size: 19px;
+  letter-spacing: 0.08em;
+}
+
+/* VHS / CRT player */
+.cs-eighties .cs-film {
+  border: 14px solid #2b2b33;
+  border-radius: 28px;
+  box-shadow: 0 0 0 3px #44444f, 0 40px 80px -20px rgba(0, 0, 0, 0.7), 0 0 60px rgba(255, 62, 154, 0.35);
+}
+
+.cs-eighties .cs-film::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px);
+}
+
+.cs-eighties .cs-film-tag {
+  background: none;
+  color: #f4f4f4;
+  text-shadow: 2px 0 rgba(255, 0, 80, 0.8), -2px 0 rgba(0, 220, 255, 0.8);
+}
+
+.cs-eighties .cs-film-tag::before {
+  content: '\25B6  PLAY  ';
+}
+
+/* Polaroids */
+.cs-eighties .cs-stack-item {
+  background: var(--e-cream);
+  padding: 10px 10px 42px;
+  border-radius: 2px;
+}
+
+.cs-eighties .cs-placed-card {
+  position: relative;
+  background: var(--e-cream);
+  padding: 8px 8px 26px;
+  transform: rotate(-3deg);
+  box-shadow: 0 16px 30px -14px rgba(0, 0, 0, 0.6);
+}
+
+.cs-eighties .cs-placed-card:nth-child(2) { transform: rotate(2.5deg); }
+.cs-eighties .cs-placed-card:nth-child(3) { transform: rotate(-1.5deg); }
+
+/* washi tape */
+.cs-eighties .cs-placed-card::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 60px;
+  height: 20px;
+  margin-left: -30px;
+  background: rgba(25, 211, 197, 0.8);
+  transform: rotate(-4deg);
+  z-index: 1;
+}
+
+.cs-eighties .cs-placed-card img {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.cs-eighties .cs-grid .cs-visual {
+  background: var(--e-cream);
+  padding: 7px 7px 24px;
+  transform: rotate(var(--r, -2deg));
+}
+
+.cs-eighties .cs-grid > *:nth-child(even) .cs-visual { --r: 2deg; }
+.cs-eighties .cs-grid > *:nth-child(3n) .cs-visual { --r: -1deg; }
+
+/* Synthwave sunset and grid floor */
+.cs .cs-retro {
+  position: relative;
+  height: clamp(280px, 46vh, 480px);
+  overflow: hidden;
+  background: linear-gradient(180deg, #1a0b2e 0%, #3a0f5c 58%, #1a0b2e 58.2%);
+}
+
+.cs .cs-retro-sun {
+  position: absolute;
+  left: 50%;
+  top: 6%;
+  width: min(46vw, 400px);
+  aspect-ratio: 1;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffd400 10%, #ff3e9a 75%);
+  -webkit-mask: linear-gradient(180deg, #000 0 50%, transparent 50% 54%, #000 54% 60%, transparent 60% 64%, #000 64% 69%, transparent 69% 73%, #000 73% 77%, transparent 77%);
+  mask: linear-gradient(180deg, #000 0 50%, transparent 50% 54%, #000 54% 60%, transparent 60% 64%, #000 64% 69%, transparent 69% 73%, #000 73% 77%, transparent 77%);
+}
+
+.cs .cs-retro-floor {
+  position: absolute;
+  left: -50%;
+  right: -50%;
+  bottom: 0;
+  height: 42%;
+  perspective: 240px;
+  perspective-origin: 50% 0%;
+  z-index: 1;
+}
+
+.cs .cs-retro-floor span {
+  position: absolute;
+  inset: 0 0 -60% 0;
+  transform: rotateX(60deg);
+  transform-origin: top center;
+  background-color: #1a0b2e;
+  background-image: linear-gradient(rgba(25, 211, 197, 0.85) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(25, 211, 197, 0.85) 2px, transparent 2px);
+  background-size: 64px 64px;
+}
+
+.cs .cs-retro-inner {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 0 var(--gutter);
+}

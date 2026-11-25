@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion'
 import { PERSON, PROJECTS, type Project } from '../data'
 import { href, useFlight, useTone } from '../store'
+import { heroBox } from '../geom'
 import { Credits, LightboxProvider } from './blocks'
 import { CASES } from './pages'
 import './case.css'
@@ -67,7 +68,23 @@ export function CaseStudy({ project }: { project: Project }) {
 
   const { scrollY } = useScroll()
   const vh = window.innerHeight
-  const mediaY = useTransform(scrollY, [0, vh], [0, reduce ? 0 : -vh * 0.14])
+
+  /* As you start scrolling, the cover grows out of its box until it fills the whole hero */
+  const [geo, setGeo] = useState(() => ({ box: heroBox(), vw: window.innerWidth, vh: window.innerHeight }))
+  useEffect(() => {
+    const on = () => setGeo({ box: heroBox(), vw: window.innerWidth, vh: window.innerHeight })
+    window.addEventListener('resize', on)
+    return () => window.removeEventListener('resize', on)
+  }, [])
+  const grow = useTransform(scrollY, [0, geo.vh * 0.7], [0, 1], { clamp: true })
+  const heroClip = useTransform(grow, (g) => {
+    const { box, vw: w, vh: h } = geo
+    const k = 1 - g
+    return `inset(${box.y * k}px ${(w - box.x - box.w) * k}px ${(h - box.y - box.h) * k}px ${box.x * k}px round ${4 * k}px)`
+  })
+  const s0 = Math.max(geo.box.w / geo.vw, geo.box.h / geo.vh)
+  const heroScale = useTransform(grow, (g) => s0 + (1 - s0) * g)
+  const heroText = useTransform(grow, [0.35, 0.8], [1, 0])
 
   /* ---------- Next project hand-over ---------- */
   const [going, setGoing] = useState(false)
@@ -139,8 +156,10 @@ export function CaseStudy({ project }: { project: Project }) {
     <LightboxProvider>
       <div className={`cs v2-project cs-${c.theme}`}>
         {/* ---------- Hero (same box as the home wipe lands on) ---------- */}
+        <div className="cs-hero-wrap">
         <section className="v2-hero" style={{ background: hero.bg, color: hero.fg }}>
-          <motion.div className="v2-hero-media" style={{ y: mediaY }}>
+          <motion.div className="cs-hero-full" style={{ clipPath: heroClip }}>
+            <motion.div className="cs-hero-img" style={{ scale: heroScale }}>
             {c.heroVideo ? (
               <video ref={heroVid} src={c.heroVideo} poster={project.cover.src} autoPlay muted loop playsInline aria-label={project.cover.alt} />
             ) : (
@@ -152,21 +171,25 @@ export function CaseStudy({ project }: { project: Project }) {
                 transition={{ duration: 1.1, ease: wipe }}
               />
             )}
+            </motion.div>
           </motion.div>
-          <h1 className="v2-hero-title">
+          <motion.h1 className="v2-hero-title" style={{ opacity: heroText }}>
             <Title word={project.word} filled={via === 'next'} delay={via === 'home' ? 0.75 : 0.35} />
-          </h1>
-          <p className="v2-label v2-hero-kind">{project.kind}</p>
+          </motion.h1>
+          <motion.p className="v2-label v2-hero-kind" style={{ opacity: heroText }}>
+            {project.kind}
+          </motion.p>
           <button
             type="button"
             className="v2-scrollcue"
             aria-label="Scroll to project"
-            onClick={() => window.scrollTo({ top: window.innerHeight, behavior: reduce ? 'auto' : 'smooth' })}
+            onClick={() => window.scrollTo({ top: window.innerHeight * 0.75, behavior: reduce ? 'auto' : 'smooth' })}
             style={{ borderColor: hero.fg }}
           >
             <motion.span style={{ background: hero.fg }} animate={{ y: [-6, 6, -6] }} transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }} />
           </button>
         </section>
+        </div>
 
         {/* ---------- The story; its background follows the act on screen ---------- */}
         <article className="cs-body" style={{ background: tone.bg, color: tone.fg }}>
