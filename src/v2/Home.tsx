@@ -8,6 +8,7 @@ import {
   useScroll,
   useSpring,
   useTransform,
+  useVelocity,
   type MotionValue,
 } from 'framer-motion'
 import { PERSON, PROJECTS, SHELL, type Project } from './data'
@@ -124,6 +125,7 @@ function Frame({
   p,
   roll,
   still,
+  stretch,
   hs,
   gap,
   w,
@@ -136,6 +138,7 @@ function Frame({
   p: MotionValue<number>
   roll: MotionValue<number>
   still: boolean
+  stretch: MotionValue<number>
   hs: number[]
   gap: number
   w: number
@@ -153,7 +156,9 @@ function Frame({
   const [hover, setHover] = useState(false)
   const at = (a: unknown, b: unknown) => place(a as number, b as number, hs, gap, index)
   const y = useTransform([p, roll], ([a, b]) => at(a, b).y)
-  const scale = useTransform([p, roll], ([a, b]) => sizeAt(at(a, b).d))
+  // While scrolling the frame swells outward a little, as if the film is being pulled (a touch more in height)
+  const scaleX = useTransform([p, roll, stretch], ([a, b, s]) => sizeAt(at(a, b).d) * (1 + (s as number) * 0.6))
+  const scaleY = useTransform([p, roll, stretch], ([a, b, s]) => sizeAt(at(a, b).d) * (1 + (s as number)))
   // Counter-move the picture so it reads as fixed behind the moving window
   const imgY = useTransform([p, roll], ([a, b]) => -Math.max(-1.3, Math.min(1.3, at(a, b).d)) * 0.12 * h)
   // Neighbours go black and white; while the film rolls in, frames come up out of the dark instead
@@ -168,7 +173,7 @@ function Frame({
   })
 
   return (
-    <motion.div className="v2-frame" style={{ y, scale, opacity, width: w, height: h, marginLeft: -w / 2, marginTop: -h / 2 }}>
+    <motion.div className="v2-frame" style={{ y, scaleX, scaleY, opacity, width: w, height: h, marginLeft: -w / 2, marginTop: -h / 2 }}>
       <motion.a
         ref={ref}
         href={href.project(project.slug)}
@@ -342,7 +347,7 @@ export function Home() {
     ? { rotateX: 4, rotateY: -12, rotateZ: -5, skewX: -4 }
     : list
       ? { rotateX: 0, rotateY: 0, rotateZ: 0, skewX: 0, x: '-20.5vw', scale: 1.1 }
-      : { rotateX: 6, rotateY: -22, rotateZ: -7, skewX: -6, x: '0vw', scale: 1 }
+      : { rotateX: 8, rotateY: -24, rotateZ: -7, skewX: -8, x: '0vw', scale: 1 }
   const turn = { duration: 0.9, ease }
 
   // A little lean toward the pointer
@@ -365,6 +370,14 @@ export function Home() {
     window.addEventListener('pointermove', onMove)
     return () => window.removeEventListener('pointermove', onMove)
   }, [canHover, list, mx, my])
+
+  const vel = useVelocity(p)
+  const stretchOn = useMotionValue(1)
+  useEffect(() => stretchOn.set(list ? 0 : 1), [list, stretchOn])
+  const stretch = useSpring(
+    useTransform([vel, stretchOn], ([v, on]) => Math.min(0.09, Math.abs(v as number) * 0.07) * (on as number)),
+    { stiffness: 80, damping: 20 },
+  )
 
   const fade = { opacity: list ? 0 : 1, transition: { duration: 0.4 } }
   const openAt = (i: number) => {
@@ -405,7 +418,7 @@ export function Home() {
                 transition={list ? { duration: 0.6 } : { duration: DRIFT, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
               >
                 {PROJECTS.map((pr, i) => (
-                  <Frame key={pr.slug} project={pr} index={i} p={p} roll={roll} still={list} hs={hs} gap={gap} w={w} active={i === idx} onOpen={open} onPick={scrollToIndex} />
+                  <Frame key={pr.slug} project={pr} index={i} p={p} roll={roll} still={list} stretch={stretch} hs={hs} gap={gap} w={w} active={i === idx} onOpen={open} onPick={scrollToIndex} />
                 ))}
               </motion.div>
             </motion.div>
