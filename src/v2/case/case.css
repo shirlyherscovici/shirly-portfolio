@@ -897,8 +897,6 @@
 
 
 
-@media (any-hover: hover) {
-}
 
 /* ---------- Rescue ---------- */
 .cs .cs-letterbox-run {
@@ -1011,7 +1009,9 @@
   .cs .cs-zoom img,
   .cs .cs-stack-item,
   .cs .cs-stack-item img,
-  .cs .cs-amy-crop img,
+  .cs .cs-amy-crop img {
+    transition: none;
+  }
 }
 
 .cs .cs-film.is-vertical {
