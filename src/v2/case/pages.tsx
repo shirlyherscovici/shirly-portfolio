@@ -217,7 +217,7 @@ const motionBody = (
 /* ======================================================================
  * 03 · USA PILOT RESCUE — cinematic production breakdown
  * ==================================================================== */
-const RE = { black: '#100e0c', bone: '#ece3d3', amber: '#ff8a3d', flare: '#e2531f', dust: '#e8dcc6', ink: '#17130f' }
+const RE = { black: '#0d1218', bone: '#e6e9ec', amber: '#8fd4ff', flare: '#2f4356', dust: '#dce2e6', ink: '#eef1f3' }
 const clip = (n: string, title: string): Scene => ({ video: v2(`ai/clips/${n}.mp4`), poster: v2(`ai/clips/${n}.webp`), title })
 const rescueBody = (
   <>
@@ -271,7 +271,7 @@ const rescueBody = (
       <Gap size="l" />
     </Act>
 
-    <Act bg={RE.flare} fg={RE.ink} accent={RE.ink}>
+    <Act bg={RE.flare} fg={RE.ink} accent={RE.amber}>
       <Chapter num="04" title="From frame to motion" note="Select a shot, then watch the directed key frame come to life." />
       <FrameToMotion
         shots={[
