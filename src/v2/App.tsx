@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
-import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'framer-motion'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { PROJECTS, SHELL, coverPos } from './data'
 import { FlightProvider, ToneProvider, go, href, useFlight, useRoute, useTone } from './store'
 import { Home } from './Home'
@@ -108,13 +108,10 @@ function Shell() {
 
 export default function App() {
   return (
-    /* Visitors who ask for less motion get it: framer drops transform and layout animations */
-    <MotionConfig reducedMotion="user">
-      <ToneProvider>
-        <FlightProvider>
-          <Shell />
-        </FlightProvider>
-      </ToneProvider>
-    </MotionConfig>
+    <ToneProvider>
+      <FlightProvider>
+        <Shell />
+      </FlightProvider>
+    </ToneProvider>
   )
 }

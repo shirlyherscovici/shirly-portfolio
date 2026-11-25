@@ -203,7 +203,7 @@ function Frame({
           animate={still ? { y: '0%' } : { y: ['4%', '-4%'] }}
           transition={still ? { duration: 0.6 } : { duration: DRIFT, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
         >
-          <motion.img src={project.cover.src} alt={project.cover.alt} style={{ y: imgY, filter, objectPosition: coverPos(project) }} draggable={false} />
+          <motion.img src={project.cover.src} alt={project.cover.alt} style={{ y: imgY, filter, objectPosition: coverPos(project), top: project.frame.fit?.top, height: project.frame.fit?.h, ...(project.frame.fit?.whole ? { objectFit: 'contain', background: project.frame.fit.whole } : {}) }} draggable={false} />
         </motion.div>
         <motion.span
           className="v2-sweep"
