@@ -23,7 +23,7 @@ import {
   useLightbox,
   type Img,
 } from './blocks'
-import { DriftRows, StampPalette, NeonSign, VoteChart, Countdown, ChannelSurf, ClipReel, SeriesStage, RealVsFilm, TruthOrFake, Vault, type Question, type Scene } from './rich'
+import { DriftRows, StampPalette, PhoneParade, VoteChart, Countdown, ChannelSurf, ClipReel, SeriesStage, RealVsFilm, TruthOrFake, Vault, type Question, type Scene } from './rich'
 
 const v2 = (p: string) => asset(`/v2/${p}`)
 const A = (p: string) => asset(`/assets/${p}`)
@@ -161,28 +161,18 @@ const motionBody = (
           { label: 'Disciplines', value: 'Motion Design · After Effects · 2D Animation · Visual Storytelling' },
         ]}
       />
-      <Visual m={{ video: A('motion/gameplay_highlight_final.mp4'), poster: v2('motion/people-motion-hero-poster.webp'), alt: 'Highlight cut of the animation' }} frame />
-      <Gap />
-      <Chapter num="01" title="Character animation" />
-      <Visual m={{ video: A('motion/clips/03-character-animation.mp4'), poster: v2('motion/01-character-selection.webp'), alt: 'Character animation', caption: 'Expressive character movement integrated into animated environments.' }} frame />
+      <Chapter num="01" title="The full film" note="The complete piece, sound on: its characters, interfaces and game-inspired worlds." />
+      <Film src={A('motion/aca-anashim.mp4')} poster={v2('motion/aca-anashim-poster.webp')} alt="People in Motion, full film" />
       <Gap size="l" />
     </Act>
 
     <Act bg={MO.sky} fg={MO.dark} accent={MO.green}>
-      <Chapter num="02" title="UI & game animation" />
-      <Visual m={{ video: A('motion/clips/02-ui-game-animation.mp4'), poster: v2('motion/02-tetris.webp'), alt: 'UI and game animation', caption: 'Animated interfaces, game systems and responsive graphic elements.' }} frame />
-      <Gap size="l" />
-    </Act>
-
-    <Act bg={MO.green} fg={MO.yellow} accent={MO.yellow}>
-      <Chapter num="03" title="Kinetic typography" />
-      <Visual m={{ video: A('motion/clips/people-kinetic-typography.mp4'), poster: v2('motion/03-mario-platform.webp'), alt: 'Kinetic typography', caption: 'Animated typography, scene transitions and visual continuity across changing worlds.' }} bleed />
-      <Gap size="l" />
-    </Act>
-
-    <Act bg={MO.dark} fg={MO.cream} accent={MO.yellow}>
-      <Chapter num="04" title="The full film" note="Experience the complete motion piece and the journey across its characters, interfaces and game-inspired scenes." />
-      <Film src={A('motion/aca-anashim.mp4')} poster={v2('motion/aca-anashim-poster.webp')} alt="People in Motion, full film" />
+      <Chapter num="02" title="Three skills in one film" note="The film takes apart into three kinds of motion. Each loop is a moment from it." />
+      <div className="cs-wrap-wide cs-mo-trio">
+        <Visual m={{ video: A('motion/clips/03-character-animation.mp4'), poster: v2('motion/01-character-selection.webp'), alt: 'Character animation', label: 'Character animation', caption: 'Expressive character movement inside animated environments.' }} frame />
+        <Visual m={{ video: A('motion/clips/02-ui-game-animation.mp4'), poster: v2('motion/02-tetris.webp'), alt: 'UI and game animation', label: 'UI & game animation', caption: 'Animated interfaces, game systems and responsive graphic elements.' }} frame />
+        <Visual m={{ video: A('motion/clips/people-kinetic-typography.mp4'), poster: v2('motion/03-mario-platform.webp'), alt: 'Kinetic typography', label: 'Kinetic typography', caption: 'Moving type and transitions that carry one world into the next.' }} frame />
+      </div>
       <Gap size="l" />
     </Act>
   </>
@@ -277,25 +267,18 @@ const soundBody = (
       <Gap size="s" />
     </Act>
 
-    <Act bg="#0b0220" fg={SO.lilac} accent={SO.neon}>
-      <Chapter num="01" title="The neon key art" note="The sign switches itself on, one tube at a time." />
-      <NeonSign
-        src={v2('galgalatz/banner-cover.webp')}
-        alt="The neon key art: popcorn, a drink, nachos, 3D glasses, a clapperboard and a film reel above the title Music from the Screen, the chart"
-        tubes={[
-          [27.5, 35, 35.5, 47.5],
-          [32.5, 24, 44, 48],
-          [43.5, 17.5, 59.5, 43],
-          [42, 41.5, 62.5, 48.5],
-          [59, 26, 72, 48],
-          [71, 35.5, 78.5, 47.5],
-          [53.5, 49, 78, 60],
-          [24.5, 49, 53.5, 60.5],
-          [39.5, 59.5, 63, 67],
-          [20.5, 14, 82, 69.5],
+    <Act bg={SO.night} fg={SO.lilac} accent={SO.neon}>
+      <Chapter num="01" title="The screens" note="The voting flow, screen by screen: the opening, the full chart and the top three. Open any phone to look closer." />
+      <PhoneParade
+        phones={[
+          { src: v2('galgalatz/1-galgaltz-front.webp'), alt: 'Opening screen with the neon key art', name: 'Opening' },
+          { src: v2('galgalatz/2-galgaltz-front.webp'), alt: 'Chart screen, places 31 to 50', name: 'Places 50–31' },
+          { src: v2('galgalatz/5-galgaltz-front.webp'), alt: 'Chart place 3, Rocky III', name: 'No. 3' },
+          { src: v2('galgalatz/4-galgaltz-front.webp'), alt: 'Chart place 2, Titanic', name: 'No. 2' },
+          { src: v2('galgalatz/3-galgaltz-front.webp'), alt: 'Chart place 1, A Star Is Born', name: 'No. 1' },
         ]}
       />
-      <Gap size="l" />
+      <Gap size="s" />
     </Act>
 
     <Act bg={SO.violet} fg={SO.lilac} accent={SO.neon}>

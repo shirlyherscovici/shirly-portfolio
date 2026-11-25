@@ -3284,3 +3284,54 @@
 /* Louvre: a short vertical preview, phone-sized */
 .cs-lv-phone { width: min(340px, 72vw); margin: 0 auto; }
 .cs-lv-phone > * { width: 100%; max-width: none; padding: 0; margin: 0; }
+
+/* PhoneParade */
+.cs .cs-parade {
+  position: relative;
+  padding: clamp(80px, 12vw, 180px) 0;
+  background: radial-gradient(120% 80% at 50% 40%, #5b1fd1 0%, #2a0a6e 55%, #14052e 100%);
+  overflow: hidden;
+}
+.cs .cs-parade-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(14px, 2.2vw, 40px);
+  width: min(1500px, 92vw);
+  margin: 0 auto;
+  align-items: start;
+}
+.cs .cs-parade-phone { margin: 0; text-align: center; }
+.cs .cs-parade-phone button {
+  display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in;
+  filter: drop-shadow(0 30px 40px rgba(8, 0, 30, 0.55));
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cs .cs-parade-phone button:hover,
+.cs .cs-parade-phone button:focus-visible { transform: translateY(-8px) scale(1.02); }
+.cs .cs-parade-phone img { display: block; width: 100%; height: auto; }
+.cs .cs-parade-phone figcaption { margin-top: 18px; opacity: 0.75; }
+.cs .cs-parade-phone:nth-child(even) { margin-top: clamp(40px, 7vw, 120px); }
+@media (max-width: 760px) {
+  .cs .cs-parade { padding: 56px 0; }
+  .cs .cs-parade-row {
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+    width: 100%; padding: 0 16px 8px; gap: 16px; scrollbar-width: none;
+  }
+  .cs .cs-parade-row::-webkit-scrollbar { display: none; }
+  .cs .cs-parade-phone { flex: 0 0 62vw; scroll-snap-align: center; transform: none !important; }
+  .cs .cs-parade-phone:nth-child(even) { margin-top: 0; }
+}
+
+/* People in Motion: three loops side by side */
+.cs .cs-mo-trio {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 32px);
+  align-items: start;
+}
+.cs .cs-mo-trio > * { width: 100%; max-width: none; margin: 0; padding: 0; }
+.cs .cs-mo-trio > :nth-child(2) { margin-top: clamp(30px, 5vw, 90px); }
+@media (max-width: 760px) {
+  .cs .cs-mo-trio { grid-template-columns: 1fr; }
+  .cs .cs-mo-trio > :nth-child(2) { margin-top: 0; }
+}

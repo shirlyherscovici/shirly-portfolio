@@ -946,3 +946,33 @@ export function Countdown({ posts }: { posts: (Img & { rank: string })[] }) {
     </section>
   )
 }
+
+/* ---------- PhoneParade: the app's screens side by side, alternate phones drifting
+ * up and down against the scroll (the way robin-noguier.com shows mobile work) ---------- */
+type PhoneShot = Img & { name: string }
+function ParadePhone({ m, i, p, open }: { m: PhoneShot; i: number; p: MotionValue<number>; open: (m: Img) => void }) {
+  const amp = [70, -50, 90, -60, 60][i % 5]
+  const y = useTransform(p, [0, 1], [amp, -amp])
+  return (
+    <motion.figure className="cs-parade-phone" style={{ y }}>
+      <button type="button" onClick={() => open(m)} aria-label={`Enlarge: ${m.alt}`}>
+        <img src={m.src} alt={m.alt} loading="lazy" draggable={false} />
+      </button>
+      <figcaption className="cs-label">{m.name}</figcaption>
+    </motion.figure>
+  )
+}
+export function PhoneParade({ phones }: { phones: PhoneShot[] }) {
+  const box = useRef<HTMLDivElement>(null)
+  const open = useLightbox()
+  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start end', 'end start'] })
+  return (
+    <div ref={box} className="cs-parade">
+      <div className="cs-parade-row">
+        {phones.map((m, i) => (
+          <ParadePhone key={m.src} m={m} i={i} p={p} open={open} />
+        ))}
+      </div>
+    </div>
+  )
+}
