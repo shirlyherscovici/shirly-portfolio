@@ -101,19 +101,6 @@ button {
 }
 
 /* ---------- Header ---------- */
-.v2-header > a:first-child {
-  animation: v2-namefill 1.2s cubic-bezier(0.76, 0, 0.24, 1) 0.15s both;
-}
-
-@keyframes v2-namefill {
-  from {
-    clip-path: inset(-20% 100% -20% 0);
-  }
-  to {
-    clip-path: inset(-20% 0 -20% 0);
-  }
-}
-
 .v2-header {
   position: fixed;
   inset: 0 0 auto 0;
@@ -1084,4 +1071,70 @@ html.v2-snap {
   .v2-next-media {
     width: 78vw;
   }
+}
+
+/* ---------- Home: opening ---------- */
+html.v2-booting .v2-header {
+  opacity: 0;
+}
+
+.v2-header {
+  transition: color 0.4s, opacity 0.6s;
+}
+
+.v2-boot {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: #121212;
+  color: #f0f0f0;
+}
+
+.v2-plane-wrap {
+  z-index: 5;
+}
+
+.v2-sideband {
+  z-index: 6;
+  transform-origin: 50% 100%;
+}
+
+.v2-boot-name {
+  position: absolute;
+  left: clamp(24px, 8vw, 120px);
+  top: clamp(28px, 6vh, 64px);
+}
+
+.v2-boot-name p {
+  margin: 0;
+}
+
+.v2-boot-name p:first-child {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(30px, 3.2vw, 54px);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+
+.v2-boot-toast {
+  position: absolute;
+  left: clamp(24px, 8vw, 120px);
+  bottom: 8vh;
+  margin: 0;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 13px;
+  font-style: italic;
+  opacity: 0.85;
+}
+
+html.v2-booting .v2-pills {
+  opacity: 0;
+}
+
+.v2-pills {
+  transition: opacity 0.6s;
 }

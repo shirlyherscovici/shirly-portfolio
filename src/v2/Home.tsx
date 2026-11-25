@@ -10,7 +10,7 @@ import {
   useTransform,
   type MotionValue,
 } from 'framer-motion'
-import { PROJECTS, SHELL, type Project } from './data'
+import { PERSON, PROJECTS, SHELL, type Project } from './data'
 import { href, useCanHover, useFlight, useTone } from './store'
 import { Contact } from './Contact'
 
@@ -76,6 +76,9 @@ function useViewport() {
 
 const ease = [0.76, 0, 0.24, 1] as const
 const soft = [0.22, 1, 0.36, 1] as const
+/** Length of the opening roll, in seconds */
+const BOOT = 2.4
+let booted = false
 const firstLine = (s: string) => s.match(/^.*?[.!?](\s|$)/)?.[0].trim() ?? s
 
 /* ---------- Strip geometry ---------- */
@@ -99,12 +102,25 @@ function strip(p: number, hs: number[], gap: number) {
   return centres.map((c) => c - focus)
 }
 
+/** Where frame `index` sits. While the opening roll runs (roll != 0) the strip loops,
+ *  so every project runs past from below before it lands on the first one. */
+function place(p: number, roll: number, hs: number[], gap: number, index: number) {
+  if (roll === 0) return { y: strip(p, hs, gap)[index], d: index - p, looped: false }
+  const n = hs.length
+  const v = p + roll + n
+  const c = strip(v, [...hs, ...hs, ...hs], gap)
+  let k = index + n
+  for (const cand of [index, index + 2 * n]) if (Math.abs(c[cand]) < Math.abs(c[k])) k = cand
+  return { y: c[k], d: k - v, looped: k !== index + n }
+}
+
 /* ---------- One window of the strip: the image sits behind and the window slides over it.
  *  The picture also pans slowly all the time, so there is always some movement revealing it. ---------- */
 function Frame({
   project,
   index,
   p,
+  roll,
   hs,
   gap,
   w,
@@ -115,6 +131,7 @@ function Frame({
   project: Project
   index: number
   p: MotionValue<number>
+  roll: MotionValue<number>
   hs: number[]
   gap: number
   w: number
@@ -130,13 +147,21 @@ function Frame({
   const su = useSpring(u, { stiffness: 140, damping: 22 })
   const sweepPos = useTransform(su, (v) => `${((1.25 - v) / 1.5) * 100}% 0%`)
   const [hover, setHover] = useState(false)
-  const y = useTransform(p, (v) => strip(v, hs, gap)[index])
-  const scale = useTransform(p, (v) => sizeAt(index - v))
+  const at = (a: unknown, b: unknown) => place(a as number, b as number, hs, gap, index)
+  const y = useTransform([p, roll], ([a, b]) => at(a, b).y)
+  const scale = useTransform([p, roll], ([a, b]) => sizeAt(at(a, b).d))
   // Counter-move the picture so it reads as fixed behind the moving window
-  const imgY = useTransform(p, (v) => -Math.max(-1.3, Math.min(1.3, index - v)) * 0.12 * h)
-  // Neighbours go black and white, like film you have not reached yet
-  const filter = useTransform(p, (v) => `grayscale(${Math.min(1, Math.abs(index - v))})`)
-  const opacity = useTransform(p, (v) => 1 - Math.min(1, Math.abs(index - v)) * 0.3)
+  const imgY = useTransform([p, roll], ([a, b]) => -Math.max(-1.3, Math.min(1.3, at(a, b).d)) * 0.12 * h)
+  // Neighbours go black and white; while the film rolls in, frames come up out of the dark instead
+  const filter = useTransform([p, roll], ([a, b]) => {
+    const r = Math.min(1, Math.abs(b as number))
+    const d = Math.min(1, Math.abs(at(a, b).d))
+    return `grayscale(${d * (1 - r)}) brightness(${1 - 0.6 * d * r})`
+  })
+  const opacity = useTransform([p, roll], ([a, b]) => {
+    const { d, looped } = at(a, b)
+    return (1 - Math.min(1, Math.abs(d)) * 0.3) * (looped ? Math.min(1, Math.abs(b as number) * 2) : 1)
+  })
 
   return (
     <motion.div className="v2-frame" style={{ y, scale, opacity, width: w, height: h, marginLeft: -w / 2, marginTop: -h / 2 }}>
@@ -215,25 +240,31 @@ export function Home() {
   const stripRef = useRef<HTMLDivElement>(null)
   const n = PROJECTS.length
   const [idx, setIdx] = useState(0)
-  // Start one frame after mount so the entry animation has a starting point
-  const [ready, setReady] = useState(false)
+  /* Opening (first visit): dark room, small name top left, the film rolls up through every
+   * project while the side band fills like a progress bar; then the project colour wipes in
+   * from the left and the strip leans into its angle. */
+  const [boot, setBoot] = useState(!booted)
+  const ready = true
+  const roll = useMotionValue(booted ? 0 : -n)
   useEffect(() => {
-    const t = window.setTimeout(() => setReady(true), 120)
-    return () => window.clearTimeout(t)
-  }, [])
-
-  /* On load the film rolls: every project runs past and the strip lands on the first one */
-  const roll = useMotionValue(PROJECTS.length - 1 + 0.6)
-  useEffect(() => {
-    if (!ready) return
-    const c = animate(roll, 0, { duration: 2.2, ease: [0.16, 1, 0.3, 1] })
-    return () => c.stop()
-  }, [ready, roll])
+    if (!boot) return
+    document.documentElement.classList.add('v2-booting')
+    const c = animate(roll, 0, { duration: BOOT, ease: [0.33, 0, 0.12, 1] })
+    const t = window.setTimeout(() => {
+      booted = true
+      setBoot(false)
+      document.documentElement.classList.remove('v2-booting')
+    }, BOOT * 1000 + 150)
+    return () => {
+      c.stop()
+      window.clearTimeout(t)
+      document.documentElement.classList.remove('v2-booting')
+    }
+  }, [boot, roll])
 
   const { scrollYProgress } = useScroll({ target: stripRef, offset: ['start start', 'end end'] })
   const raw = useTransform(scrollYProgress, (t) => t * (n - 1))
   const p = useSpring(raw, { stiffness: 110, damping: 24, mass: 0.6 })
-  const shown = useTransform([p, roll], ([a, b]) => (a as number) + (b as number))
   const bg = useTransform(p, (v) => along(v, 'bg'))
   const fg = useTransform(p, (v) => along(v, 'fg'))
 
@@ -296,20 +327,15 @@ export function Home() {
   }, [mobile, canHover])
   useEffect(() => setTone(list ? { bg: SHELL.bg, fg: SHELL.fg } : PROJECTS[idx].colors), [list, idx, setTone])
 
-  // The strip enters straight, then leans into its angle (only the first time)
-  const [settled, setSettled] = useState(false)
-  useEffect(() => {
-    if (!ready) return
-    const t = window.setTimeout(() => setSettled(true), 2600)
-    return () => window.clearTimeout(t)
-  }, [ready])
   // Home: leaning film strip. List: the same strip stands straight at the centre of the screen.
-  const tilt = mobile
+  const tilt = boot
+    ? { rotateX: 22, rotateY: 0, rotateZ: 0, skewX: 0, x: '0vw', scale: 1 }
+    : mobile
     ? { rotateX: 4, rotateY: -12, rotateZ: -5, skewX: -4 }
     : list
       ? { rotateX: 28, rotateY: 0, rotateZ: 0, skewX: 0, x: '-20.5vw', scale: 1.15 }
       : { rotateX: 6, rotateY: -22, rotateZ: -7, skewX: -6, x: '0vw', scale: 1 }
-  const turn = { duration: settled ? 0.9 : 1.1, ease, delay: settled ? 0 : 1.5 }
+  const turn = { duration: 0.9, ease }
 
   // A little lean toward the pointer
   const mx = useMotionValue(0)
@@ -351,10 +377,9 @@ export function Home() {
           <div className="v2-plane-wrap">
             <motion.div
               className="v2-plane"
-              initial={{ y: '40vh', opacity: 0, rotateX: 0, rotateY: 0, rotateZ: 0, skewX: 0 }}
-              animate={ready ? { y: 0, opacity: 1, ...tilt } : undefined}
+              initial={{ opacity: 0, ...tilt }}
+              animate={{ opacity: 1, ...tilt }}
               transition={{
-                y: { duration: 1.4, ease: soft },
                 opacity: { duration: 0.6 },
                 rotateX: turn,
                 rotateY: turn,
@@ -372,7 +397,7 @@ export function Home() {
                 transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
               >
                 {PROJECTS.map((pr, i) => (
-                  <Frame key={pr.slug} project={pr} index={i} p={shown} hs={hs} gap={gap} w={w} active={i === idx} onOpen={open} onPick={scrollToIndex} />
+                  <Frame key={pr.slug} project={pr} index={i} p={p} roll={roll} hs={hs} gap={gap} w={w} active={i === idx} onOpen={open} onPick={scrollToIndex} />
                 ))}
               </motion.div>
             </motion.div>
@@ -422,11 +447,52 @@ export function Home() {
           </motion.div>
 
           <motion.div className="v2-peek-slot" initial={false} animate={fade}>
-            <AnimatePresence mode="wait">{ready && !mobile && <Peek key={project.slug} project={project} frame={fg} />}</AnimatePresence>
+            <AnimatePresence mode="wait">{!boot && !mobile && <Peek key={project.slug} project={project} frame={fg} />}</AnimatePresence>
           </motion.div>
 
           {/* Colour band down the side, in the same colour as the project text */}
-          <motion.span className="v2-sideband" style={{ backgroundColor: fg }} initial={false} animate={fade} aria-hidden="true" />
+          <motion.span
+            className="v2-sideband"
+            style={{ backgroundColor: boot ? PROJECTS[0].colors.bg : fg }}
+            initial={{ scaleY: boot ? 0 : 1 }}
+            animate={{ scaleY: 1, ...fade }}
+            transition={{ scaleY: { duration: BOOT, ease: [0.33, 0, 0.12, 1] } }}
+            aria-hidden="true"
+          />
+
+          <AnimatePresence>
+            {boot && (
+              <motion.div
+                className="v2-boot"
+                initial={{ clipPath: 'inset(0% 0% 0% 0%)' }}
+                exit={{ clipPath: 'inset(0% 0% 0% 100%)' }}
+                transition={{ duration: 0.9, ease }}
+                aria-hidden="true"
+              >
+                <div className="v2-boot-name">
+                  <motion.p
+                    style={{ color: PROJECTS[0].colors.bg }}
+                    initial={{ clipPath: 'inset(-20% 100% -30% 0%)' }}
+                    animate={{ clipPath: 'inset(-20% 0% -30% 0%)' }}
+                    transition={{ duration: 1.2, ease, delay: 0.2 }}
+                  >
+                    {PERSON.name}
+                  </motion.p>
+                  <motion.p className="v2-label" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9, duration: 0.6 }}>
+                    {PERSON.role}
+                  </motion.p>
+                </div>
+                <motion.p
+                  className="v2-boot-toast"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6, duration: 0.6, ease: soft }}
+                >
+                  Loading selected work…
+                </motion.p>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <nav className="v2-pills" aria-label="Projects">
             {PROJECTS.map((pr, i) => (
