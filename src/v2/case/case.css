@@ -3280,3 +3280,7 @@
     width: min(74vw, 52vh);
   }
 }
+
+/* Louvre: a short vertical preview, phone-sized */
+.cs-lv-phone { width: min(340px, 72vw); margin: 0 auto; }
+.cs-lv-phone > * { width: 100%; max-width: none; padding: 0; margin: 0; }

@@ -666,7 +666,7 @@ export function ChannelSurf({ channels }: { channels: Channel[] }) {
   }
   const ch = channels[at]
   return (
-    <section ref={box} className="cs-tv" style={{ height: `${n * 45 + 100}vh` }}>
+    <section ref={box} className="cs-tv" style={{ height: `${n * 28 + 100}vh` }}>
       <div className="cs-tv-stage">
         <div className="cs-tv-set">
           <div className="cs-tv-screen">

@@ -22,9 +22,9 @@ const CLIENTS = ['N12', 'Galgalatz', 'One a Day podcast', 'Juno Media', 'IDF Edu
 /** One line per project, in the order of the home page */
 const LINES: Record<string, string> = {
   'pilot-rescue': 'From the brief to a prime-time AI film in four hours.',
-  louvre: 'The Louvre jewel heist rebuilt shot by shot, cut for web and mobile.',
-  partner: 'A podcast story with no pictures, animated with Flow in four parts.',
-  amy: 'An editorial identity for N12’s Amy Winehouse and 27 Club special.',
+  louvre: 'The Louvre jewel heist, which I wrote, directed and produced, rebuilt shot by shot with AI.',
+  partner: 'A podcast story with no pictures, written, directed and animated in four parts.',
+  amy: 'Concept and design language for N12’s Culture Gaps episode on Amy Winehouse.',
   'people-in-motion': 'Character animation, game UI and kinetic type in one playful world.',
   eighties: 'An AI film set in a teenage bedroom of the 1980s.',
   quiz: 'One AI illustration per question for N12’s Independence Day trivia.',
@@ -91,8 +91,9 @@ export function About() {
             together from scratch. The USA Pilot Rescue film went from the first brief to prime time in four hours.
           </motion.p>
           <motion.p className="v2-ab-text" {...rise(0.1)}>
-            Usually the producer comes to me with a request. I work out the images in ChatGPT, write a short script and
-            a storyboard, make each shot separately in Flow and then edit it all together.
+            Usually the producer comes to me with a request. I write a short script and build a storyboard in ChatGPT,
+            create the first and last frame of every shot, write each shot as a JSON prompt, animate it in Flow and then
+            edit it all together. On some films, like the Louvre, I’m also the writer, director and producer.
           </motion.p>
           <motion.p className="v2-ab-text" {...rise(0.15)}>
             I like jumping between worlds: graphic design, animation, interactive pieces, AI and a little front-end

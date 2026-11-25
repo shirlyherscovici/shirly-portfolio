@@ -23,7 +23,7 @@ import {
   useLightbox,
   type Img,
 } from './blocks'
-import { DriftRows, StampPalette, NeonSign, VoteChart, Countdown, ChannelSurf, ClipReel, NeonMarquee, PhoneStory, SeriesStage, RealVsFilm, TruthOrFake, Vault, type Question, type Scene } from './rich'
+import { DriftRows, StampPalette, NeonSign, VoteChart, Countdown, ChannelSurf, ClipReel, SeriesStage, RealVsFilm, TruthOrFake, Vault, type Question, type Scene } from './rich'
 
 const v2 = (p: string) => asset(`/v2/${p}`)
 const A = (p: string) => asset(`/assets/${p}`)
@@ -63,11 +63,11 @@ const amyBody = (
     <Act bg={AMY.paper} fg={AMY.ink} accent={AMY.red}>
       <Intro
         title="Amy Winehouse — N12 Special"
-        text="A visual identity for an N12 editorial special celebrating Amy Winehouse and the 27 Club. The project draws from tattoo culture, distressed print aesthetics, vintage rock imagery and Amy’s iconic visual world."
+        text="An episode of Culture Gaps, an N12 corner that tells the stories of fringe artists and cultural gaps people never knew about. For the Amy Winehouse and 27 Club episode I designed the concept and the design language, built the episode in Storycard from the content I was given, and made its banners in every size and all of its visual elements."
         meta={[
-          { label: 'Client', value: 'N12' },
-          { label: 'Role', value: 'Art direction, graphic design' },
-          { label: 'Disciplines', value: 'Art direction · Visual design · Campaign strategy' },
+          { label: 'Client', value: 'N12 · Culture Gaps series' },
+          { label: 'Role', value: 'Concept, design language, banners' },
+          { label: 'Built in', value: 'Storycard' },
           { label: 'Impact', value: 'Views 24,500 → 67,418' },
         ]}
         link={{ label: 'View live project', href: 'https://special.n12.co.il/AmyWinehouse' }}
@@ -75,7 +75,7 @@ const amyBody = (
       />
       <div className="cs-wrap-wide cs-amy-open">
         <Compare before={{ src: v2('amy/005-before.webp'), alt: 'Original archive photo' }} after={{ src: v2('amy/005-after.webp'), alt: 'Final treatment', ratio: '1 / 1' }} labels={['Original', 'Final']} />
-        <p className="cs-caption">Drag the line: the archive photo, and the same photo in the campaign’s treatment.</p>
+        <p className="cs-caption">Drag the line: the archive photo, and the same photo in the episode’s treatment.</p>
       </div>
       <Gap size="s" />
       <div className="cs-wrap cs-stat">
@@ -89,7 +89,11 @@ const amyBody = (
       </div>
       <Gap />
 
-      <Chapter num="01" title="Early banners" note="Earlier banner versions made on the way to the final one. Each tested a direction, and together they shaped the special’s visual language. Open any of them to look closer." />
+      <Chapter num="01" title="The final banner" note="The final direction brings tattoo culture, distressed print textures and 27 Club references into one cohesive identity." />
+      <Visual m={{ src: v2('amy/hero-banner.webp'), alt: 'Final campaign banner', label: 'Final banner', ratio: '1304 / 800' }} bleed parallax />
+      <Gap />
+
+      <Chapter num="02" title="Early banners" note="Earlier banner versions made on the way to the final one. Each tested a direction, and together they shaped the episode’s visual language. Open any of them to look closer." />
       <div className="cs-wrap-wide cs-amy-trio is-early">
         <Visual m={{ src: v2('amy/concept-1.webp'), alt: 'Early banner, first direction', label: 'Early banner · 01', caption: 'Early exploration focused on strong contrast, portraiture and immediate visual impact.', ratio: '16 / 10' }} className="is-lead" />
         <Visual m={{ src: v2('amy/concept-2.webp'), alt: 'Early banner, second direction', label: 'Early banner · 02', caption: 'A bolder route testing color, portrait placement and tattoo-inspired visual language.', ratio: '16 / 10' }} />
@@ -97,7 +101,7 @@ const amyBody = (
       </div>
       <Gap />
 
-      <Chapter num="02" title="Visual identity" />
+      <Chapter num="03" title="Visual identity" />
       <div className="cs-wrap cs-amy-specimen">
         <Reveal className="cs-amy-lockup">
           <img src={v2('amy/logo.webp')} alt="Amy campaign Hebrew title lockup" loading="lazy" />
@@ -107,6 +111,15 @@ const amyBody = (
           <p className="cs-label">Color palette</p>
           <Palette colors={['#080809', '#fbecd8', '#da2624', '#c58a58', '#885836', '#462919']} />
           <p className="cs-caption cs-left">A warm, vintage-inspired palette drawn from tattoo flash, aged print and rock imagery.</p>
+        </Reveal>
+      </div>
+      <div className="cs-wrap cs-amy-assets">
+        <Reveal className="cs-amy-asset">
+          <div className="cs-amy-asset-box is-dark">
+            <img src={v2('amy/badge-27.webp')} alt="27 Club series badge" loading="lazy" />
+          </div>
+          <p className="cs-label">Series badge</p>
+          <p>A recurring 27 Club badge that connects the individual stories to the wider editorial special.</p>
         </Reveal>
       </div>
       <div className="cs-wrap cs-amy-notes">
@@ -123,10 +136,6 @@ const amyBody = (
           </Reveal>
         ))}
       </div>
-      <Gap />
-
-      <Chapter num="03" title="Banner development" note="The final direction brings tattoo culture, distressed print textures and 27 Club references into one cohesive identity." />
-      <Visual m={{ src: v2('amy/hero-banner.webp'), alt: 'Final campaign banner', label: 'Final banner', ratio: '1304 / 800' }} bleed parallax />
       <Gap size="l" />
     </Act>
 
@@ -135,32 +144,8 @@ const amyBody = (
       <FlipWall pairs={amyPairs} />
       <Gap size="l" />
     </Act>
-
-    <Act bg={AMY.paper} fg={AMY.ink} accent={AMY.red}>
-      <Chapter num="05" title="Identity assets" note="Core graphic elements that shaped the project’s visual identity." />
-      <div className="cs-wrap cs-amy-assets">
-        <Reveal className="cs-amy-asset">
-          <div className="cs-amy-asset-box">
-            <img src={v2('amy/logo.webp')} alt="Amy campaign title lockup" loading="lazy" />
-          </div>
-          <p className="cs-label">Primary title lockup</p>
-          <p>A custom Hebrew title lockup combining vintage influence with a hand-crafted, expressive feel.</p>
-        </Reveal>
-        <Reveal className="cs-amy-asset" delay={0.1}>
-          <div className="cs-amy-asset-box is-dark">
-            <img src={v2('amy/badge-27.webp')} alt="27 Club series badge" loading="lazy" />
-          </div>
-          <p className="cs-label">Series badge</p>
-          <p>A recurring 27 Club badge that connects the individual stories to the wider editorial special.</p>
-        </Reveal>
-      </div>
-      <Gap size="l" />
-    </Act>
-
-
   </>
 )
-
 /* ======================================================================
  * 02 · PEOPLE IN MOTION — motion playground
  * ==================================================================== */
@@ -178,36 +163,25 @@ const motionBody = (
       />
       <Visual m={{ video: A('motion/gameplay_highlight_final.mp4'), poster: v2('motion/people-motion-hero-poster.webp'), alt: 'Highlight cut of the animation' }} frame />
       <Gap />
-      <Chapter num="01" title="Concept" note="Three motion disciplines demonstrated through real moments from the film." />
-      <Stack
-        items={[
-          { src: v2('motion/01-character-selection.webp'), alt: 'Character selection scene', ratio: '16 / 9' },
-          { src: v2('motion/02-tetris.webp'), alt: 'Puzzle game scene', ratio: '16 / 9' },
-          { src: v2('motion/03-mario-platform.webp'), alt: 'Platform game scene', ratio: '16 / 9' },
-          { src: v2('motion/04-gold-digger.webp'), alt: 'Gold digger scene', ratio: '16 / 9' },
-          { src: v2('motion/05-icy-tower.webp'), alt: 'Tower climbing scene', ratio: '16 / 9' },
-        ]}
-      />
-      <Gap />
-      <Chapter num="02" title="Character animation" />
+      <Chapter num="01" title="Character animation" />
       <Visual m={{ video: A('motion/clips/03-character-animation.mp4'), poster: v2('motion/01-character-selection.webp'), alt: 'Character animation', caption: 'Expressive character movement integrated into animated environments.' }} frame />
       <Gap size="l" />
     </Act>
 
     <Act bg={MO.sky} fg={MO.dark} accent={MO.green}>
-      <Chapter num="03" title="UI & game animation" />
+      <Chapter num="02" title="UI & game animation" />
       <Visual m={{ video: A('motion/clips/02-ui-game-animation.mp4'), poster: v2('motion/02-tetris.webp'), alt: 'UI and game animation', caption: 'Animated interfaces, game systems and responsive graphic elements.' }} frame />
       <Gap size="l" />
     </Act>
 
     <Act bg={MO.green} fg={MO.yellow} accent={MO.yellow}>
-      <Chapter num="04" title="Kinetic typography" />
+      <Chapter num="03" title="Kinetic typography" />
       <Visual m={{ video: A('motion/clips/people-kinetic-typography.mp4'), poster: v2('motion/03-mario-platform.webp'), alt: 'Kinetic typography', caption: 'Animated typography, scene transitions and visual continuity across changing worlds.' }} bleed />
       <Gap size="l" />
     </Act>
 
     <Act bg={MO.dark} fg={MO.cream} accent={MO.yellow}>
-      <Chapter num="05" title="The full film" note="Experience the complete motion piece and the journey across its characters, interfaces and game-inspired scenes." />
+      <Chapter num="04" title="The full film" note="Experience the complete motion piece and the journey across its characters, interfaces and game-inspired scenes." />
       <Film src={A('motion/aca-anashim.mp4')} poster={v2('motion/aca-anashim-poster.webp')} alt="People in Motion, full film" />
       <Gap size="l" />
     </Act>
@@ -222,9 +196,10 @@ const clip = (n: string, title: string): Scene => ({ video: v2(`ai/clips/${n}.mp
 /* The process behind the AI films for N12, as Shirly describes it */
 const AI_PROCESS = [
   { k: 'The brief', v: 'The producer asks for an idea.' },
-  { k: 'Images', v: 'I shape the key images in ChatGPT.' },
-  { k: 'Script & storyboard', v: 'A short script, then a storyboard built in ChatGPT.' },
-  { k: 'Shots in Flow', v: 'Every shot is generated separately in Flow.' },
+  { k: 'Script & storyboard', v: 'I write a short script and build the storyboard in ChatGPT.' },
+  { k: 'First & last frame', v: 'For every shot I create the first and the last frame.' },
+  { k: 'JSON prompt', v: 'With ChatGPT I write each shot as a JSON prompt.' },
+  { k: 'Animate in Flow', v: 'Each shot is animated separately in Flow.' },
   { k: 'Edit', v: 'I put the shots together into one film.' },
 ]
 
@@ -255,19 +230,13 @@ const rescueBody = (
           clip('descent', 'Descent'),
           clip('pilot-down', 'Pilot down'),
           clip('command', 'Command'),
-          clip('drone', 'The drone'),
-          clip('air-cover', 'Air cover'),
-          clip('hold', 'Holding on'),
           clip('extraction', 'Extraction'),
           clip('takeoff', 'Take-off'),
-          clip('no-trace', 'No trace'),
         ]}
       />
     </Act>
 
     <Act bg={RE.black} fg={RE.bone} accent={RE.amber}>
-      <Gap />
-      <Statement small="The brief" text="A prime-time N12 visual story created under a live-news deadline, combining AI-generated imagery with directed frame design, continuity control and motion compositing." />
       <Gap />
       <Chapter num="03" title="From news brief to broadcast" note="How the film was made, from the producer’s request to the final edit." />
       <Pipeline items={AI_PROCESS} />
@@ -286,20 +255,6 @@ const rescueBody = (
       <Gap size="l" />
     </Act>
 
-    <Act bg={RE.black} fg={RE.bone} accent={RE.amber}>
-      <Chapter num="05" title="Continuity & compositing" />
-      <div className="cs-wrap cs-aime">
-        <Reveal className="cs-aime-cell">
-          <p className="cs-label">AI</p>
-          <p>Generated frames and motion from my direction.</p>
-        </Reveal>
-        <Reveal className="cs-aime-cell is-me" delay={0.1}>
-          <p className="cs-label">Me</p>
-          <p>Frame direction, continuity, compositing, edit and broadcast delivery.</p>
-        </Reveal>
-      </div>
-      <Gap size="l" />
-    </Act>
   </>
 )
 
@@ -319,27 +274,11 @@ const soundBody = (
           { label: 'Crafted', value: 'Early 2022' },
         ]}
       />
-      <Chapter num="01" title="Inside the phone" note="Scroll: the screens change in the phone while the chart posts drift past." />
-      <PhoneStory
-        steps={[
-          { screen: v2('galgalatz/1-galgaltz-front.webp'), alt: 'Splash screen with the neon key art', label: 'Key art', text: 'The neon key art opens the experience.' },
-          { screen: v2('galgalatz/2-galgaltz-front.webp'), alt: 'Chart screen, positions 31 to 50', label: 'Discover', text: 'The full chart, browsed from the bottom up.' },
-          { screen: v2('galgalatz/5-galgaltz-front.webp'), alt: 'Chart position 3, Rocky III', label: 'No. 3', text: 'Every top song gets its own victory screen.' },
-          { screen: v2('galgalatz/4-galgaltz-front.webp'), alt: 'Chart position 2, Titanic', label: 'No. 2', text: 'Listen, then move on to the next place.' },
-          { screen: v2('galgalatz/3-galgaltz-front.webp'), alt: 'Chart position 1, A Star Is Born', label: 'No. 1', text: 'The winner, revealed last.' },
-        ]}
-        floats={[
-          { src: v2('galgalatz/rank-31-50.webp'), alt: '', x: '6%', y: '12%', w: 'min(20vw, 260px)', rot: -8, speed: 0.6, from: 0.15 },
-          { src: v2('galgalatz/rank-03.webp'), alt: '', x: '14%', y: '58%', w: 'min(16vw, 210px)', rot: 6, speed: 1, from: 0.4 },
-          { src: v2('galgalatz/rank-02.webp'), alt: '', x: '30%', y: '30%', w: 'min(13vw, 170px)', rot: -4, speed: 1.4, from: 0.6 },
-          { src: v2('galgalatz/rank-01.webp'), alt: '', x: '74%', y: '62%', w: 'min(15vw, 200px)', rot: 7, speed: 0.8, from: 0.82 },
-        ]}
-      />
-      <Gap />
+      <Gap size="s" />
     </Act>
 
     <Act bg="#0b0220" fg={SO.lilac} accent={SO.neon}>
-      <Chapter num="02" title="The neon key art" note="The sign switches itself on, one tube at a time." />
+      <Chapter num="01" title="The neon key art" note="The sign switches itself on, one tube at a time." />
       <NeonSign
         src={v2('galgalatz/banner-cover.webp')}
         alt="The neon key art: popcorn, a drink, nachos, 3D glasses, a clapperboard and a film reel above the title Music from the Screen, the chart"
@@ -360,7 +299,7 @@ const soundBody = (
     </Act>
 
     <Act bg={SO.violet} fg={SO.lilac} accent={SO.neon}>
-      <Chapter num="03" title="Concept" />
+      <Chapter num="02" title="Concept" />
       <Steps
         items={[
           { k: 'Challenge', v: 'A cluttered, low-engagement voting flow.' },
@@ -369,7 +308,7 @@ const soundBody = (
         ]}
       />
       <Gap />
-      <Chapter num="04" title="Try the vote" note="A playable copy of the voting flow, with songs from the real chart." />
+      <Chapter num="03" title="Try the vote" note="A playable copy of the voting flow, with songs from the real chart." />
       <VoteChart
         art={v2('galgalatz/banner-cover.webp')}
         songs={[
@@ -386,7 +325,7 @@ const soundBody = (
     </Act>
 
     <Act bg={SO.night} fg={SO.lilac} accent={SO.neon}>
-      <Chapter num="05" title="The countdown" note="The chart posts, from places 50–31 down to number one." />
+      <Chapter num="04" title="The countdown" note="The chart posts, from places 50–31 down to number one." />
       <Countdown
         posts={[
           { src: v2('galgalatz/rank-31-50.webp'), alt: 'Chart post, places 50 to 31', rank: '50–31' },
@@ -410,9 +349,10 @@ const louvreBody = (
     <Act bg={LV.night} fg={LV.stone} accent={LV.gold}>
       <Intro
         title="The Louvre Heist"
-        text="A 70-second AI film for N12 that rebuilds the Louvre jewel heist shot by shot: the van by the Seine, the cut glass, the galleries, the crown on the pavement and the getaway. Delivered in 16:9 for web and 9:16 for mobile."
+        text="A 70-second AI film for N12 that rebuilds the Louvre jewel heist shot by shot: the van by the Seine, the cut glass, the galleries, the crown on the pavement and the getaway. I wrote, directed and produced it, and made every shot with AI. Delivered in 16:9 for web and 9:16 for mobile."
         meta={[
           { label: 'Client', value: 'N12' },
+          { label: 'Role', value: 'Script, direction, production · AI video creator' },
           { label: 'Length', value: '1:10' },
           { label: 'Formats', value: '16:9 · 9:16' },
           { label: 'Tools', value: 'ChatGPT · Flow' },
@@ -453,8 +393,10 @@ const louvreBody = (
     </Act>
 
     <Act bg={LV.slate} fg={LV.stone} accent={LV.gold}>
-      <Chapter num="04" title="Cut for mobile" note="The full film again, reframed for a vertical feed." />
-      <Film src={v2('louvre/louvre-film-vertical.mp4')} poster={v2('louvre/poster-vertical.webp')} alt="The Louvre Heist, vertical 9:16 version" tag="Full film · 9:16" vertical />
+      <Chapter num="04" title="Cut for mobile" note="The same film, reframed for a vertical feed." />
+      <div className="cs-lv-phone">
+        <Visual m={{ video: v2('louvre/preview-vertical.mp4'), poster: v2('louvre/poster-vertical.webp'), alt: 'A few seconds of the vertical 9:16 version', label: '9:16 · preview', ratio: '9 / 16' }} />
+      </div>
       <Gap size="l" />
     </Act>
 
@@ -488,7 +430,6 @@ const eightiesBody = (
       <Gap size="l" />
     </Act>
 
-    <NeonMarquee words={['Yardena Arazi', 'Ofra Haza', 'Maariv LaNoar', '1980s']} />
     <Act bg={EI.pink} fg={EI.night} accent={EI.yellow}>
       <Chapter num="02" title="The room" note="Every object placed to date the room to one decade. Scroll to flip through it, one channel at a time." />
       <ChannelSurf
@@ -625,10 +566,10 @@ const partnerBody = (
     <Act bg={PA.night} fg={PA.cream} accent={PA.amber}>
       <Intro
         title="The Partner"
-        text="A short series from N12’s daily podcast One a Day. The story only existed as audio, so I animated it with Flow: every scene is built from the transcript, and the speaker’s words stay on screen."
+        text="A short series from N12’s daily podcast One a Day. The story only existed as audio, so I turned it into pictures: I wrote, directed and produced the series, built every scene from the transcript and animated it with Flow. The speaker’s words stay on screen."
         meta={[
           { label: 'Client', value: 'N12 · One a Day podcast' },
-          { label: 'Role', value: 'AI animation with Flow' },
+          { label: 'Role', value: 'Script, direction, production · AI video creator' },
           { label: 'Parts', value: '4' },
           { label: 'Formats', value: '16:9 · 9:16' },
           { label: 'Tools', value: 'ChatGPT · Flow' },
@@ -663,7 +604,7 @@ export const CASES: Record<string, Case> = {
     acts: { bg: PA.night, fg: PA.cream },
     credits: [
       { label: 'Client', value: 'N12 · One a Day podcast' },
-      { label: 'Role', value: 'AI animation with Flow' },
+      { label: 'Role', value: 'Script, direction, production · AI video creator' },
       { label: 'Formats', value: '16:9 · 9:16' },
     ],
     body: partnerBody,
@@ -672,9 +613,9 @@ export const CASES: Record<string, Case> = {
     theme: 'amy',
     acts: { bg: AMY.paper, fg: AMY.ink },
     credits: [
-      { label: 'Client', value: 'N12' },
-      { label: 'Role', value: 'Art direction, graphic design' },
-      { label: 'Type', value: 'Editorial identity · Art direction' },
+      { label: 'Client', value: 'N12 · Culture Gaps' },
+      { label: 'Role', value: 'Concept, design language, banners' },
+      { label: 'Built in', value: 'Storycard' },
       { label: 'Impact', value: 'Views 24,500 → 67,418' },
     ],
     body: amyBody,
@@ -714,7 +655,7 @@ export const CASES: Record<string, Case> = {
     acts: { bg: LV.night, fg: LV.stone },
     credits: [
       { label: 'Client', value: 'N12' },
-      { label: 'Type', value: 'AI film · Web and mobile' },
+      { label: 'Role', value: 'Script, direction, production · AI video creator' },
     ],
     body: louvreBody,
   },
