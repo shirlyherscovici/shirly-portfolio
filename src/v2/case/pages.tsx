@@ -23,7 +23,7 @@ import {
   useLightbox,
   type Img,
 } from './blocks'
-import { ChannelSurf, ClipReel, DragShelf, NeonMarquee, PhoneStory, SeriesStage, RealVsFilm, RetroGrid, TruthOrFake, Vault, type Question, type Scene } from './rich'
+import { Anatomy, StampSheet, ChannelSurf, ClipReel, NeonMarquee, PinWall, PhoneStory, SeriesStage, RealVsFilm, TruthOrFake, Vault, type Question, type Scene } from './rich'
 
 const v2 = (p: string) => asset(`/v2/${p}`)
 const A = (p: string) => asset(`/assets/${p}`)
@@ -217,7 +217,7 @@ const motionBody = (
 /* ======================================================================
  * 03 · USA PILOT RESCUE — cinematic production breakdown
  * ==================================================================== */
-const RE = { black: '#0b0b0c', bone: '#e9e2d4', amber: '#e7b76d', blue: '#2348c6', sand: '#f6dca6' }
+const RE = { black: '#100e0c', bone: '#ece3d3', amber: '#ff8a3d', flare: '#e2531f', dust: '#e8dcc6', ink: '#17130f' }
 const clip = (n: string, title: string): Scene => ({ video: v2(`ai/clips/${n}.mp4`), poster: v2(`ai/clips/${n}.webp`), title })
 const rescueBody = (
   <>
@@ -271,7 +271,7 @@ const rescueBody = (
       <Gap size="l" />
     </Act>
 
-    <Act bg={RE.blue} fg={RE.sand} accent={RE.sand}>
+    <Act bg={RE.flare} fg={RE.ink} accent={RE.ink}>
       <Chapter num="04" title="From frame to motion" note="Select a shot, then watch the directed key frame come to life." />
       <FrameToMotion
         shots={[
@@ -420,11 +420,11 @@ const louvreBody = (
 /* ======================================================================
  * 06 · YARDENA & OFIRA — an 80s bedroom, in its own decade
  * ==================================================================== */
-const EI = { night: '#1a0b2e', cream: '#fff4e6', pink: '#ff3e9a', teal: '#19d3c5', yellow: '#ffd400' }
+const EI = { night: '#14110f', cream: '#fff4e6', pink: '#ff3e9a', teal: '#19d3c5', yellow: '#ffd400' }
 const eightiesBody = (
   <>
     <Act bg={EI.night} fg={EI.cream} accent={EI.pink}>
-      <RetroGrid />
+
       <Intro
         title="Yardena & Ofira — an 80s room"
         text="A 35-second AI film set in a teenage bedroom of the 1980s, built around the pop rivalry of the time: Yardena Arazi against Ofra Haza. Posters, magazine covers, a cassette player and a framed photo set the scene."
@@ -474,18 +474,19 @@ const eightiesBody = (
 
     <Act bg={EI.night} fg={EI.cream} accent={EI.teal}>
       <Chapter num="04" title="Research" note="The material gathered for the room: album covers, teen magazines and family photos." />
-      <DragShelf
+      <PinWall
+        note="The research, pinned up"
         items={[
-          { src: v2('eighties/src/album-1.webp'), alt: 'Yardena Arazi album cover' },
-          { src: v2('eighties/src/album-2.webp'), alt: 'Yardena Arazi album cover' },
-          { src: v2('eighties/src/album-3.webp'), alt: 'Yardena Arazi album cover' },
-          { src: v2('eighties/src/album-4.webp'), alt: 'Yardena Arazi album cover' },
-          { src: v2('eighties/src/album-5.webp'), alt: 'Yardena Arazi album cover, Back in the Frame' },
-          { src: v2('eighties/src/album-6.webp'), alt: 'Yardena Arazi album cover' },
-          { src: v2('eighties/src/maariv-yardena-1.webp'), alt: 'Maariv LaNoar cover with Yardena Arazi' },
-          { src: v2('eighties/src/maariv-ofra.webp'), alt: 'Maariv LaNoar cover with Ofra Haza' },
-          { src: v2('eighties/src/ofira-childhood.webp'), alt: 'Childhood family photo' },
-          { src: v2('eighties/src/ofira-friends.webp'), alt: 'Photo of three friends in the 80s' },
+          { src: v2('eighties/src/album-1.webp'), alt: 'Yardena Arazi album cover', at: [1, 4, 14, -6] },
+          { src: v2('eighties/src/maariv-yardena-1.webp'), alt: 'Maariv LaNoar cover with Yardena Arazi', at: [17, 1, 15, 4] },
+          { src: v2('eighties/src/album-2.webp'), alt: 'Yardena Arazi album cover', at: [34, 7, 15, -3] },
+          { src: v2('eighties/src/maariv-ofra.webp'), alt: 'Maariv LaNoar cover with Ofra Haza', at: [51, 1, 15, 5] },
+          { src: v2('eighties/src/album-3.webp'), alt: 'Yardena Arazi album cover', at: [68, 6, 14, -5] },
+          { src: v2('eighties/src/ofira-friends.webp'), alt: 'Photo of three friends in the 80s', at: [84, 3, 14, 3] },
+          { src: v2('eighties/src/album-4.webp'), alt: 'Yardena Arazi album cover', at: [5, 50, 15, 3] },
+          { src: v2('eighties/src/ofira-childhood.webp'), alt: 'Childhood family photo', at: [22, 46, 14, -4] },
+          { src: v2('eighties/src/album-5.webp'), alt: 'Yardena Arazi album cover, Back in the Frame', at: [58, 50, 15, 4] },
+          { src: v2('eighties/src/album-6.webp'), alt: 'Yardena Arazi album cover', at: [76, 51, 15, -3] },
         ]}
       />
       <Gap size="l" />
@@ -496,7 +497,7 @@ const eightiesBody = (
 /* ======================================================================
  * 07 · WAS IT OR WASN’T IT — the quiz, playable here
  * ==================================================================== */
-const QZ = { navy: '#15335e', cream: '#f4ead2', sky: '#8cc4e8', ink: '#0d1f3a' }
+const QZ = { navy: '#15335e', cream: '#f4ead2', sky: '#8cc4e8', ink: '#0d1f3a', teal: '#5fa9b0' }
 const QUIZ_URL = 'https://special.n12.co.il/independence2026_quiz'
 const qi = (n: string) => v2(`quiz/${n}.webp`)
 const quizQuestions: Question[] = [
@@ -531,12 +532,43 @@ const quizBody = (
         link={{ label: 'Play the quiz on N12', href: QUIZ_URL }}
         linkStyle={{ background: QZ.navy, color: QZ.cream }}
       />
-      <Visual m={{ src: qi('banner-share'), alt: 'Key art of the quiz with stamp portraits and the title', label: 'Key art', ratio: '1200 / 630' }} />
+      <Gap size="s" />
+    </Act>
+
+    <Act bg={QZ.navy} fg={QZ.cream} accent={QZ.sky}>
+      <Chapter num="01" title="The design language" note="The whole quiz speaks like old post: stamps, postmarks and airmail, printed in pop-art halftone. Here is the key art, taken apart." />
+      <Anatomy
+        src={qi('banner-share')}
+        alt="Key art of the quiz: two stamp portraits in sunglasses either side of the title"
+        ratio={1200 / 630}
+        parts={[
+          { label: 'The stamp', text: 'Each portrait sits inside a perforated postage stamp with a worn cream border, like a letter from another decade.', box: [7, 9, 29, 93] },
+          { label: 'Sunglasses on history', text: 'Modern sunglasses on historic faces: one playful detail that sets the tone of a quiz about what did and didn’t happen.', box: [71, 26, 89, 42] },
+          { label: 'The postmark', text: 'The N12 logo is set as a round postmark, and wavy cancellation lines run over the stamps.', box: [56, 12, 68, 34] },
+          { label: 'The lettering', text: 'Heavy, square Hebrew letters in cream, stacked like a printed label in the middle of the envelope.', box: [35, 26, 64, 72] },
+          { label: 'Airmail border', text: 'The blue and white diagonal stripes of an airmail envelope run along the bottom edge.', box: [0, 86, 52, 100] },
+        ]}
+        palette={[
+          { hex: '#14375f', name: 'Envelope navy' },
+          { hex: '#f4ead2', name: 'Stamp paper' },
+          { hex: '#5fa9b0', name: 'Print turquoise' },
+          { hex: '#e0457b', name: 'Pop pink' },
+          { hex: '#e7b53c', name: 'Mustard' },
+        ]}
+      />
+      <Gap size="l" />
+    </Act>
+
+    <Act bg={QZ.cream} fg={QZ.navy} accent={QZ.navy}>
+      <Chapter num="02" title="One stamp per question" note="Every question got its own illustration in the same halftone print style. Scroll to postmark the sheet; open any stamp to see it whole." />
+      <StampSheet
+        items={quizQuestions.map((q) => ({ src: q.img, alt: q.alt }))}
+      />
       <Gap size="l" />
     </Act>
 
     <Act bg={QZ.navy} fg={QZ.cream} accent={QZ.sky}>
-      <Chapter num="01" title="Try it here" note="Real questions from the quiz, each with its image. Did it happen or not?" />
+      <Chapter num="03" title="Try it here" note="Real questions from the quiz, each with its image. Did it happen or not?" />
       <TruthOrFake questions={quizQuestions} playUrl={QUIZ_URL} />
       <Gap size="l" />
     </Act>

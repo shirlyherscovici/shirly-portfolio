@@ -321,6 +321,12 @@ export function Home() {
   const hs = PROJECTS.map(({ frame }) => w / Math.max(1.25, Math.min(1.78, frame.ratio)))
   const gap = mobile ? 26 : 64
   const project = PROJECTS[idx]
+  /* the peek follows once the strip settles, so its exit never piles up */
+  const [peekIdx, setPeekIdx] = useState(idx)
+  useEffect(() => {
+    const t = setTimeout(() => setPeekIdx(idx), 320)
+    return () => clearTimeout(t)
+  }, [idx])
 
   /* List mode: bring the pointer to the right edge and the project list opens,
    * the room goes dark and the strip lies back in perspective at the centre. */
@@ -437,9 +443,9 @@ export function Home() {
             animate={{ clipPath: list ? 'inset(-20% -10% 100% -10%)' : 'inset(-20% -10% -20% -10%)' }}
             transition={{ duration: 0.9, ease }}
           >
-            <AnimatePresence mode="wait">
-              {ready && (
-                <motion.div key={project.slug} className="v2-info-inner" exit={{ opacity: 0, y: -16, transition: { duration: 0.25 } }}>
+            {/* No exit wait here: a quick flick through the strip changes the key faster than an exit can finish */}
+            {ready && (
+                <motion.div key={project.slug} className="v2-info-inner">
                   <h2 className="v2-info-word">
                     <span className="v2-mask">
                       <motion.a
@@ -471,11 +477,10 @@ export function Home() {
                   </motion.a>
                 </motion.div>
               )}
-            </AnimatePresence>
           </motion.div>
 
           <motion.div className="v2-peek-slot" initial={false} animate={fade}>
-            <AnimatePresence mode="wait">{!boot && !mobile && <Peek key={project.slug} project={project} frame={fg} />}</AnimatePresence>
+            <AnimatePresence mode="wait">{!boot && !mobile && <Peek key={PROJECTS[peekIdx].slug} project={PROJECTS[peekIdx]} frame={fg} />}</AnimatePresence>
           </motion.div>
 
           {/* Colour band down the side, in the same colour as the project text */}

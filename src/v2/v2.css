@@ -405,7 +405,7 @@ html.v2-snap {
   text-transform: uppercase;
   white-space: nowrap;
   opacity: 0;
-  transform: translateX(12px);
+  transform: translateY(6px);
   pointer-events: none;
   transition: opacity 0.4s, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -1443,4 +1443,48 @@ html.v2-booting .v2-pills {
     -webkit-mask-image: none;
     mask-image: none;
   }
+}
+
+/* Header bar on project pages once scrolled: the page colour, so links never sit on content */
+.v2-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: color-mix(in srgb, var(--hbg) 90%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  transition: opacity 0.4s, background-color 0.4s;
+}
+
+.v2-header.is-solid {
+  padding-top: 16px;
+  padding-bottom: 16px;
+  transition: color 0.4s, opacity 0.6s, padding 0.4s;
+}
+
+.v2-header.is-solid::before {
+  opacity: 1;
+}
+
+/* The kind of project sits under the title, where the eye already is */
+.v2-project .v2-hero-kind {
+  right: auto;
+  left: clamp(20px, 6vw, 110px);
+  bottom: auto;
+  top: calc(50% + var(--hero-w) * 0.3125 + 0.24 * clamp(64px, 11vw, 200px));
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+@media (max-width: 760px) {
+  .v2-project .v2-hero-kind {
+    top: calc(50% + var(--hero-w) * 0.3125 + 14px + 17vw * 1.05);
+  }
+}
+
+/* framer measures scroll offsets against the page: give it a positioned root */
+html {
+  position: relative;
 }

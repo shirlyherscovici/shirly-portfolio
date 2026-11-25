@@ -1,11 +1,25 @@
+import { useEffect, useState } from 'react'
 import { PERSON } from './data'
 import { href, useTone, type Route } from './store'
 
 /* ---------- Header ---------- */
 export function Header({ route }: { route: Route }) {
-  const { fg } = useTone()
+  const { fg, bg } = useTone()
+  // off the home page, once the hero is passed the header gets a bar in the page colour so it never sits on content
+  const [solid, setSolid] = useState(false)
+  const home = route.page === 'home'
+  useEffect(() => {
+    if (home) {
+      setSolid(false)
+      return
+    }
+    const on = () => setSolid(window.scrollY > window.innerHeight * 0.9)
+    on()
+    window.addEventListener('scroll', on, { passive: true })
+    return () => window.removeEventListener('scroll', on)
+  }, [home])
   return (
-    <header className="v2-header" style={{ color: fg }}>
+    <header className={solid ? 'v2-header is-solid' : 'v2-header'} style={{ color: fg, ['--hbg' as string]: bg }}>
       {route.page === 'home' ? (
         <div className="v2-brand">
           <h1 className="v2-label">

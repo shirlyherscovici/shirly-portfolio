@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'framer-motion'
 import { PROJECTS, SHELL, coverPos } from './data'
 import { FlightProvider, ToneProvider, go, href, useFlight, useRoute, useTone } from './store'
 import { Home } from './Home'
@@ -65,6 +65,7 @@ function Shell() {
   const key = route.page === 'project' ? `p-${route.slug}` : route.page
 
   useLayoutEffect(() => {
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
     window.scrollTo(0, 0)
     const proj = route.page === 'project' ? PROJECTS.find((p) => p.slug === route.slug) : null
     document.title = proj ? `${proj.name} | Shirly Herscovici` : route.page === 'about' ? 'About | Shirly Herscovici' : 'Shirly Herscovici | Motion, AI & graphic designer'
@@ -107,10 +108,13 @@ function Shell() {
 
 export default function App() {
   return (
-    <ToneProvider>
-      <FlightProvider>
-        <Shell />
-      </FlightProvider>
-    </ToneProvider>
+    /* Visitors who ask for less motion get it: framer drops transform and layout animations */
+    <MotionConfig reducedMotion="user">
+      <ToneProvider>
+        <FlightProvider>
+          <Shell />
+        </FlightProvider>
+      </ToneProvider>
+    </MotionConfig>
   )
 }

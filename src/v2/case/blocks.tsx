@@ -36,10 +36,21 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
     const html = document.documentElement
     const prev = html.style.overflow
     html.style.overflow = 'hidden'
-    const k = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(null)
+    const k = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(null)
+      // the close button is the only control inside: keep Tab from leaving the dialog
+      if (e.key === 'Tab') {
+        e.preventDefault()
+        close.current?.focus()
+      }
+    }
+    // leaving the page closes it too
+    const shut = () => setOpen(null)
     window.addEventListener('keydown', k)
+    window.addEventListener('hashchange', shut)
     return () => {
       window.removeEventListener('keydown', k)
+      window.removeEventListener('hashchange', shut)
       html.style.overflow = prev
       back?.focus?.()
     }

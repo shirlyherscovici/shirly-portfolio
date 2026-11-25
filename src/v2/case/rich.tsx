@@ -2,7 +2,7 @@
  * a cinematic clip reel, a phone that tells the story while you scroll, a vault of real
  * objects, real-vs-film scenes, a playable quiz and an 80s grid floor. */
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
-import { AnimatePresence, motion, useScroll, useTransform, useMotionValueEvent, type MotionValue } from 'framer-motion'
+import { AnimatePresence, motion, useScroll, useTransform, useMotionValueEvent, useReducedMotion, type MotionValue } from 'framer-motion'
 import { ease, useLightbox, type Img } from './blocks'
 
 /* Play a muted clip only while it is on screen */
@@ -32,14 +32,17 @@ function ReelCard({ s, i, n, p }: { s: Scene; i: number; n: number; p: MotionVal
   useInViewPlay(v)
   const at = n > 1 ? i / (n - 1) : 0
   const near = useTransform(p, (x) => Math.max(0, 1 - Math.abs(x - at) * (n - 1)))
+  const reduce = useReducedMotion()
   const scale = useTransform(near, [0, 1], [0.84, 1])
-  const bright = useTransform(near, [0, 1], ['brightness(0.45) saturate(0.6)', 'brightness(1) saturate(1)'])
+  // dim the cards off-centre with an overlay (opacity is cheap; a filter on video is not)
+  const shade = useTransform(near, [0, 1], [0.55, 0])
   const cap = useTransform(near, [0.4, 1], [0, 1])
   return (
-    <motion.figure className="cs-reel-card" style={{ scale }}>
-      <motion.div className="cs-reel-media" style={{ filter: bright }}>
+    <motion.figure className="cs-reel-card" style={reduce ? undefined : { scale }}>
+      <div className="cs-reel-media">
         <video ref={v} src={s.video} poster={s.poster} muted loop playsInline preload="none" aria-label={s.title} />
-      </motion.div>
+        <motion.span className="cs-reel-shade" style={{ opacity: shade }} aria-hidden="true" />
+      </div>
       <motion.figcaption style={{ opacity: cap }}>
         <span className="cs-label">Scene {String(i + 1).padStart(2, '0')}</span>
         <strong>{s.title}</strong>
@@ -95,7 +98,7 @@ export function ClipReel({ scenes, title, sound }: { scenes: Scene[]; title?: st
         {sound && (
           <>
             <video ref={audio} src={sound} preload="none" loop playsInline aria-hidden="true" tabIndex={-1} className="cs-reel-audio" />
-            <button type="button" className={`cs-reel-sound${on ? ' is-on' : ''}`} aria-pressed={on} onClick={() => setOn((v) => !v)}>
+            <button type="button" className={`cs-reel-sound${on ? ' is-on' : ''}`} onClick={() => setOn((v) => !v)}>
               <span className="cs-reel-eq" aria-hidden="true">
                 <i />
                 <i />
@@ -126,11 +129,12 @@ export type PhoneStep = { screen: string; alt: string; label: string; text: stri
 export type Floater = { src: string; alt: string; x: string; y: string; w: string; rot: number; speed: number; from: number }
 
 function Float({ f, p }: { f: Floater; p: MotionValue<number> }) {
+  const reduce = useReducedMotion()
   const y = useTransform(p, [0, 1], [`${f.speed * 40}vh`, `${-f.speed * 40}vh`])
   const o = useTransform(p, [f.from - 0.08, f.from + 0.04], [0, 1])
   const r = useTransform(p, [0, 1], [f.rot - 6, f.rot + 6])
   return (
-    <motion.img className="cs-phone-float" src={f.src} alt={f.alt} loading="lazy" style={{ left: f.x, top: f.y, width: f.w, y, opacity: o, rotate: r }} />
+    <motion.img className="cs-phone-float" src={f.src} alt={f.alt} loading="lazy" style={reduce ? { left: f.x, top: f.y, width: f.w, opacity: o, rotate: f.rot } : { left: f.x, top: f.y, width: f.w, y, opacity: o, rotate: r }} />
   )
 }
 
@@ -139,7 +143,8 @@ export function PhoneStory({ steps, floats }: { steps: PhoneStep[]; floats: Floa
   const { scrollYProgress: p } = useScroll({ target: box, offset: ['start start', 'end end'] })
   const [at, setAt] = useState(0)
   useMotionValueEvent(p, 'change', (v) => setAt(Math.min(steps.length - 1, Math.max(0, Math.floor(v * steps.length * 0.999)))))
-  const tilt = useTransform(p, [0, 0.5, 1], [-6, 0, 6])
+  const reduce = useReducedMotion()
+  const tilt = useTransform(p, [0, 0.5, 1], reduce ? [0, 0, 0] : [-6, 0, 6])
   return (
     <section ref={box} className="cs-phone-story" style={{ height: `${steps.length * 90 + 40}vh` }}>
       <div className="cs-phone-stage">
@@ -208,13 +213,12 @@ export function RealVsFilm({ pairs }: { pairs: Pair[] }) {
           <motion.span className="cs-rvf-knob" animate={{ x: film ? '100%' : '0%' }} transition={{ duration: 0.45, ease }} aria-hidden="true" />
         </div>
       </div>
-      <div className="cs-rvf-list" role="tablist" aria-label="Scenes">
+      <div className="cs-rvf-list" role="group" aria-label="Scenes">
         {pairs.map((x, i) => (
           <button
             key={x.title}
             type="button"
-            role="tab"
-            aria-selected={i === at}
+            aria-current={i === at ? 'true' : undefined}
             className={i === at ? 'on' : ''}
             onClick={() => {
               setAt(i)
@@ -338,7 +342,7 @@ export function TruthOrFake({ questions, playUrl }: { questions: Question[]; pla
     <div className="cs-wrap-wide cs-tof">
       <AnimatePresence mode="wait">
         {!done ? (
-          <motion.div key={i} className="cs-tof-card" initial={{ opacity: 0, x: 60, rotate: 2 }} animate={{ opacity: 1, x: 0, rotate: 0 }} exit={{ opacity: 0, x: -60, rotate: -2 }} transition={{ duration: 0.5, ease }}>
+          <motion.div key={i} className="cs-tof-card" initial={{ opacity: 0, y: 24, rotate: 2 }} animate={{ opacity: 1, y: 0, rotate: 0 }} exit={{ opacity: 0, y: -16, rotate: -2 }} transition={{ duration: 0.5, ease }}>
             <div className="cs-tof-stamp">
               <img src={q.img} alt={q.alt} />
               <AnimatePresence>
@@ -468,13 +472,24 @@ export function SeriesStage({ parts }: { parts: Episode[] }) {
     const v = seen.get()
     setInView(v > 0 && v < 1)
   }, [seen])
-  useMotionValueEvent(p, 'change', (v) => setNarrow(!phone && v > 0.55))
+  const [warm, setWarm] = useState(false)
+  useMotionValueEvent(p, 'change', (v) => {
+    setNarrow(!phone && v > 0.55)
+    setWarm(!phone && v > 0.4)
+  })
 
   // full frame → the phone frame
+  // the frame keeps its size and is clipped down (paint only, no layout per frame)
   const ph = Math.min(vp.h * 0.8, 760)
-  const width = useTransform(p, [0.18, 0.75], [vp.w, (ph * 9) / 16])
-  const height = useTransform(p, [0.18, 0.75], [vp.h, ph])
-  const radius = useTransform(p, [0.18, 0.75], [0, 30])
+  const pw = (ph * 9) / 16
+  const g = useTransform(p, [0.18, 0.75], [0, 1])
+  const clip = useTransform(g, (v) => {
+    const ty = ((vp.h - ph) / 2) * v
+    const tx = ((vp.w - pw) / 2) * v
+    return `inset(${ty}px ${tx}px ${ty}px ${tx}px round ${30 * v}px)`
+  })
+  // a part with no vertical cut shrinks whole into the phone, letterboxed
+  const wideScale = useTransform(g, (v) => (hasTall ? 1 : 1 + (pw / vp.w - 1) * v))
   const tallO = useTransform(p, [0.5, 0.62], [0, 1])
   const fullUi = useTransform(p, [0.12, 0.3], [1, 0])
   const morphUi = useTransform(p, [0.3, 0.45], [0, 1])
@@ -494,10 +509,12 @@ export function SeriesStage({ parts }: { parts: Episode[] }) {
     }
     if (other) {
       other.muted = true
-      if (!phone && hasTall) {
-        // keep the hidden cut running silently so the hand-over is seamless
-        if (inView && playing) other.play().catch(() => {})
-        else other.pause()
+      if (!phone && hasTall && warm) {
+        // near the hand-over, start the hidden cut silently at the same moment
+        if (inView && playing) {
+          if (other.paused && a && Math.abs(other.currentTime - a.currentTime) > 0.3) other.currentTime = a.currentTime
+          other.play().catch(() => {})
+        } else other.pause()
       } else other.pause()
     }
     if (!a) return
@@ -509,7 +526,7 @@ export function SeriesStage({ parts }: { parts: Episode[] }) {
         a.play().catch(() => setPlaying(false))
       })
     } else a.pause()
-  }, [useTall, inView, playing, sound, at, phone]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [useTall, inView, playing, sound, at, phone, warm]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const a = active()
@@ -519,6 +536,12 @@ export function SeriesStage({ parts }: { parts: Episode[] }) {
     return () => a.removeEventListener('timeupdate', on)
   }, [useTall, at]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const [titleOn, setTitleOn] = useState(true)
+  useEffect(() => {
+    setTitleOn(true)
+    const t = window.setTimeout(() => setTitleOn(false), 2600)
+    return () => window.clearTimeout(t)
+  }, [at])
   const go = (i: number) => {
     setT(0)
     setAt(i)
@@ -537,9 +560,9 @@ export function SeriesStage({ parts }: { parts: Episode[] }) {
 
   const controls = (
     <div className="cs-series-controls">
-      <div className="cs-series-eps" role="tablist" aria-label="Parts">
+      <div className="cs-series-eps" role="group" aria-label="Parts">
         {parts.map((e, i) => (
-          <button key={e.src} type="button" role="tab" aria-selected={i === at} className={i === at ? 'on' : i < at ? 'done' : ''} onClick={() => go(i)}>
+          <button key={e.src} type="button" aria-current={i === at ? 'true' : undefined} aria-label={`Part ${e.num}, ${e.title}`} className={i === at ? 'on' : i < at ? 'done' : ''} onClick={() => go(i)}>
             <span className="cs-series-ep-num">{e.num}</span>
             <span className="cs-series-ep-len">{e.title}</span>
             <span className="cs-series-ep-bar" aria-hidden="true">
@@ -552,7 +575,7 @@ export function SeriesStage({ parts }: { parts: Episode[] }) {
         <button type="button" className="cs-ep-btn" onClick={toggle} aria-label={playing ? 'Pause' : 'Play'}>
           <span aria-hidden="true">{playing ? '❚❚' : '▶'}</span>
         </button>
-        <button type="button" className={`cs-ep-btn cs-ep-sound${sound ? ' is-on' : ''}`} onClick={() => setSound((s) => !s)} aria-pressed={sound}>
+        <button type="button" className={`cs-ep-btn cs-ep-sound${sound ? ' is-on' : ''}`} onClick={() => setSound((s) => !s)}>
           <span className="cs-reel-eq" aria-hidden="true">
             <i />
             <i />
@@ -567,8 +590,8 @@ export function SeriesStage({ parts }: { parts: Episode[] }) {
   return (
     <section ref={box} className={`cs-series${phone ? ' is-phone' : ''}`} style={{ height: phone ? '100svh' : '280vh' }}>
       <div className="cs-series-stage">
-        <motion.div className="cs-series-frame" style={phone ? undefined : { width, height, borderRadius: radius }}>
-          <video
+        <motion.div className="cs-series-frame" style={phone ? undefined : { clipPath: clip }}>
+          <motion.video
             key={part.src}
             ref={wide}
             src={part.src}
@@ -578,7 +601,8 @@ export function SeriesStage({ parts }: { parts: Episode[] }) {
             preload="metadata"
             aria-label={`The Partner, part ${part.num}`}
             onEnded={() => ended(false)}
-            className={(narrow || phone) && !hasTall ? 'is-contained' : ''}
+            className={phone && !hasTall ? 'is-contained' : ''}
+            style={phone ? undefined : { scale: wideScale }}
           />
           {hasTall && (
             <motion.video
@@ -591,16 +615,16 @@ export function SeriesStage({ parts }: { parts: Episode[] }) {
               preload={phone ? 'metadata' : 'none'}
               aria-label={`The Partner, part ${part.num}, vertical cut`}
               onEnded={() => ended(true)}
-              style={{ opacity: phone ? 1 : tallO }}
+              style={phone ? { opacity: 1 } : { opacity: tallO, left: '50%', top: '50%', width: pw, height: ph, x: '-50%', y: '-50%' }}
             />
           )}
-          <motion.div className="cs-series-title" style={phone ? undefined : { opacity: fullUi }}>
+          <motion.div className={`cs-series-title${titleOn ? '' : ' is-gone'}`} style={phone ? undefined : { opacity: fullUi }}>
             <span className="cs-ep-num" aria-hidden="true">{part.num}</span>
             <p className="cs-label">Part {part.num} of {String(n).padStart(2, '0')}</p>
           </motion.div>
         </motion.div>
         {!phone && (
-          <motion.div className="cs-series-labels" style={{ opacity: morphUi }}>
+          <motion.div className="cs-series-labels" style={{ opacity: morphUi, position: 'absolute', left: 0, right: 0, top: `calc(50% + ${ph / 2 + 14}px)`, marginTop: 0 }}>
             <motion.p className="cs-label" style={{ opacity: wideLabel }}>16:9 · web and TV</motion.p>
             <motion.p className="cs-label" style={{ opacity: tallLabel }}>{hasTall ? '9:16 · the vertical cut for the feed' : 'This part was cut for web only'}</motion.p>
           </motion.div>
@@ -670,86 +694,219 @@ export function ChannelSurf({ channels }: { channels: Channel[] }) {
   )
 }
 
-/* 80s: a neon strip that slides as the page scrolls */
+/* 80s: neon words that switch on one by one as the page scrolls past */
 export function NeonMarquee({ words }: { words: string[] }) {
   const box = useRef<HTMLDivElement>(null)
-  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start end', 'end start'] })
-  const a = useTransform(p, [0, 1], ['0%', '-30%'])
-  const b = useTransform(p, [0, 1], ['-30%', '0%'])
-  const line = Array.from({ length: 4 }, () => words.join(' ✶ ')).join(' ✶ ')
+  const reduce = useReducedMotion()
+  const [lit, setLit] = useState(reduce ? words.length : 0)
+  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start 0.9', 'center 0.45'] })
+  useMotionValueEvent(p, 'change', (v) => {
+    if (!reduce) setLit(Math.round(Math.min(1, Math.max(0, v)) * words.length))
+  })
   return (
-    <div ref={box} className="cs-neon" aria-hidden="true">
-      <motion.p style={{ x: a }}>{line}</motion.p>
-      <motion.p className="is-alt" style={{ x: b }}>{line}</motion.p>
+    <div ref={box} className="cs-neon" role="img" aria-label={words.join(', ')}>
+      {words.map((w, i) => (
+        <span key={w} className={`cs-neon-word${i < lit ? ' on' : ''}${i % 2 ? ' is-alt' : ''}`} aria-hidden="true">
+          {w}
+        </span>
+      ))}
     </div>
   )
 }
 
 /* ======================================================================
- * 80s research: a shelf you hold and drag. While held, the gaps close and
- * every item shrinks so the whole collection fits in view; let go to look
- * closer, click one to open it.
+ * 80s research: the wall. The material gathered for the room flies in and
+ * pins itself up as you scroll, like the posters over a teenage bed. Click any
+ * piece to see it whole.
  * ==================================================================== */
-export function DragShelf({ items }: { items: Img[] }) {
-  const onOpen = useLightbox()
-  const track = useRef<HTMLDivElement>(null)
-  const [held, setHeld] = useState(false)
-  const drag = useRef({ x: 0, left: 0, moved: 0, id: -1 })
-  const down = (e: React.PointerEvent) => {
-    if (e.pointerType !== 'mouse' || e.button !== 0 || !track.current) return
-    drag.current = { x: e.clientX, left: track.current.scrollLeft, moved: 0, id: e.pointerId }
-  }
-  const move = (e: React.PointerEvent) => {
-    const d = drag.current
-    if (d.id !== e.pointerId || !track.current) return
-    const dx = e.clientX - d.x
-    d.moved = Math.max(d.moved, Math.abs(dx))
-    if (d.moved <= 4) return
-    if (!track.current.hasPointerCapture(e.pointerId)) {
-      track.current.setPointerCapture(e.pointerId)
-      setHeld(true)
-    }
-    track.current.scrollLeft = d.left - dx * 1.6
-  }
-  const up = (e: React.PointerEvent) => {
-    if (drag.current.id !== e.pointerId) return
-    drag.current.id = -1
-    setHeld(false)
-  }
-  useEffect(() => {
-    if (!held) return
-    const off = () => setHeld(false)
-    window.addEventListener('blur', off)
-    return () => window.removeEventListener('blur', off)
-  }, [held])
+export type Pin = Img & { at: [number, number, number, number] } // left %, top %, width %, tilt
+
+function PinPiece({ m, i, n, p, open }: { m: Pin; i: number; n: number; p: MotionValue<number>; open: (m: Img) => void }) {
+  const [l, t, w, tilt] = m.at
+  const start = 0.04 + (i / n) * 0.55
+  const end = start + 0.2
+  const seed = ((i * 37) % 11) - 5
+  const y = useTransform(p, [start, end], ['85vh', '0vh'])
+  const x = useTransform(p, [start, end], [`${seed * 4}vw`, '0vw'])
+  const rotate = useTransform(p, [start, end], [tilt + seed * 5, tilt])
+  const scale = useTransform(p, [start, end - 0.04, end], [1.25, 0.97, 1])
+  const opacity = useTransform(p, [start, start + 0.03], [0, 1])
   return (
-    <div className={`cs-shelf${held ? ' is-held' : ''}`}>
-      <p className="cs-shelf-hint">
-        <span className="cs-shelf-hint-mouse">Hold &amp; drag ↔ · click to open</span>
-        <span className="cs-shelf-hint-touch">Swipe ↔ · tap to open</span>
-      </p>
-      <div ref={track} className="cs-shelf-track" role="region" aria-label="Research material" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
+    <motion.div className="cs-pin" style={{ left: `${l}%`, top: `${t}%`, width: `${w}%`, x, y, rotate, scale, opacity }}>
+      <button type="button" onClick={() => open(m)} aria-label={`Enlarge: ${m.alt}`}>
+        <img src={m.src} alt="" loading="lazy" draggable={false} />
+      </button>
+    </motion.div>
+  )
+}
+
+export function PinWall({ items, note }: { items: Pin[]; note?: string }) {
+  const open = useLightbox()
+  const phone = usePhone()
+  const reduce = useReducedMotion()
+  if (!phone && !reduce) return <PinWallScroll items={items} note={note} open={open} />
+  {
+    return (
+      <div className="cs-pinboard">
         {items.map((m, i) => (
-          <button
+          <motion.div
             key={m.src}
-            type="button"
-            className="cs-shelf-item"
-            style={{ '--i': i } as React.CSSProperties}
-            onClick={(e) => {
-              if (drag.current.moved > 6) {
-                e.preventDefault()
-                drag.current.moved = 0
-                return
-              }
-              onOpen(m)
-            }}
-            aria-label={`Enlarge: ${m.alt}`}
+            className="cs-pin is-flow"
+            initial={reduce ? false : { y: 60, rotate: m.at[3] * 3, opacity: 0 }}
+            whileInView={{ y: 0, rotate: m.at[3], opacity: 1 }}
+            viewport={{ once: true, margin: '-10% 0px' }}
+            transition={{ duration: 0.7, ease, delay: (i % 2) * 0.08 }}
           >
-            <img src={m.src} alt="" loading="lazy" draggable={false} />
-            <span className="cs-shelf-no">{String(i + 1).padStart(2, '0')}</span>
-          </button>
+            <button type="button" onClick={() => open(m)} aria-label={`Enlarge: ${m.alt}`}>
+              <img src={m.src} alt="" loading="lazy" />
+            </button>
+          </motion.div>
         ))}
       </div>
-    </div>
+    )
+  }
+}
+
+function PinWallScroll({ items, note, open }: { items: Pin[]; note?: string; open: (m: Img) => void }) {
+  const box = useRef<HTMLDivElement>(null)
+  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start start', 'end end'] })
+  return (
+    <section ref={box} className="cs-wall" style={{ height: '260vh' }}>
+      <div className="cs-wall-stage">
+        <div className="cs-wall-board">
+          {items.map((m, i) => (
+            <PinPiece key={m.src} m={m} i={i} n={items.length} p={p} open={open} />
+          ))}
+          {note && <p className="cs-wall-note">{note}</p>}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ======================================================================
+ * Quiz: the design language, read off the key art. The picture stays put
+ * while the scroll moves a magnifier across its parts, one at a time.
+ * ==================================================================== */
+export type Part = { label: string; text: string; box: [number, number, number, number] } // x0, y0, x1, y1 in %
+
+export function Anatomy({ src, alt, ratio, parts, palette }: { src: string; alt: string; ratio: number; parts: Part[]; palette?: { hex: string; name: string }[] }) {
+  const box = useRef<HTMLDivElement>(null)
+  const reduce = useReducedMotion()
+  const steps = parts.length + 1
+  const [at, setAt] = useState(0)
+  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start start', 'end end'] })
+  useMotionValueEvent(p, 'change', (v) => setAt(Math.min(steps - 1, Math.max(0, Math.floor(v * steps * 0.999)))))
+  const part = at > 0 ? parts[at - 1] : null
+  // zoom so the part fills most of the frame, centred
+  let scale = 1
+  let x = '0%'
+  let y = '0%'
+  if (part) {
+    const [x0, y0, x1, y1] = part.box
+    scale = Math.min(3.2, 0.82 / Math.max((x1 - x0) / 100, (y1 - y0) / 100))
+    x = `${(50 - (x0 + x1) / 2) * scale}%`
+    y = `${(50 - (y0 + y1) / 2) * scale}%`
+  }
+  return (
+    <>
+    <section ref={box} className="cs-anat" style={{ height: `${steps * 70 + 60}vh` }}>
+      <div className="cs-anat-stage">
+        <div className="cs-anat-frame" style={{ aspectRatio: String(ratio) }}>
+          <motion.img
+            src={src}
+            alt={alt}
+            animate={{ scale, x, y }}
+            transition={reduce ? { duration: 0 } : { duration: 0.9, ease }}
+          />
+          {part && <span className="cs-anat-ring" aria-hidden="true" key={at} />}
+        </div>
+        <div className="cs-anat-card" aria-live="polite">
+          <p className="cs-label">
+            {part ? `${String(at).padStart(2, '0')} / ${String(parts.length).padStart(2, '0')}` : 'The key art'}
+          </p>
+          <motion.div key={at} initial={reduce ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease }}>
+            <h3>{part ? part.label : 'Five parts, one language'}</h3>
+            <p>{part ? part.text : 'Scroll to take the key art apart.'}</p>
+          </motion.div>
+          <div className="cs-anat-dots" aria-hidden="true">
+            {parts.map((q, i) => (
+              <span key={q.label} className={i < at ? 'on' : ''} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+      {palette && (
+        <div className="cs-anat-palette">
+          {palette.map((c) => (
+            <figure key={c.hex}>
+              <span style={{ background: c.hex }} />
+              <figcaption>
+                <strong>{c.name}</strong> {c.hex}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      )}
+    </>
+  )
+}
+
+/* ======================================================================
+ * Quiz: every question as a stamp on one sheet. As you scroll, a postmark
+ * roller runs down the sheet and cancels each row it passes.
+ * ==================================================================== */
+function Postmark() {
+  return (
+    <svg className="cs-postmark" viewBox="0 0 200 120" aria-hidden="true">
+      <circle cx="60" cy="60" r="44" fill="none" stroke="currentColor" strokeWidth="5" />
+      <circle cx="60" cy="60" r="34" fill="none" stroke="currentColor" strokeWidth="2" />
+      <text x="60" y="70" textAnchor="middle" fontSize="28" fontWeight="800" fill="currentColor" fontFamily="sans-serif">
+        N12
+      </text>
+      {[30, 48, 66, 84].map((yy) => (
+        <path key={yy} d={`M108 ${yy} q11 -9 22 0 t22 0 t22 0 t22 0`} fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+      ))}
+    </svg>
+  )
+}
+
+export function StampSheet({ items, cols = 4 }: { items: Img[]; cols?: number }) {
+  const box = useRef<HTMLDivElement>(null)
+  const open = useLightbox()
+  const phone = usePhone()
+  const reduce = useReducedMotion()
+  const rows = Math.ceil(items.length / cols)
+  const [done, setDone] = useState(reduce ? rows : 0)
+  const { scrollYProgress: p } = useScroll({ target: box, offset: phone ? ['start 0.8', 'end 0.6'] : ['start start', 'end end'] })
+  const r = phone ? Math.ceil(items.length / 2) : rows
+  useMotionValueEvent(p, 'change', (v) => {
+    if (!reduce) setDone(Math.floor(Math.min(1, Math.max(0, (v - 0.08) / 0.8)) * (r + 0.01)))
+  })
+  const roller = useTransform(p, [0.08, 0.88], ['0%', '100%'])
+  return (
+    <section ref={box} className={`cs-sheet-wrap${phone ? ' is-flow' : ''}`} style={phone ? undefined : { height: '240vh' }}>
+      <div className="cs-sheet-stage">
+        <div className="cs-sheet" style={{ ['--cols' as string]: phone ? 2 : cols }}>
+          {items.map((m, i) => {
+            const row = Math.floor(i / (phone ? 2 : cols))
+            return (
+              <button key={m.src} type="button" className={`cs-stamp${row < done ? ' is-cancelled' : ''}`} style={{ ['--tilt' as string]: `${((i * 7) % 5) - 2}deg` }} onClick={() => open(m)} aria-label={`Enlarge: ${m.alt}`}>
+                <span className="cs-stamp-paper">
+                  <img src={m.src} alt="" loading="lazy" />
+                </span>
+                <Postmark />
+              </button>
+            )
+          })}
+          {!phone && !reduce && (
+            <motion.span className="cs-sheet-roller" style={{ top: roller }} aria-hidden="true">
+              <Postmark />
+            </motion.span>
+          )}
+        </div>
+      </div>
+    </section>
   )
 }

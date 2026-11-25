@@ -1,7 +1,7 @@
 /* Project case-study page. Keeps the hero geometry and the two transitions of the
  * previous page (home → project left wipe, next-project hand-over); the body of each
  * project is its own art-directed component in pages.tsx. */
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion'
 import { PERSON, PROJECTS, coverPos, type Project } from '../data'
 import { href, useFlight, useTone } from '../store'
@@ -22,7 +22,7 @@ function Title({ word, filled, delay }: { word: string; filled: boolean; delay: 
           className="cs-title-ch"
           initial={filled ? false : { y: '115%', rotate: 9 }}
           animate={{ y: '0%', rotate: 0 }}
-          transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1], delay: delay + k * 0.045 }}
+          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: delay + k * 0.03 }}
         >
           {ch === ' ' ? '\u00A0' : ch}
         </motion.span>
@@ -52,6 +52,11 @@ export function CaseStudy({ project }: { project: Project }) {
     setTone(t)
   }
 
+  /* A new page always opens at its top, even if the old one was still leaving when the route changed */
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   /* The hero clip stops decoding once the story covers it */
   useEffect(() => {
     const el = heroVid.current
@@ -73,7 +78,11 @@ export function CaseStudy({ project }: { project: Project }) {
   /* As you start scrolling, the cover grows out of its box until it fills the whole hero */
   const [geo, setGeo] = useState(() => ({ box: heroBox(), vw: window.innerWidth, vh: window.innerHeight }))
   useEffect(() => {
-    const on = () => setGeo({ box: heroBox(), vw: window.innerWidth, vh: window.innerHeight })
+    // a phone's address bar showing or hiding only nudges the height: ignore that, or the clip jumps mid-scroll
+    const on = () =>
+      setGeo((g) =>
+        g.vw === window.innerWidth && Math.abs(g.vh - window.innerHeight) < 120 ? g : { box: heroBox(), vw: window.innerWidth, vh: window.innerHeight },
+      )
     window.addEventListener('resize', on)
     return () => window.removeEventListener('resize', on)
   }, [])
@@ -101,39 +110,71 @@ export function CaseStudy({ project }: { project: Project }) {
   const nextFilter = useTransform(near, [0.35, 1], ['grayscale(1)', 'grayscale(0)'])
 
   /* The page colour follows the act in the middle of the screen; the header follows too */
+  const dwell = useRef(0)
   useEffect(() => {
+    // the acts never change while the page is open: find them once
+    const acts = Array.from(document.querySelectorAll<HTMLElement>('.cs [data-act]'))
+    let raf = 0
     const apply = () => {
+      raf = 0
       if (going) return
-      const acts = document.querySelectorAll<HTMLElement>('.cs [data-act]')
       let cur: HTMLElement | null = null
       for (const a of acts) if (a.getBoundingClientRect().top <= window.innerHeight * 0.5) cur = a
       const tone = cur ? { bg: cur.dataset.bg!, fg: cur.dataset.fg! } : c.acts
       setAct((p) => (p && p.bg === tone.bg && p.fg === tone.fg ? p : tone))
       const nr = nextRef.current?.getBoundingClientRect()
       const top = nr?.top ?? Infinity
-      // The next project fills the screen: hand over to it
+      // The next project fills the screen: hand over to it once the visitor rests there,
+      // so a single flick on a phone doesn't navigate by accident
       if (nr && nr.top <= 2 && nr.bottom <= window.innerHeight + 2) {
-        setGoing(true)
+        if (!dwell.current) dwell.current = window.setTimeout(() => setGoing(true), 420)
         return
+      }
+      if (dwell.current) {
+        window.clearTimeout(dwell.current)
+        dwell.current = 0
       }
       if (top < 60) toneTo(next.colors)
       else if (window.scrollY > window.innerHeight * 0.92) toneTo(tone)
       else toneTo(hero)
     }
+    const tick = () => {
+      if (!raf) raf = requestAnimationFrame(apply)
+    }
     apply()
-    window.addEventListener('scroll', apply, { passive: true })
-    window.addEventListener('resize', apply)
+    window.addEventListener('scroll', tick, { passive: true })
+    window.addEventListener('resize', tick)
     return () => {
-      window.removeEventListener('scroll', apply)
-      window.removeEventListener('resize', apply)
+      cancelAnimationFrame(raf)
+      window.clearTimeout(dwell.current)
+      dwell.current = 0
+      window.removeEventListener('scroll', tick)
+      window.removeEventListener('resize', tick)
     }
   }, [hero, next, going, setTone, c]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!going) return
-    const stop = (e: Event) => e.preventDefault()
+    // scrolling back up during the wipe cancels it
+    const back = () => {
+      setGoing(false)
+      window.scrollBy(0, -window.innerHeight * 0.35)
+    }
+    let ty = 0
+    const tStart = (e: TouchEvent) => {
+      ty = e.touches[0]?.clientY ?? 0
+    }
+    const stop = (e: Event) => {
+      e.preventDefault()
+      if (e instanceof WheelEvent && e.deltaY < -12) back()
+      else if (e instanceof TouchEvent && (e.touches[0]?.clientY ?? 0) - ty > 40) back()
+    }
+    window.addEventListener('touchstart', tStart, { passive: true })
     const keys = (e: KeyboardEvent) => {
-      if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(e.key)) e.preventDefault()
+      if (['ArrowUp', 'PageUp', 'Home'].includes(e.key)) {
+        e.preventDefault()
+        back()
+      } else if (['ArrowDown', 'PageDown', 'End', ' '].includes(e.key)) e.preventDefault()
     }
     window.addEventListener('wheel', stop, { passive: false })
     window.addEventListener('touchmove', stop, { passive: false })
@@ -148,6 +189,7 @@ export function CaseStudy({ project }: { project: Project }) {
     }, 1250)
     return () => {
       window.clearTimeout(t)
+      window.removeEventListener('touchstart', tStart)
       window.removeEventListener('wheel', stop)
       window.removeEventListener('touchmove', stop)
       window.removeEventListener('keydown', keys)
@@ -166,7 +208,7 @@ export function CaseStudy({ project }: { project: Project }) {
       <div className={`cs v2-project cs-${c.theme}`}>
         {/* ---------- Hero (same box as the home wipe lands on) ---------- */}
         <div className="cs-hero-wrap">
-        <section className="v2-hero" style={{ background: hero.bg, color: hero.fg, ['--halo' as string]: hero.bg }}>
+        <section className="v2-hero" style={{ background: hero.bg, color: hero.fg, ['--halo' as string]: hero.over ? hero.fg : hero.bg, ['--over' as string]: hero.over ?? hero.fg }}>
           <motion.div className="cs-hero-full" style={{ clipPath: heroClip }}>
             <motion.div className={`cs-hero-img${topFocus ? ' is-top' : ''}`} style={{ scale: heroScale, y: heroShift }}>
             {c.heroVideo ? (
@@ -189,9 +231,12 @@ export function CaseStudy({ project }: { project: Project }) {
           <motion.h1 className="v2-hero-title cs-title-under" style={{ opacity: heroText }} aria-label={project.word}>
             <Title word={project.word} filled={via === 'next'} delay={via === 'home' ? 0.75 : 0.35} />
           </motion.h1>
-          <motion.p className="v2-hero-title cs-title-over" style={{ opacity: heroText }} aria-hidden="true">
-            <Title word={project.word} filled={via === 'next'} delay={via === 'home' ? 0.75 : 0.35} />
-          </motion.p>
+          {/* the outline copy is clipped to the cover itself, so it only ever shows over the picture */}
+          <motion.div className="cs-title-over-wrap" style={{ clipPath: heroClip }} aria-hidden="true">
+            <motion.p className="v2-hero-title cs-title-over" style={{ opacity: heroText }}>
+              <Title word={project.word} filled={via === 'next'} delay={via === 'home' ? 0.75 : 0.35} />
+            </motion.p>
+          </motion.div>
           <motion.p className="v2-label v2-hero-kind" style={{ opacity: heroText }}>
             {project.kind}
           </motion.p>
