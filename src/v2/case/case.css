@@ -895,25 +895,9 @@
   line-height: 1.6;
 }
 
-.cs .cs-roster {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 14px;
-}
 
-.cs .cs-roster-item img {
-  display: block;
-  width: clamp(70px, 8vw, 110px);
-  border-radius: 6px;
-  transition: scale 0.8s var(--cs-elastic), rotate 0.8s var(--cs-elastic);
-}
 
 @media (any-hover: hover) {
-  .cs .cs-roster-item:hover img {
-    scale: 1.15;
-    rotate: -3deg;
-  }
 }
 
 /* ---------- Rescue ---------- */
@@ -1028,9 +1012,6 @@
   .cs .cs-stack-item,
   .cs .cs-stack-item img,
   .cs .cs-amy-crop img,
-  .cs .cs-roster-item img {
-    transition: none;
-  }
 }
 
 .cs .cs-film.is-vertical {

@@ -45,10 +45,6 @@ const ba = (n: string, alt: string) => ({
   after: { src: v2(`amy/ba/${n}-after.webp`), alt: `Final treatment, ${alt}`, ratio: '1 / 1' },
 })
 const amyPairs = ['001', '002', '003', '004', '006', '007', '008', '009', '010', '011'].map((n) => ba(n, `portrait ${n}`))
-const amyRoster: Img[] = ['amy-winehouse', 'jimi-hendrix', 'janis-joplin', 'jim-morrison', 'kurt-cobain', 'brian-jones', 'keith-moon', 'bon-scott', 'sid-vicious', 'robby-krieger', 'richard-manitas'].map((r) => ({
-  src: v2(`amy/roster/${r}.webp`),
-  alt: r.replace('-', ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-}))
 
 const amyBody = (
   <>
@@ -136,14 +132,6 @@ const amyBody = (
           <p className="cs-label">Series badge</p>
           <p>A recurring 27 Club badge that connects the individual stories to the wider editorial special.</p>
         </Reveal>
-      </div>
-      <Gap size="s" />
-      <div className="cs-wrap cs-roster">
-        {amyRoster.map((m, i) => (
-          <Reveal key={m.src} delay={i * 0.04} className="cs-roster-item">
-            <img src={m.src} alt={m.alt} loading="lazy" />
-          </Reveal>
-        ))}
       </div>
       <Gap size="l" />
     </Act>
