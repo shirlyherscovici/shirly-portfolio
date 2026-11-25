@@ -1575,3 +1575,143 @@ html.v2-booting .v2-allbtn {
     font-size: 11px;
   }
 }
+
+/* ---------- About, laid out like a single long letter ---------- */
+.v2-ab {
+  max-width: 980px;
+  padding-bottom: clamp(40px, 8vh, 90px);
+}
+
+.v2-ab-intro {
+  max-width: 30ch;
+  margin: 0;
+  font-size: clamp(22px, 2.4vw, 32px);
+  line-height: 1.4;
+}
+
+.v2-ab-social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  margin-top: 28px;
+}
+
+.v2-ab-social a,
+.v2-ab-work a {
+  color: inherit;
+}
+
+.v2-ab-big {
+  margin: clamp(80px, 14vh, 160px) 0 0;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(30px, 4.2vw, 56px);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+
+.v2-ab-sec {
+  margin-top: clamp(70px, 12vh, 140px);
+}
+
+.v2-ab-sec h2 {
+  margin: 0 0 22px;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(26px, 3vw, 38px);
+  letter-spacing: -0.02em;
+}
+
+.v2-ab-text {
+  max-width: 62ch;
+  margin: 0 0 18px;
+  font-size: clamp(17px, 1.4vw, 20px);
+  line-height: 1.6;
+}
+
+.v2-ab-work,
+.v2-ab-time,
+.v2-ab-clients {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.v2-ab-work a {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 2fr auto;
+  align-items: baseline;
+  gap: 18px;
+  padding: 16px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  text-decoration: none;
+  font-size: 16px;
+  line-height: 1.45;
+  transition: padding 0.4s cubic-bezier(0.22, 1, 0.36, 1), color 0.3s;
+}
+
+.v2-ab-work a:hover {
+  padding-left: 14px;
+  color: var(--c);
+}
+
+.v2-ab-work .v2-label {
+  opacity: 0.55;
+  white-space: nowrap;
+}
+
+.v2-ab-clients {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 28px;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(24px, 3.2vw, 42px);
+  letter-spacing: -0.02em;
+}
+
+.v2-ab-time li {
+  display: grid;
+  grid-template-columns: 140px 1fr auto;
+  gap: 18px;
+  padding: 18px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.v2-ab-time .v2-label {
+  opacity: 0.6;
+}
+
+.v2-ab-where {
+  opacity: 0.6;
+}
+
+.v2-ab-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+}
+
+.v2-ab-sign {
+  margin: clamp(90px, 16vh, 180px) 0 18px;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(36px, 6vw, 84px);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+
+@media (max-width: 760px) {
+  .v2-ab-work a,
+  .v2-ab-time li,
+  .v2-ab-two {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .v2-ab-two {
+    gap: 40px;
+  }
+}

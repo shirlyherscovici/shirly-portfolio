@@ -68,7 +68,7 @@ function Shell() {
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
     window.scrollTo(0, 0)
     const proj = route.page === 'project' ? PROJECTS.find((p) => p.slug === route.slug) : null
-    document.title = proj ? `${proj.name} | Shirly Herscovici` : route.page === 'about' ? 'About | Shirly Herscovici' : 'Shirly Herscovici | Motion, AI & graphic designer'
+    document.title = proj ? `${proj.name} | Shirly Herscovici` : route.page === 'about' ? 'About | Shirly Herscovici' : 'Shirly Herscovici | Motion designer & realistic AI visuals'
   }, [key]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
