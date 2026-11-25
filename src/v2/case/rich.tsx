@@ -62,7 +62,7 @@ export function ClipReel({ scenes, title, sound }: { scenes: Scene[]; title?: st
   useEffect(() => {
     const el = box.current
     if (!el) return
-    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.15 })
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { rootMargin: '-45% 0px -45% 0px' })
     io.observe(el)
     return () => io.disconnect()
   }, [])
@@ -423,49 +423,157 @@ export function RetroGrid({ children }: { children?: ReactNode }) {
  * Episodes (The Partner): one full-screen stage; as you scroll, each part
  * wipes in over the last one, its number slides past and a rail fills.
  * ==================================================================== */
-export type Episode = { loop: string; poster: string; num: string; title: string; quote?: string }
+export type Episode = { src: string; poster: string; srcMobile?: string; posterMobile?: string; num: string; title: string }
 
-function EpisodeLayer({ e, i, n, p }: { e: Episode; i: number; n: number; p: MotionValue<number> }) {
-  const v = useRef<HTMLVideoElement>(null)
-  useInViewPlay(v)
+/* Phones get the vertical cut where one exists */
+function usePhone() {
+  const q = '(max-width: 760px)'
+  const [phone, setPhone] = useState(() => window.matchMedia(q).matches)
+  useEffect(() => {
+    const m = window.matchMedia(q)
+    const on = () => setPhone(m.matches)
+    m.addEventListener('change', on)
+    return () => m.removeEventListener('change', on)
+  }, [])
+  return phone
+}
+
+function EpisodeLayer({ e, i, n, p, phone, setRef, onEnded }: { e: Episode; i: number; n: number; p: MotionValue<number>; phone: boolean; setRef: (el: HTMLVideoElement | null) => void; onEnded: () => void }) {
   const start = i / n
   // each layer opens as a widening band from the middle of the screen
   const open = useTransform(p, [start - 0.6 / n, start], [50, 0], { clamp: true })
   const clip = useTransform(open, (o) => (i === 0 ? 'inset(0% 0% 0% 0%)' : `inset(${o}% 0% ${o}% 0%)`))
-  const scale = useTransform(p, [start - 0.6 / n, start + 1 / n], [1.25, 1])
+  const scale = useTransform(p, [start - 0.6 / n, start + 1 / n], [1.2, 1])
   const textY = useTransform(p, [start - 0.3 / n, start + 0.2 / n, start + 0.85 / n], [80, 0, -40])
   const textO = useTransform(p, [start - 0.3 / n, start + 0.15 / n, start + 0.8 / n, start + 1 / n], i === n - 1 ? [0, 1, 1, 1] : [0, 1, 1, 0])
+  const tall = phone && !!e.srcMobile
   return (
-    <motion.div className="cs-ep-layer" style={{ clipPath: clip, zIndex: i + 1 }}>
-      <motion.video ref={v} src={e.loop} poster={e.poster} muted loop playsInline preload="none" aria-hidden="true" style={{ scale }} />
+    <motion.div className={`cs-ep-layer${phone ? ' is-phone' : ''}`} style={{ clipPath: clip, zIndex: i + 1 }}>
+      <motion.video
+        ref={setRef}
+        src={tall ? e.srcMobile : e.src}
+        poster={tall ? e.posterMobile : e.poster}
+        muted
+        playsInline
+        preload={i === 0 ? 'metadata' : 'none'}
+        aria-label={`The Partner, part ${e.num}`}
+        onEnded={onEnded}
+        style={{ scale: phone ? 1 : scale }}
+      />
       <motion.div className="cs-ep-text" style={{ y: textY, opacity: textO }}>
         <span className="cs-ep-num" aria-hidden="true">{e.num}</span>
         <p className="cs-label">Part {e.num}</p>
         <p className="cs-ep-title">{e.title}</p>
-        {e.quote && <p className="cs-ep-quote">{e.quote}</p>}
       </motion.div>
     </motion.div>
   )
 }
 
+/* Episodes: the four parts in order, full screen. The part on screen plays
+ * (with sound once the visitor turns it on); when it ends, the page moves on
+ * to the next part. */
 export function EpisodeScroll({ episodes }: { episodes: Episode[] }) {
+  const n = episodes.length
   const box = useRef<HTMLDivElement>(null)
+  const vids = useRef<(HTMLVideoElement | null)[]>([])
+  const phone = usePhone()
   const { scrollYProgress: p } = useScroll({ target: box, offset: ['start start', 'end end'] })
   const [at, setAt] = useState(0)
-  useMotionValueEvent(p, 'change', (v) => setAt(Math.min(episodes.length - 1, Math.floor(v * episodes.length * 0.999))))
+  useMotionValueEvent(p, 'change', (v) => setAt(Math.min(n - 1, Math.floor(v * n * 0.999))))
+  const [inView, setInView] = useState(false)
+  const [playing, setPlaying] = useState(true)
+  const [sound, setSound] = useState(false)
+  const [t, setT] = useState(0)
+
+  // on screen = the section covers the middle of the viewport, read from the scroll itself
+  const { scrollYProgress: seen } = useScroll({ target: box, offset: ['start center', 'end center'] })
+  useMotionValueEvent(seen, 'change', (v) => setInView(v > 0 && v < 1))
+  useEffect(() => {
+    const v = seen.get()
+    setInView(v > 0 && v < 1)
+  }, [seen])
+
+  // only the part on screen plays; the others wait where they stopped
+  useEffect(() => {
+    vids.current.forEach((v, i) => {
+      if (!v) return
+      v.muted = !sound
+      if (i === at && inView && playing) {
+        if (v.preload === 'none') v.preload = 'auto'
+        v.play().catch(() => {
+          // sound needs a tap on some browsers: fall back to muted
+          v.muted = true
+          setSound(false)
+          v.play().catch(() => setPlaying(false))
+        })
+      } else v.pause()
+    })
+  }, [at, inView, playing, sound, phone])
+
+  // progress of the part on screen
+  useEffect(() => {
+    const v = vids.current[at]
+    if (!v) return
+    const on = () => setT(v.duration ? v.currentTime / v.duration : 0)
+    v.addEventListener('timeupdate', on)
+    on()
+    return () => v.removeEventListener('timeupdate', on)
+  }, [at, phone])
+
+  const goTo = (i: number) => {
+    const el = box.current
+    if (!el) return
+    const top = el.getBoundingClientRect().top + window.scrollY
+    const run = el.offsetHeight - window.innerHeight
+    window.scrollTo({ top: top + run * ((i + 0.5) / n), behavior: 'smooth' })
+  }
+
+  const ended = (i: number) => {
+    if (i !== at) return
+    if (i < n - 1) {
+      const next = vids.current[i + 1]
+      if (next) next.currentTime = 0
+      goTo(i + 1)
+    } else setPlaying(false)
+  }
+
+  const toggle = () => {
+    const v = vids.current[at]
+    if (!playing && v && v.ended) v.currentTime = 0
+    setPlaying((x) => !x)
+  }
+
   return (
-    <section ref={box} className="cs-ep" style={{ height: `${episodes.length * 100 + 60}vh` }}>
+    <section ref={box} className="cs-ep" style={{ height: `${n * 100 + 60}vh` }}>
       <div className="cs-ep-stage">
         {episodes.map((e, i) => (
-          <EpisodeLayer key={e.loop} e={e} i={i} n={episodes.length} p={p} />
+          <EpisodeLayer key={e.src} e={e} i={i} n={n} p={p} phone={phone} setRef={(el) => (vids.current[i] = el)} onEnded={() => ended(i)} />
         ))}
         <ol className="cs-ep-rail" aria-label="Parts">
           {episodes.map((e, i) => (
             <li key={e.num} className={i === at ? 'on' : i < at ? 'done' : ''}>
-              <span>{e.num}</span>
+              <button type="button" onClick={() => goTo(i)} aria-current={i === at ? 'step' : undefined} aria-label={`Part ${e.num}`}>
+                <span>{e.num}</span>
+              </button>
             </li>
           ))}
         </ol>
+        <div className="cs-ep-controls">
+          <button type="button" className="cs-ep-btn" onClick={toggle} aria-label={playing ? 'Pause' : 'Play'}>
+            <span aria-hidden="true">{playing ? '❚❚' : '▶'}</span>
+          </button>
+          <button type="button" className={`cs-ep-btn cs-ep-sound${sound ? ' is-on' : ''}`} onClick={() => setSound((s) => !s)} aria-pressed={sound}>
+            <span className="cs-reel-eq" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </span>
+            {sound ? 'Sound on' : 'Sound off'}
+          </button>
+          <span className="cs-ep-time" aria-hidden="true">
+            <span style={{ width: `${t * 100}%` }} />
+          </span>
+        </div>
       </div>
     </section>
   )
@@ -514,10 +622,11 @@ export function FormatMorph({ wide, tall, poster, tallPoster }: { wide: string; 
 /* ======================================================================
  * Episode player: every part in full, with sound, one at a time
  * ==================================================================== */
-export type Part = { src: string; poster: string; num: string; title: string; length: string }
+export type Part = { src: string; poster: string; srcMobile?: string; posterMobile?: string; num: string; title: string; length: string }
 
-export function EpisodePlayer({ parts, children }: { parts: Part[]; children: (p: Part) => ReactNode }) {
+export function EpisodePlayer({ parts, children }: { parts: Part[]; children: (p: Part, phone: boolean) => ReactNode }) {
   const [at, setAt] = useState(0)
+  const phone = usePhone()
   return (
     <div className="cs-player">
       <div className="cs-wrap-wide">
@@ -532,7 +641,7 @@ export function EpisodePlayer({ parts, children }: { parts: Part[]; children: (p
           ))}
         </div>
       </div>
-      <div key={parts[at].src}>{children(parts[at])}</div>
+      <div key={parts[at].src + phone}>{children(parts[at], phone)}</div>
     </div>
   )
 }

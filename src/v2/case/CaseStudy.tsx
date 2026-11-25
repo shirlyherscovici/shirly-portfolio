@@ -3,7 +3,7 @@
  * project is its own art-directed component in pages.tsx. */
 import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion'
-import { PERSON, PROJECTS, type Project } from '../data'
+import { PERSON, PROJECTS, coverPos, type Project } from '../data'
 import { href, useFlight, useTone } from '../store'
 import { heroBox } from '../geom'
 import { Credits, LightboxProvider } from './blocks'
@@ -85,6 +85,14 @@ export function CaseStudy({ project }: { project: Project }) {
   const s0 = Math.max(geo.box.w / geo.vw, geo.box.h / geo.vh)
   const heroScale = useTransform(grow, (g) => s0 + (1 - s0) * g)
   const heroText = useTransform(grow, [0.35, 0.8], [1, 0])
+  /* A cover whose focus is at the top (a logo, a title) is lowered so its top sits in the box,
+   * then eases back as the picture grows to fill the screen */
+  const topFocus = /(^|\s)0%$/.test(coverPos(project) ?? '')
+  // on a portrait screen the cover is shown whole (contain, centred), so its visible height is the screen width × its own shape
+  const [coverShape, setCoverShape] = useState(1)
+  const portrait = geo.vh > geo.vw
+  const shownH = portrait ? Math.min(geo.vh, geo.vw * coverShape) : geo.vh
+  const heroShift = useTransform(grow, (g) => (topFocus && !c.heroVideo ? Math.max(0, (shownH * s0 - geo.box.h) / 2) * (1 - g) : 0))
 
   /* ---------- Next project hand-over ---------- */
   const [going, setGoing] = useState(false)
@@ -159,13 +167,15 @@ export function CaseStudy({ project }: { project: Project }) {
         <div className="cs-hero-wrap">
         <section className="v2-hero" style={{ background: hero.bg, color: hero.fg }}>
           <motion.div className="cs-hero-full" style={{ clipPath: heroClip }}>
-            <motion.div className="cs-hero-img" style={{ scale: heroScale }}>
+            <motion.div className={`cs-hero-img${topFocus ? ' is-top' : ''}`} style={{ scale: heroScale, y: heroShift }}>
             {c.heroVideo ? (
               <video ref={heroVid} src={c.heroVideo} poster={project.cover.src} autoPlay muted loop playsInline aria-label={project.cover.alt} />
             ) : (
               <motion.img
                 src={project.cover.src}
                 alt={project.cover.alt}
+                style={{ objectPosition: coverPos(project) }}
+                onLoad={(e) => e.currentTarget.naturalWidth && setCoverShape(e.currentTarget.naturalHeight / e.currentTarget.naturalWidth)}
                 initial={via ? false : { clipPath: 'inset(100% 0% 0% 0%)', scale: 1.12 }}
                 animate={{ clipPath: 'inset(0% 0% 0% 0%)', scale: 1 }}
                 transition={{ duration: 1.1, ease: wipe }}
@@ -222,7 +232,7 @@ export function CaseStudy({ project }: { project: Project }) {
               animate={going ? flat : lean}
               transition={{ duration: 0.9, ease: wipe, delay: 0.25 }}
             >
-              <img src={next.cover.src} alt="" loading="lazy" />
+              <img src={next.cover.src} alt="" loading="lazy" style={{ objectPosition: coverPos(next) }} />
             </motion.div>
           </div>
           <motion.h2

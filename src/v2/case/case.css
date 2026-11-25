@@ -2215,3 +2215,121 @@
   .cs .cs-ep-rail li::after { width: 10px; }
   .cs .cs-ep-rail li.on::after { width: 24px; }
 }
+
+/* ---------- The Partner: controls, clickable rail, wide parts on a phone ---------- */
+.cs .cs-ep-rail button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
+.cs .cs-ep-rail li::after {
+  content: none;
+}
+
+.cs .cs-ep-rail button::after {
+  content: '';
+  width: 18px;
+  height: 2px;
+  background: currentColor;
+  transition: width 0.5s var(--cs-ease), background-color 0.4s;
+}
+
+.cs .cs-ep-rail li.on button::after {
+  width: 44px;
+  background: #d61f2c;
+}
+
+.cs .cs-ep-controls {
+  position: absolute;
+  right: var(--gutter);
+  bottom: clamp(28px, 6vh, 64px);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #efe6d6;
+}
+
+.cs .cs-ep-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px solid rgba(239, 230, 214, 0.4);
+  border-radius: 999px;
+  background: rgba(5, 9, 11, 0.55);
+  backdrop-filter: blur(8px);
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.cs .cs-ep-btn:hover,
+.cs .cs-ep-sound.is-on {
+  border-color: #d61f2c;
+}
+
+.cs .cs-ep-sound.is-on .cs-reel-eq i {
+  background: #d61f2c;
+  animation: cs-eq 0.9s ease-in-out infinite alternate;
+}
+
+.cs .cs-ep-sound.is-on .cs-reel-eq i:nth-child(2) { animation-delay: -0.3s; }
+.cs .cs-ep-sound.is-on .cs-reel-eq i:nth-child(3) { animation-delay: -0.6s; }
+
+.cs .cs-ep-time {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -12px;
+  height: 2px;
+  background: rgba(239, 230, 214, 0.2);
+}
+
+.cs .cs-ep-time span {
+  display: block;
+  height: 100%;
+  background: #d61f2c;
+}
+
+/* On a phone every part is shown whole, so the words on screen are never cropped */
+.cs .cs-ep-layer.is-phone video {
+  object-fit: contain;
+}
+
+@media (max-width: 760px) {
+  .cs .cs-ep-controls { left: var(--gutter); right: auto; bottom: 24px; }
+  .cs .cs-ep-text { bottom: 100px; }
+  .cs .cs-ep-num { font-size: 96px; }
+  .cs .cs-ep-rail button::after { width: 10px; }
+  .cs .cs-ep-rail li.on button::after { width: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cs .cs-ep-sound.is-on .cs-reel-eq i { animation: none; height: 10px; }
+}
+
+/* A cover with its title at the top: on a portrait screen it keeps its full width, so the title is never cut */
+@media (max-aspect-ratio: 1/1) {
+  .cs .cs-hero-img.is-top img {
+    object-fit: contain;
+    object-position: 50% 50% !important;
+  }
+}

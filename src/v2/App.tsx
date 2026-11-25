@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { PROJECTS, SHELL } from './data'
+import { PROJECTS, SHELL, coverPos } from './data'
 import { FlightProvider, ToneProvider, go, href, useFlight, useRoute, useTone } from './store'
 import { Home } from './Home'
 import { CaseStudy as ProjectPage } from './case/CaseStudy'
@@ -43,6 +43,7 @@ function FlightLayer() {
             src={flight.src}
             alt=""
             className="v2-flight-img"
+            style={{ objectPosition: (() => { const p = PROJECTS.find((x) => x.slug === flight.slug); return p ? coverPos(p) : undefined })() }}
             initial={{ left: flight.rect.x, top: flight.rect.y, width: flight.rect.w, height: flight.rect.h }}
             animate={(() => {
               const t = heroBox()

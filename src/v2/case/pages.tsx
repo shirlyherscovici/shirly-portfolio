@@ -569,10 +569,10 @@ const partnerBody = (
     <Act bg="#05090b" fg={PA.cream} accent={PA.amber}>
       <EpisodeScroll
         episodes={[
-          { loop: pv('loop-1.mp4'), poster: pv('loop-1.webp'), num: '01', title: '0:31' },
-          { loop: pv('loop-2.mp4'), poster: pv('loop-2.webp'), num: '02', title: '0:28' },
-          { loop: pv('loop-3.mp4'), poster: pv('loop-3.webp'), num: '03', title: '0:30' },
-          { loop: pv('loop-4.mp4'), poster: pv('loop-4.webp'), num: '04', title: '0:51' },
+          { src: pv('part-1.mp4'), poster: pv('part-1.webp'), srcMobile: pv('part-1-mobile.mp4'), posterMobile: pv('part-1-mobile.webp'), num: '01', title: '0:31 · press sound on' },
+          { src: pv('part-2.mp4'), poster: pv('part-2.webp'), num: '02', title: '0:28' },
+          { src: pv('part-3.mp4'), poster: pv('part-3.webp'), srcMobile: pv('part-3-mobile.mp4'), posterMobile: pv('part-3-mobile.webp'), num: '03', title: '0:30' },
+          { src: pv('part-4.mp4'), poster: pv('part-4.webp'), num: '04', title: '0:51' },
         ]}
       />
     </Act>
@@ -585,16 +585,22 @@ const partnerBody = (
 
     <Act bg={PA.night} fg={PA.cream} accent={PA.amber}>
       <Gap />
-      <Chapter num="03" title="Watch the parts" note="All four parts in full. Pick one, press play, sound on." />
+      <Chapter num="03" title="Watch the parts" note="Any part on its own, in full. On a phone, parts one and three play in their vertical cut." />
       <EpisodePlayer
         parts={[
-          { src: pv('part-1.mp4'), poster: pv('part-1.webp'), num: '01', title: 'Part one', length: '0:31' },
+          { src: pv('part-1.mp4'), poster: pv('part-1.webp'), srcMobile: pv('part-1-mobile.mp4'), posterMobile: pv('part-1-mobile.webp'), num: '01', title: 'Part one', length: '0:31' },
           { src: pv('part-2.mp4'), poster: pv('part-2.webp'), num: '02', title: 'Part two', length: '0:28' },
-          { src: pv('part-3.mp4'), poster: pv('part-3.webp'), num: '03', title: 'Part three', length: '0:30' },
+          { src: pv('part-3.mp4'), poster: pv('part-3.webp'), srcMobile: pv('part-3-mobile.mp4'), posterMobile: pv('part-3-mobile.webp'), num: '03', title: 'Part three', length: '0:30' },
           { src: pv('part-4.mp4'), poster: pv('part-4.webp'), num: '04', title: 'Part four', length: '0:51' },
         ]}
       >
-        {(p) => <Film src={p.src} poster={p.poster} alt={`The Partner, part ${p.num}`} tag={`Part ${p.num} · ${p.length}`} />}
+        {(p, phone) =>
+          phone && p.srcMobile ? (
+            <Film src={p.srcMobile} poster={p.posterMobile ?? p.poster} alt={`The Partner, part ${p.num}, vertical cut`} tag={`Part ${p.num} · ${p.length} · 9:16`} vertical />
+          ) : (
+            <Film src={p.src} poster={p.poster} alt={`The Partner, part ${p.num}`} tag={`Part ${p.num} · ${p.length}`} />
+          )
+        }
       </EpisodePlayer>
       <Gap size="l" />
     </Act>

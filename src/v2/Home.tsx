@@ -11,7 +11,7 @@ import {
   useVelocity,
   type MotionValue,
 } from 'framer-motion'
-import { PERSON, PROJECTS, SHELL, type Project } from './data'
+import { PERSON, PROJECTS, SHELL, coverPos, type Project } from './data'
 import { href, useCanHover, useFlight, useTone } from './store'
 import { Contact } from './Contact'
 
@@ -203,7 +203,7 @@ function Frame({
           animate={still ? { y: '0%' } : { y: ['4%', '-4%'] }}
           transition={still ? { duration: 0.6 } : { duration: DRIFT, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
         >
-          <motion.img src={project.cover.src} alt={project.cover.alt} style={{ y: imgY, filter }} draggable={false} />
+          <motion.img src={project.cover.src} alt={project.cover.alt} style={{ y: imgY, filter, objectPosition: coverPos(project) }} draggable={false} />
         </motion.div>
         <motion.span
           className="v2-sweep"

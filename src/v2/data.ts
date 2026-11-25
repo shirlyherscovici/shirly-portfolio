@@ -3,7 +3,7 @@ import { asset } from '../lib/asset'
 const v2 = (p: string) => asset(`/v2/${p}`)
 
 export type MediaItem =
-  | { kind: 'image'; src: string; alt: string; caption?: string; fit?: 'cover' | 'contain'; ratio?: string }
+  | { kind: 'image'; src: string; alt: string; caption?: string; fit?: 'cover' | 'contain'; ratio?: string; /** focal point when cropped, e.g. '50% 0%' */ pos?: string }
   | { kind: 'video'; src: string; poster: string; alt: string; caption?: string; captions?: string; ratio?: string }
 
 /** Reusable case-study modules. Each project picks the ones its material supports. */
@@ -36,6 +36,9 @@ export type Project = {
   link?: { label: string; href: string }
   credits: { label: string; value: string }[]
 }
+
+/** Where a cropped cover keeps its focus */
+export const coverPos = (p: Project) => (p.cover.kind === 'image' ? p.cover.pos : undefined)
 
 export const SHELL = { bg: '#181818', fg: '#f0f0f0', paper: '#f0efeb', ink: '#181818' }
 /** The dark room the case study content sits in */
@@ -82,7 +85,7 @@ export const PROJECTS: Project[] = [
     kind: 'AI animation · Podcast series',
     colors: { bg: '#e8a44a', fg: '#0b1d24' },
     hero: { bg: '#0b1d24', fg: '#e8a44a' },
-    cover: { kind: 'image', src: v2('partner/banner.webp'), alt: 'The Partner: a long shadow on a rooftop over the city at sunset' },
+    cover: { kind: 'image', src: v2('partner/banner.webp'), alt: 'The Partner: a long shadow on a rooftop over the city at sunset', pos: '50% 0%' },
     loop: v2('partner/loop-1.mp4'),
     peek: v2('partner/banner.webp'),
     intro: 'A short series from N12’s daily podcast One a Day, turned into animated films with Flow.',
