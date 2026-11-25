@@ -10,7 +10,7 @@ export function Contact() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end end'] })
   const scale = useTransform(scrollYProgress, [0, 1], [reduce ? 1 : 0.45, 1])
   const y = useTransform(scrollYProgress, [0, 1], [reduce ? 0 : 120, 0])
-  const word = 'CONTACT'
+  const word = 'Contact'
 
   return (
     <footer ref={ref} className="v2-contact" id="contact">

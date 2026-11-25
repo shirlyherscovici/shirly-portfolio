@@ -1,7 +1,6 @@
 :root {
   --serif: 'Fraunces', Georgia, serif;
   --sans: 'Space Grotesk', system-ui, sans-serif;
-  --block: 'Anton', 'Impact', sans-serif;
   --ink: #181818;
   --paper: #f0efeb;
   --gutter: clamp(16px, 4vw, 48px);
@@ -404,37 +403,9 @@ html.v2-intro .v2-header > a:first-child {
   }
 }
 
-.v2-face {
-  position: fixed;
-  bottom: 22px;
-  z-index: 50;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: 0;
-  padding: 6px;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  transition: background 0.5s, color 0.5s, transform 0.3s;
-}
 
-.v2-face {
-  left: var(--gutter);
-}
 
-.v2-face:hover {
-  transform: scale(1.08);
-}
 
-.v2-bubble {
-  position: absolute;
-  left: 62px;
-  bottom: 12px;
-  white-space: nowrap;
-  padding: 8px 12px;
-  border-radius: 14px 14px 14px 4px;
-}
 
 /* ---------- Project page ---------- */
 .v2-hero {
@@ -710,10 +681,11 @@ html.v2-intro .v2-header > a:first-child {
 .v2-contact-word {
   display: block;
   text-decoration: none;
-  font-family: var(--block);
-  font-size: 29vw;
-  line-height: 0.86;
-  letter-spacing: -0.01em;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 32vw;
+  line-height: 0.9;
+  letter-spacing: -0.045em;
   white-space: nowrap;
   transform-origin: 50% 100%;
 }
@@ -894,11 +866,6 @@ html.v2-intro .v2-header > a:first-child {
     gap: 4px;
   }
 
-  .v2-face {
-    width: 46px;
-    height: 46px;
-    bottom: 16px;
-  }
 
   .v2-contact {
     min-height: 70vh;

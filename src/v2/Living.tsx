@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, useMotionValue, useSpring, useReducedMotion, AnimatePresence } from 'framer-motion'
 import { PERSON } from './data'
 import { href, useTone, useCanHover, type Route } from './store'
@@ -80,90 +80,5 @@ export function Cursor() {
         </AnimatePresence>
       </motion.div>
     </motion.div>
-  )
-}
-
-/* ---------- Living face badge: eyes follow you, blinks, smiles on hover ---------- */
-export function FaceBadge() {
-  const ref = useRef<HTMLAnchorElement>(null)
-  const reduce = useReducedMotion()
-  const px = useSpring(0, { stiffness: 200, damping: 20 })
-  const py = useSpring(0, { stiffness: 200, damping: 20 })
-  const [blink, setBlink] = useState(false)
-  const [hover, setHover] = useState(false)
-  const { fg, bg } = useTone()
-
-  useEffect(() => {
-    const move = (e: PointerEvent) => {
-      const r = ref.current?.getBoundingClientRect()
-      if (!r) return
-      const dx = e.clientX - (r.left + r.width / 2)
-      const dy = e.clientY - (r.top + r.height / 2)
-      const d = Math.hypot(dx, dy) || 1
-      const k = Math.min(1, d / 220) * 3.2
-      px.set((dx / d) * k)
-      py.set((dy / d) * k)
-    }
-    window.addEventListener('pointermove', move)
-    return () => window.removeEventListener('pointermove', move)
-  }, [px, py])
-
-  useEffect(() => {
-    if (reduce) return
-    let t: number
-    const loop = () => {
-      t = window.setTimeout(() => {
-        setBlink(true)
-        window.setTimeout(() => setBlink(false), 140)
-        loop()
-      }, 2200 + Math.random() * 2800)
-    }
-    loop()
-    return () => window.clearTimeout(t)
-  }, [reduce])
-
-  return (
-    <a
-      ref={ref}
-      href={`mailto:${PERSON.email}`}
-      className="v2-face"
-      aria-label={`Email ${PERSON.name}`}
-      onPointerEnter={() => setHover(true)}
-      onPointerLeave={() => setHover(false)}
-      onFocus={() => setHover(true)}
-      onBlur={() => setHover(false)}
-      style={{ background: fg, color: bg }}
-    >
-      <motion.svg viewBox="0 0 40 40" width="100%" height="100%" animate={{ rotate: hover ? -8 : 0 }} aria-hidden="true">
-        {[14, 26].map((cx) => (
-          <g key={cx}>
-            <motion.ellipse cx={cx} cy={17} rx={4.6} ry={5.2} initial={{ ry: 5.2 }} animate={{ ry: blink ? 0.6 : 5.2 }} transition={{ duration: 0.08 }} fill="currentColor" />
-            {!blink && <motion.circle cx={cx} cy={17} r={2.2} style={{ x: px, y: py }} fill={fg} />}
-          </g>
-        ))}
-        <motion.path
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2.4}
-          strokeLinecap="round"
-          d="M14 28 Q20 30 26 28"
-          initial={{ d: "M14 28 Q20 30 26 28" }}
-          animate={{ d: hover ? 'M12 26 Q20 34 28 26' : 'M14 28 Q20 30 26 28' }}
-        />
-      </motion.svg>
-      <AnimatePresence>
-        {hover && (
-          <motion.span
-            className="v2-bubble v2-label"
-            initial={{ opacity: 0, y: 6, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.9 }}
-            style={{ background: fg, color: bg }}
-          >
-            Say hi!
-          </motion.span>
-        )}
-      </AnimatePresence>
-    </a>
   )
 }
