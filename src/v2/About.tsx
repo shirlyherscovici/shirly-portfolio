@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { PERSON, PROJECTS } from './data'
 import { href, useTone } from './store'
 import { Contact } from './Contact'
+import { ScrollArrow } from './ScrollArrow'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
@@ -75,6 +76,10 @@ export function About() {
           <a href={PERSON.cv} target="_blank" rel="noopener noreferrer">
             CV (PDF) ↗
           </a>
+        </motion.div>
+
+        <motion.div className="v2-ab-arrow" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9, duration: 0.6 }}>
+          <ScrollArrow fill="#171717" ink="#fbf8f3" onClick={() => window.scrollTo({ top: window.innerHeight * 0.8, behavior: 'smooth' })} />
         </motion.div>
 
 

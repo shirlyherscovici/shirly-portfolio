@@ -580,10 +580,24 @@ html.v2-snap {
   cursor: pointer;
 }
 
-.v2-scrollcue span {
-  width: 6px;
-  height: 6px;
+.v2-arrow {
+  width: 52px;
+  height: 52px;
+  border: 0;
   border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.v2-arrow:hover,
+.v2-arrow:focus-visible {
+  transform: scale(1.12);
+}
+
+.v2-ab-arrow {
+  margin-top: clamp(40px, 8vh, 80px);
 }
 
 .v2-curtain {
@@ -1222,7 +1236,7 @@ html.v2-booting .v2-pills {
 
 .v2-project .v2-scrollcue {
   left: 50%;
-  margin-left: -20px;
+  margin-left: -26px;
   z-index: 2;
 }
 

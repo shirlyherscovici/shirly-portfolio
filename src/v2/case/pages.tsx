@@ -339,7 +339,7 @@ const soundBody = (
     </Act>
 
     <Act bg="#0b0220" fg={SO.lilac} accent={SO.neon}>
-      <Chapter num="02" title="The neon key art" note="Scroll to switch the sign on, one tube at a time." />
+      <Chapter num="02" title="The neon key art" note="The sign switches itself on, one tube at a time." />
       <NeonSign
         src={v2('galgalatz/banner-cover.webp')}
         alt="The neon key art: popcorn, a drink, nachos, 3D glasses, a clapperboard and a film reel above the title Music from the Screen, the chart"
@@ -356,6 +356,7 @@ const soundBody = (
           [20.5, 14, 82, 69.5],
         ]}
       />
+      <Gap size="l" />
     </Act>
 
     <Act bg={SO.violet} fg={SO.lilac} accent={SO.neon}>

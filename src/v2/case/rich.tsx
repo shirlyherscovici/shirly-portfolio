@@ -2,7 +2,7 @@
  * a cinematic clip reel, a phone that tells the story while you scroll, a vault of real
  * objects, real-vs-film scenes, a playable quiz and an 80s grid floor. */
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
-import { AnimatePresence, motion, useScroll, useTransform, useMotionValueEvent, useReducedMotion, type MotionValue } from 'framer-motion'
+import { AnimatePresence, motion, useInView, useScroll, useTransform, useMotionValueEvent, useReducedMotion, type MotionValue } from 'framer-motion'
 import { ease, useLightbox, type Img } from './blocks'
 
 /* Play a muted clip only while it is on screen */
@@ -787,33 +787,44 @@ export function StampPalette({ colors }: { colors: { hex: string; name: string }
 export type Tube = [number, number, number, number] // x0, y0, x1, y1 in %
 
 export function NeonSign({ src, alt, tubes }: { src: string; alt: string; tubes: Tube[] }) {
+  // Like the films on Robin's case studies that start playing as soon as they are on screen:
+  // the sign switches itself on once it is in view, at its own pace, however fast you scroll
   const box = useRef<HTMLDivElement>(null)
+  const seen = useInView(box, { once: true, amount: 0.45 })
   const n = tubes.length
   const [on, setOn] = useState(0)
-  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start start', 'end end'] })
-  useMotionValueEvent(p, 'change', (v) => setOn(Math.floor(Math.min(1, Math.max(0, (v - 0.06) / 0.78)) * (n + 0.999))))
-  const all = on > n - 1
+  const [run, setRun] = useState(0)
+  useEffect(() => {
+    if (!seen) return
+    setOn(0)
+    let k = 0
+    const t = window.setInterval(() => {
+      k += 1
+      setOn(k)
+      if (k >= n) window.clearInterval(t)
+    }, 260)
+    return () => window.clearInterval(t)
+  }, [seen, run, n])
+  const all = on >= n
   return (
-    <section ref={box} className="cs-sign" style={{ height: '240vh' }}>
-      <div className="cs-sign-stage">
-        <div className={`cs-sign-board${all ? ' is-lit' : ''}`}>
-          <img className="cs-sign-base" src={src} alt={alt} />
-          {tubes.map(([x0, y0, x1, y1], i) => (
-            <img
-              key={i}
-              className={`cs-sign-tube${i < on ? ' on' : ''}`}
-              src={src}
-              alt=""
-              aria-hidden="true"
-              style={{ clipPath: `inset(${y0}% ${100 - x1}% ${100 - y1}% ${x0}%)`, ['--d' as string]: `${(i % 3) * 0.07}s` }}
-            />
-          ))}
-        </div>
-        <p className="cs-label cs-sign-count" aria-hidden="true">
-          {all ? 'The sign is on' : `${String(Math.min(on, n)).padStart(2, '0')} / ${String(n).padStart(2, '0')} lit`}
-        </p>
+    <div ref={box} className="cs-wrap cs-sign">
+      <div className={`cs-sign-board${all ? ' is-lit' : ''}`}>
+        <img className="cs-sign-base" src={src} alt={alt} />
+        {tubes.map(([x0, y0, x1, y1], i) => (
+          <img
+            key={`${run}-${i}`}
+            className={`cs-sign-tube${i < on ? ' on' : ''}`}
+            src={src}
+            alt=""
+            aria-hidden="true"
+            style={{ clipPath: `inset(${y0}% ${100 - x1}% ${100 - y1}% ${x0}%)` }}
+          />
+        ))}
       </div>
-    </section>
+      <button type="button" className="cs-label cs-sign-again" onClick={() => setRun((r) => r + 1)} disabled={!all}>
+        {all ? 'Switch it on again' : `${String(on).padStart(2, '0')} / ${String(n).padStart(2, '0')} lit`}
+      </button>
+    </div>
   )
 }
 

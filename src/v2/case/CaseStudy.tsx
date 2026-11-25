@@ -8,6 +8,7 @@ import { href, useFlight, useTone } from '../store'
 import { heroBox } from '../geom'
 import { Credits, LightboxProvider } from './blocks'
 import { CASES } from './pages'
+import { ScrollArrow } from '../ScrollArrow'
 import './case.css'
 
 const wipe = [0.76, 0, 0.24, 1] as const
@@ -240,15 +241,13 @@ export function CaseStudy({ project }: { project: Project }) {
           <motion.p className="v2-label v2-hero-kind" style={{ opacity: heroText }}>
             {project.kind}
           </motion.p>
-          <button
-            type="button"
+          <ScrollArrow
             className="v2-scrollcue"
-            aria-label="Scroll to project"
+            fill={hero.fg}
+            ink={hero.bg}
+            label="Scroll to project"
             onClick={() => window.scrollTo({ top: window.innerHeight * 0.75, behavior: reduce ? 'auto' : 'smooth' })}
-            style={{ borderColor: hero.fg }}
-          >
-            <motion.span style={{ background: hero.fg }} animate={{ y: [-6, 6, -6] }} transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }} />
-          </button>
+          />
         </section>
         </div>
 

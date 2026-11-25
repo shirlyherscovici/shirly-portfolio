@@ -2986,25 +2986,15 @@
 
 /* ---------- Music from the Screen: the neon sign switching on ---------- */
 .cs .cs-sign {
-  position: relative;
-}
-
-.cs .cs-sign-stage {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100svh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 18px;
-  padding: 70px var(--gutter) 24px;
 }
 
 .cs .cs-sign-board {
   position: relative;
-  width: min(78vh, 86vw, 760px);
+  width: min(74vh, 100%, 720px);
   aspect-ratio: 1;
 }
 
@@ -3050,8 +3040,19 @@
   58%, 100% { opacity: 1; }
 }
 
-.cs .cs-sign-count {
-  opacity: 0.7;
+.cs .cs-sign-again {
+  padding: 10px 16px;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.cs .cs-sign-again:disabled {
+  border-color: transparent;
+  cursor: default;
 }
 
 /* ---------- Music from the Screen: the playable vote ---------- */
