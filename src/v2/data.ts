@@ -115,8 +115,9 @@ export const PROJECTS: Project[] = [
     frame: { ratio: 16 / 9 },
     name: 'People in Motion',
     kind: '2D animation · Motion design',
-    colors: { bg: '#ffd23f', fg: '#174a36' },
-    hero: { bg: '#fff0c2', fg: '#174a36' },
+    // taken from the film's game world: mine earth, gold nuggets, sky
+    colors: { bg: '#4a1d16', fg: '#f6b42c' },
+    hero: { bg: '#dff1fb', fg: '#4a1d16' },
     cover: { kind: 'image', src: v2('motion/cover-poster.webp'), alt: 'The character working a mine winch in the gold-digging game world of the film' },
     loop: asset('/assets/motion/clips/02-ui-game-animation.mp4'),
     intro: 'A character-led motion project built as a playful game world: character animation, UI and game animation, kinetic typography and transitions.',
@@ -170,7 +171,7 @@ export const PROJECTS: Project[] = [
 
 export const PERSON = {
   name: 'Shirly Herscovici',
-  role: 'Motion designer & realistic AI visuals',
+  role: 'Motion & graphic designer · AI video',
   email: 'shirly3212@gmail.com',
   linkedin: 'https://www.linkedin.com/in/shirly-herscovici/',
   cv: asset('/resume.pdf'),

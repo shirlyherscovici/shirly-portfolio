@@ -164,7 +164,7 @@ const amyBody = (
 /* ======================================================================
  * 02 · PEOPLE IN MOTION — motion playground
  * ==================================================================== */
-const MO = { dark: '#121212', cream: '#f2efe6', yellow: '#ffd23f', green: '#174a36' }
+const MO = { dark: '#1f0c09', cream: '#fdf3e1', yellow: '#f6b42c', green: '#4a1d16', sky: '#5fb3e6' }
 const motionBody = (
   <>
     <Act bg={MO.dark} fg={MO.cream} accent={MO.yellow}>
@@ -194,7 +194,7 @@ const motionBody = (
       <Gap size="l" />
     </Act>
 
-    <Act bg={MO.yellow} fg={MO.green} accent={MO.green}>
+    <Act bg={MO.sky} fg={MO.dark} accent={MO.green}>
       <Chapter num="03" title="UI & game animation" />
       <Visual m={{ video: A('motion/clips/02-ui-game-animation.mp4'), poster: v2('motion/02-tetris.webp'), alt: 'UI and game animation', caption: 'Animated interfaces, game systems and responsive graphic elements.' }} frame />
       <Gap size="l" />

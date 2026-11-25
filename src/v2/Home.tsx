@@ -521,7 +521,7 @@ export function Home() {
                     {Array.from(PERSON.name).map((ch, k) => (
                       <span key={k} className="v2-boot-ch" aria-hidden="true">
                         <span className="v2-boot-outline">{ch === ' ' ? '\u00A0' : ch}</span>
-                        <span className="v2-boot-fill" style={{ color: PROJECTS[0].colors.bg }}>
+                        <span className="v2-boot-fill" style={{ color: '#f0f0f0' }}>
                           {ch === ' ' ? '\u00A0' : ch}
                         </span>
                       </span>
