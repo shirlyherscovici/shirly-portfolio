@@ -15,12 +15,25 @@ const ease = [0.22, 1, 0.36, 1] as const
  * Every fact here comes from the projects on this site or from Shirly's own CV. */
 
 const EXPERIENCE = [
-  { years: '2021 – now', place: 'N12', role: 'Graphic designer and After Effects artist', where: 'Israel' },
-  { years: '2020 – 2021', place: 'Juno Media', role: 'Graphic designer, video editor and After Effects artist', where: 'Israel' },
-  { years: '2018 – 2020', place: 'IDF Education and Youth Corps', role: 'Film unit director, editing and post team lead', where: 'Israel' },
+  {
+    years: '2021 – now',
+    place: 'News 12 & N12',
+    role: 'Graphic designer and After Effects artist',
+    did: 'Animation in After Effects on tight production deadlines, social graphics and print, and realistic AI video for the news.',
+  },
+  {
+    years: '2020 – 2021',
+    place: 'Juno Media',
+    role: 'Graphic designer, video editor and After Effects artist',
+    did: 'Video editing, and 2D characters, environments and effects animated under tight deadlines.',
+  },
+  {
+    years: '2018 – 2020',
+    place: 'IDF Education and Youth Corps',
+    role: 'Film unit director, editing and post team lead',
+    did: 'Led an editing and VFX team; wrote, directed and edited promotional, educational and informational videos.',
+  },
 ]
-
-const CLIENTS = ['N12', 'Galgalatz', 'One a Day podcast', 'Juno Media', 'IDF Education and Youth Corps']
 
 /** One line per project, in the order of the home page */
 const LINES: Record<string, string> = {
@@ -291,11 +304,14 @@ export function About() {
 
       <section className="v2-ab-block" style={{ background: FOREST, color: CREAM }}>
         <div className="v2-wrap v2-ab v2-ab-split">
-          <motion.h2 {...rise()}>Worked with</motion.h2>
-          <ul className="v2-ab-clients">
-            {CLIENTS.map((c, i) => (
-              <motion.li key={c} {...rise(i * 0.06)}>
-                {c}
+          <motion.h2 {...rise()}>Eight years of making pictures move</motion.h2>
+          <ul className="v2-ab-years">
+            {EXPERIENCE.map((e, i) => (
+              <motion.li key={e.place} {...rise(i * 0.08)}>
+                <span className="v2-label">{e.years}</span>
+                <strong>{e.place}</strong>
+                <span className="v2-ab-years-role">{e.role}</span>
+                <p>{e.did}</p>
               </motion.li>
             ))}
           </ul>
@@ -303,22 +319,6 @@ export function About() {
       </section>
 
       <div className="v2-wrap v2-ab">
-        <section className="v2-ab-sec v2-ab-split">
-          <motion.h2 {...rise()}>Eight years of making pictures move</motion.h2>
-          <ul className="v2-ab-time">
-            {EXPERIENCE.map((e, i) => (
-              <motion.li key={e.place} {...rise(i * 0.06)}>
-                <span className="v2-label">{e.years}</span>
-                <span>
-                  <strong>{e.place}</strong>
-                  <br />
-                  {e.role}
-                </span>
-                <span className="v2-ab-where">{e.where}</span>
-              </motion.li>
-            ))}
-          </ul>
-        </section>
 
         <section className="v2-ab-sec v2-ab-split">
           <motion.h2 {...rise()}>What I do</motion.h2>
