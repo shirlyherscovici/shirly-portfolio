@@ -535,7 +535,7 @@ export function FrameToMotion({ shots }: { shots: { label: string; still: string
 }
 
 /* ---------- Film: the finished piece, large, with its own controls ---------- */
-export function Film({ src, poster, captions, alt, vertical = false }: { src: string; poster: string; captions?: string; alt: string; vertical?: boolean }) {
+export function Film({ src, poster, captions, alt, vertical = false, tag }: { src: string; poster: string; captions?: string; alt: string; vertical?: boolean; tag?: string }) {
   const wrap = useRef<HTMLDivElement>(null)
   const v = useRef<HTMLVideoElement>(null)
   const [playing, setPlaying] = useState(false)
@@ -565,6 +565,7 @@ export function Film({ src, poster, captions, alt, vertical = false }: { src: st
         >
           {captions && <track kind="captions" src={captions} srcLang="en" label="English" default />}
         </video>
+        {tag && <span className="cs-film-tag cs-label">{tag}</span>}
         <button type="button" className="cs-film-play" onClick={toggle} aria-label={playing ? 'Pause' : 'Play film'}>
           <span aria-hidden="true">{playing ? '❚❚' : '▶'}</span>
         </button>
@@ -590,6 +591,26 @@ export function Film({ src, poster, captions, alt, vertical = false }: { src: st
         </div>
       </div>
     </Reveal>
+  )
+}
+
+/* ---------- Placed: the real source material beside the frame it was composited into ---------- */
+export function Placed({ sources, result, caption }: { sources: Img[]; result: Img; caption: string }) {
+  return (
+    <div className="cs-wrap-wide cs-placed">
+      <div className={`cs-placed-src n${sources.length}`}>
+        {sources.map((m, i) => (
+          <Reveal key={m.src} delay={i * 0.08} className="cs-placed-card">
+            <img src={m.src} alt={m.alt} loading="lazy" />
+          </Reveal>
+        ))}
+        <span className="cs-label cs-placed-tag">Source</span>
+      </div>
+      <span className="cs-placed-arrow" aria-hidden="true">→</span>
+      <div className="cs-placed-result">
+        <Visual m={{ ...result, label: 'In the room', caption }} />
+      </div>
+    </div>
   )
 }
 

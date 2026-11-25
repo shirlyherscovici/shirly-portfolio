@@ -357,26 +357,6 @@ html.v2-snap {
   opacity: 1;
 }
 
-/* Strip mode: the name shows next to the pill you point at or tab to */
-.v2-pills button:hover .v2-pill-name,
-.v2-pills button:focus-visible .v2-pill-name {
-  opacity: 1;
-  transform: none;
-}
-
-.v2-pills .v2-index-btn {
-  margin-bottom: 10px;
-  padding: 8px 6px;
-  font-size: 11px;
-  opacity: 0.7;
-  transition: opacity 0.3s;
-}
-
-.v2-pills .v2-index-btn:hover,
-.v2-pills .v2-index-btn:focus-visible {
-  opacity: 1;
-}
-
 /* Name and role, top left on home */
 .v2-brand h1 {
   margin: 0;

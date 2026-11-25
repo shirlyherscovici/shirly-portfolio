@@ -14,6 +14,7 @@ import {
   Intro,
   Palette,
   Pipeline,
+  Placed,
   Reveal,
   ScrollRows,
   Stack,
@@ -391,9 +392,10 @@ const louvreBody = (
           { label: 'Formats', value: '16:9 · 9:16' },
         ]}
       />
-      <Film src={v2('louvre/louvre-film.mp4')} poster={v2('louvre/poster.webp')} alt="The Louvre Heist, full film, 16:9" />
+      <Chapter num="01" title="The full film" note="The complete 1:10 piece as it aired. Press play, sound on." />
+      <Film src={v2('louvre/louvre-film.mp4')} poster={v2('louvre/poster.webp')} alt="The Louvre Heist, full film, 16:9" tag="Full film · 1:10 · 16:9" />
       <Gap />
-      <Chapter num="01" title="Shot by shot" />
+      <Chapter num="02" title="Shot by shot" />
       <div className="cs-letterbox-run">
         <Visual m={{ src: v2('louvre/sparks.webp'), alt: 'Thieves cutting through glass on a lift', label: 'The break-in', ratio: '16 / 9' }} bleed parallax />
         <Visual m={{ src: v2('louvre/gallery.webp'), alt: 'Two men in orange vests running through a gilded gallery', label: 'The gallery', ratio: '16 / 9' }} bleed parallax />
@@ -412,7 +414,7 @@ const louvreBody = (
     </Act>
 
     <Act bg={LV.gold} fg={LV.night} accent={LV.night}>
-      <Chapter num="02" title="The crown" />
+      <Chapter num="03" title="The crown" />
       <div className="cs-wrap-wide cs-split-75">
         <Visual m={{ src: v2('louvre/crown-flight.webp'), alt: 'The crown falling towards the street', ratio: '16 / 9' }} />
         <Visual m={{ src: v2('louvre/crown.webp'), alt: 'The crown broken on the pavement', ratio: '16 / 9' }} />
@@ -421,8 +423,8 @@ const louvreBody = (
     </Act>
 
     <Act bg={LV.slate} fg={LV.stone} accent={LV.gold}>
-      <Chapter num="03" title="Cut for mobile" note="The same story reframed for a vertical feed." />
-      <Film src={v2('louvre/louvre-film-vertical.mp4')} poster={v2('louvre/poster-vertical.webp')} alt="The Louvre Heist, vertical 9:16 version" vertical />
+      <Chapter num="04" title="Cut for mobile" note="The full film again, reframed for a vertical feed." />
+      <Film src={v2('louvre/louvre-film-vertical.mp4')} poster={v2('louvre/poster-vertical.webp')} alt="The Louvre Heist, vertical 9:16 version" tag="Full film · 9:16" vertical />
       <Gap size="l" />
     </Act>
   </>
@@ -443,9 +445,10 @@ const eightiesBody = (
           { label: 'Disciplines', value: 'AI film · Art direction' },
         ]}
       />
-      <Film src={v2('eighties/room-film.mp4')} poster={v2('eighties/poster.webp')} alt="Yardena and Ofira, an 80s room, full film" />
+      <Chapter num="01" title="The full film" note="The complete 0:35 piece. Press play, sound on." />
+      <Film src={v2('eighties/room-film.mp4')} poster={v2('eighties/poster.webp')} alt="Yardena and Ofira, an 80s room, full film" tag="Full film · 0:35" />
       <Gap />
-      <Chapter num="01" title="The room" note="Every object placed to date the room to one decade." />
+      <Chapter num="02" title="The room" note="Every object placed to date the room to one decade." />
       <Stack
         items={[
           { src: v2('eighties/magazine.webp'), alt: 'Teen magazine on the bed with the headline about the rivalry', ratio: '16 / 9' },
@@ -453,6 +456,44 @@ const eightiesBody = (
           { src: v2('eighties/posters.webp'), alt: 'Posters and magazine covers on the wall', ratio: '16 / 9' },
           { src: v2('eighties/bedside.webp'), alt: 'Bedside table with a framed photo and a digital clock', ratio: '16 / 9' },
           { src: v2('eighties/sneakers.webp'), alt: 'Sneakers on the floor by the desk', ratio: '16 / 9' },
+        ]}
+      />
+      <Gap size="l" />
+    </Act>
+
+    <Act bg={EI.navy} fg={EI.blush} accent={EI.pink}>
+      <Chapter num="03" title="Real archive, placed in the room" note="Real photos and covers from the period, composited into the generated room." />
+      <Placed
+        sources={[
+          { src: v2('eighties/src/poster-jumpsuit.webp'), alt: 'Yardena Arazi in a blue jumpsuit, original poster' },
+          { src: v2('eighties/src/maariv-yardena-2.webp'), alt: 'Maariv LaNoar cover with Yardena Arazi' },
+          { src: v2('eighties/src/maariv-trio.webp'), alt: 'Maariv LaNoar cover with three performers' },
+        ]}
+        result={{ src: v2('eighties/posters.webp'), alt: 'The same poster and covers on the bedroom wall', ratio: '16 / 9' }}
+        caption="The poster and two Maariv LaNoar covers, hung on the wall."
+      />
+      <Gap size="s" />
+      <Placed
+        sources={[{ src: v2('eighties/src/ofira-yearbook.webp'), alt: 'Ofira’s school yearbook photo' }]}
+        result={{ src: v2('eighties/bedside.webp'), alt: 'The yearbook photo framed on the bedside table', ratio: '16 / 9' }}
+        caption="Ofira’s yearbook photo, framed on the bedside table."
+      />
+      <Gap />
+      <Chapter num="04" title="Research" note="The material gathered for the room: album covers, teen magazines and family photos." />
+      <Grid
+        wide
+        cols={5}
+        items={[
+          { src: v2('eighties/src/album-1.webp'), alt: 'Yardena Arazi album cover', ratio: '1 / 1' },
+          { src: v2('eighties/src/album-2.webp'), alt: 'Yardena Arazi album cover', ratio: '1 / 1' },
+          { src: v2('eighties/src/album-3.webp'), alt: 'Yardena Arazi album cover', ratio: '1 / 1' },
+          { src: v2('eighties/src/album-4.webp'), alt: 'Yardena Arazi album cover', ratio: '1 / 1' },
+          { src: v2('eighties/src/album-5.webp'), alt: 'Yardena Arazi album cover, Back in the Frame', ratio: '1 / 1' },
+          { src: v2('eighties/src/album-6.webp'), alt: 'Yardena Arazi album cover', ratio: '1 / 1' },
+          { src: v2('eighties/src/maariv-yardena-1.webp'), alt: 'Maariv LaNoar cover with Yardena Arazi', ratio: '1 / 1' },
+          { src: v2('eighties/src/maariv-ofra.webp'), alt: 'Maariv LaNoar cover with Ofra Haza', ratio: '1 / 1' },
+          { src: v2('eighties/src/ofira-childhood.webp'), alt: 'Childhood family photo', ratio: '1 / 1' },
+          { src: v2('eighties/src/ofira-friends.webp'), alt: 'Photo of three friends in the 80s', ratio: '1 / 1' },
         ]}
       />
       <Gap size="l" />

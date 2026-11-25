@@ -5,7 +5,6 @@ import {
   motion,
   useMotionValue,
   useMotionValueEvent,
-  useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
@@ -79,7 +78,7 @@ function useViewport() {
 const ease = [0.76, 0, 0.24, 1] as const
 const soft = [0.22, 1, 0.36, 1] as const
 /** Length of the opening roll, in seconds */
-const BOOT = 1.4
+const BOOT = 2.4
 /** One shared period for the idle drift, so the strip moves as one */
 const DRIFT = 7
 let booted = false
@@ -250,10 +249,7 @@ export function Home() {
   /* Opening (first visit): dark room, small name top left, the film rolls up through every
    * project while the side band fills like a progress bar; then the project colour wipes in
    * from the left and the strip leans into its angle. */
-  const reduce = useReducedMotion()
   const [boot, setBoot] = useState(() => {
-    // Reduced motion: no opening at all, the work is there straight away
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) booted = true
     // Hide the header before the first paint, so it never flashes over the opening
     if (!booted) document.documentElement.classList.add('v2-booting')
     return !booted
@@ -264,22 +260,17 @@ export function Home() {
     if (!boot) return
     document.documentElement.classList.add('v2-booting')
     const c = animate(roll, 0, { duration: BOOT, ease: [0.33, 0, 0.12, 1] })
-    const finish = () => {
+    const t = window.setTimeout(() => {
       // Land exactly on the first project even if the roll was slowed down (e.g. a background tab)
       c.stop()
       roll.set(0)
       booted = true
       setBoot(false)
       document.documentElement.classList.remove('v2-booting')
-    }
-    const t = window.setTimeout(finish, BOOT * 1000 + 150)
-    // Any scroll, key or click skips the rest of the opening
-    const skip = ['wheel', 'keydown', 'pointerdown', 'touchstart'] as const
-    skip.forEach((ev) => window.addEventListener(ev, finish, { once: true, passive: true }))
+    }, BOOT * 1000 + 150)
     return () => {
       c.stop()
       window.clearTimeout(t)
-      skip.forEach((ev) => window.removeEventListener(ev, finish))
       document.documentElement.classList.remove('v2-booting')
     }
   }, [boot, roll])
@@ -365,7 +356,7 @@ export function Home() {
   const leanY = useSpring(useTransform(mx, (v) => v * 5), { stiffness: 60, damping: 18 })
   const leanX = useSpring(useTransform(my, (v) => -v * 4), { stiffness: 60, damping: 18 })
   useEffect(() => {
-    if (!canHover || reduce) return
+    if (!canHover) return
     // In list mode the strip lies straight back, so the lean is switched off there
     if (list) {
       mx.set(0)
@@ -378,14 +369,13 @@ export function Home() {
     }
     window.addEventListener('pointermove', onMove)
     return () => window.removeEventListener('pointermove', onMove)
-  }, [canHover, list, mx, my, reduce])
+  }, [canHover, list, mx, my])
 
   /* Scrolling pulls the frames a little larger, and they keep that size (the stretch never springs back).
    * The amount follows the fastest scroll so far, up to a cap; list mode shows them at normal size. */
   const vel = useVelocity(p)
   const grown = useMotionValue(0)
   useMotionValueEvent(vel, 'change', (v) => {
-    if (reduce) return
     const want = Math.min(0.09, Math.abs(v) * 0.07)
     if (want > grown.get()) grown.set(want)
   })
@@ -515,25 +505,28 @@ export function Home() {
                       style={{ color: PROJECTS[0].colors.bg }}
                       initial={{ clipPath: 'inset(-20% 100% -30% 0%)' }}
                       animate={{ clipPath: 'inset(-20% 0% -30% 0%)' }}
-                      transition={{ duration: 0.9, ease, delay: 0.15 }}
+                      transition={{ duration: 1.6, ease, delay: 0.3 }}
                     >
                       {PERSON.name}
                     </motion.span>
                   </p>
-                  <motion.p className="v2-label" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35, duration: 0.5 }}>
+                  <motion.p className="v2-label" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9, duration: 0.6 }}>
                     {PERSON.role}
                   </motion.p>
                 </div>
+                <motion.p
+                  className="v2-boot-toast"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6, duration: 0.6, ease: soft }}
+                >
+                  Loading selected work…
+                </motion.p>
               </motion.div>
             )}
           </AnimatePresence>
 
           <nav className="v2-pills" aria-label="Projects">
-            {!mobile && canHover && (
-              <button type="button" className="v2-index-btn v2-label" aria-pressed={list} onClick={() => setList((l) => !l)}>
-                {list ? 'Close' : 'Index'}
-              </button>
-            )}
             {PROJECTS.map((pr, i) => (
               <button
                 key={pr.slug}
