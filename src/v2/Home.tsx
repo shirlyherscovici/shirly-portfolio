@@ -172,7 +172,26 @@ function DepthCard({ project, active, onOpen }: { project: Project; active: bool
   )
 }
 
-type Geo = { w: number; h: number; x: number; align: 'left' | 'right' | 'center' }
+/** Neighbours are this much smaller than the frame you are on */
+const SIDE = 0.68
+const sizeAt = (d: number) => 1 - Math.min(1, Math.abs(d)) * (1 - SIDE)
+
+/** Vertical centre of every frame, relative to the screen centre, for a strip position p.
+ *  Frames are stacked one under another with a fixed gap, using their current (scaled) heights,
+ *  so the strip never overlaps or opens holes while the sizes change. */
+function strip(p: number, hs: number[], gap: number) {
+  const centres: number[] = []
+  let top = 0
+  hs.forEach((h, k) => {
+    const H = h * sizeAt(k - p)
+    centres.push(top + H / 2)
+    top += H + gap
+  })
+  const i = Math.max(0, Math.min(hs.length - 1, Math.floor(p)))
+  const j = Math.min(hs.length - 1, i + 1)
+  const focus = centres[i] + (centres[j] - centres[i]) * (p - i)
+  return centres.map((c) => c - focus)
+}
 
 /* ---------- One frame of the film strip ---------- */
 function Frame({
@@ -180,9 +199,10 @@ function Frame({
   index,
   p,
   q,
-  step,
+  hs,
+  gap,
   drop,
-  geo,
+  w,
   active,
   onOpen,
   onPick,
@@ -191,30 +211,30 @@ function Frame({
   index: number
   p: MotionValue<number>
   q: MotionValue<number>
-  step: number
+  hs: number[]
+  gap: number
   drop: number
-  geo: Geo
+  w: number
   active: boolean
   onOpen: (el: HTMLElement, project: Project) => void
   onPick: (i: number) => void
 }) {
-  const d = useTransform(p, (v) => index - v)
+  const h = hs[index]
   // While the intro is on screen the whole strip sits lower, so the first cover peeks under the name
-  const y = useTransform([d, q], ([v, qq]) => (v as number) * step + (1 - (qq as number)) * drop)
-  const scale = useTransform([d, q], ([v, qq]) => (1 - Math.min(1, Math.abs(v as number)) * 0.22) * (1 - (1 - (qq as number)) * 0.08))
-  const opacity = useTransform(d, (v) => 1 - Math.min(1, Math.abs(v)) * 0.55)
-  const wordOpacity = useTransform([d, q], ([v, qq]) => (1 - Math.min(1, Math.abs(v as number) * 1.6)) * smooth(0.35, 0.9, qq as number))
-  const wordY = useTransform(d, (v) => v * 60)
-  const { w, h, x, align } = geo
+  const y = useTransform([p, q], ([v, qq]) => strip(v as number, hs, gap)[index] + (1 - (qq as number)) * drop)
+  const scale = useTransform(p, (v) => sizeAt(index - v))
+  const opacity = useTransform(p, (v) => 1 - Math.min(1, Math.abs(index - v)) * 0.5)
+  const wordOpacity = useTransform([p, q], ([v, qq]) => (1 - Math.min(1, Math.abs(index - (v as number)) * 1.8)) * smooth(0.35, 0.9, qq as number))
+  const wordY = useTransform(p, (v) => (index - v) * 40)
 
   return (
-    <motion.div className="v2-frame" style={{ y, scale, opacity, width: w, marginLeft: -w / 2 + x, marginTop: -h / 2 }} onClick={() => !active && onPick(index)}>
+    <motion.div className="v2-frame" style={{ y, scale, opacity, width: w, height: h, marginLeft: -w / 2, marginTop: -h / 2 }} onClick={() => !active && onPick(index)}>
       <div className="v2-frame-media" style={{ height: h }}>
         <DepthCard project={project} active={active} onOpen={(el) => onOpen(el, project)} />
       </div>
       <motion.a
         href={href.project(project.slug)}
-        className={`v2-frame-word is-${align}`}
+        className="v2-frame-word"
         style={{ opacity: wordOpacity, y: wordY, color: project.colors.fg }}
         data-cursor="View"
         tabIndex={-1}
@@ -307,12 +327,10 @@ export function Home() {
   }
 
   const mobile = vw < 760
-  const base = mobile ? vw * 0.8 : Math.min(vw * 0.5, 720, vh * 0.95)
-  const geos: Geo[] = PROJECTS.map(({ frame }) => {
-    const w = mobile ? base * (frame.ratio < 1.3 ? 0.78 : 1) : base * frame.scale
-    return { w, h: w / frame.ratio, x: mobile ? 0 : frame.x * vw, align: mobile ? 'center' : frame.align }
-  })
-  const step = Math.max(...geos.map((g) => g.h)) + (mobile ? 90 : 130)
+  // One column, one width: the active frame fills about half the screen height
+  const w = mobile ? vw * 0.78 : Math.min(vw * 0.44, vh * 0.62 * 1.4, 680)
+  const hs = PROJECTS.map(({ frame }) => w / Math.max(1.25, Math.min(1.78, frame.ratio)))
+  const gap = mobile ? 28 : 48
   const drop = vh * (mobile ? 0.2 : 0.34)
 
   return (
@@ -334,7 +352,7 @@ export function Home() {
 
           <motion.div ref={framesRef} className="v2-frames" style={{ skewY: lean }}>
             {PROJECTS.map((pr, i) => (
-              <Frame key={pr.slug} project={pr} index={i} p={p} q={q} step={step} drop={drop} geo={geos[i]} active={i === idx} onOpen={open} onPick={scrollToIndex} />
+              <Frame key={pr.slug} project={pr} index={i} p={p} q={q} hs={hs} gap={gap} drop={drop} w={w} active={i === idx} onOpen={open} onPick={scrollToIndex} />
             ))}
           </motion.div>
 

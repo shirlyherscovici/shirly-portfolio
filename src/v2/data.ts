@@ -27,8 +27,8 @@ export type Project = {
   colors: { bg: string; fg: string }
   cover: MediaItem
   loop?: string
-  /** How the cover sits on the home film strip: size, shape and side, so every frame has its own composition */
-  frame: { ratio: number; scale: number; x: number; align: 'left' | 'right' }
+  /** Shape of the cover on the home film strip (width / height) */
+  frame: { ratio: number }
   intro: string
   link?: { label: string; href: string }
   credits: { label: string; value: string }[]
@@ -41,7 +41,7 @@ export const PROJECTS: Project[] = [
   {
     slug: 'music-from-the-screen',
     word: 'Soundtrack',
-    frame: { ratio: 1, scale: 0.62, x: -0.12, align: 'right' },
+    frame: { ratio: 1 },
     name: 'Music from the Screen',
     kind: 'Key art · UI · Social',
     colors: { bg: '#1c1540', fg: '#ff7eb6' },
@@ -99,7 +99,7 @@ export const PROJECTS: Project[] = [
   {
     slug: 'people-in-motion',
     word: 'Motion',
-    frame: { ratio: 16 / 9, scale: 1, x: 0.08, align: 'left' },
+    frame: { ratio: 16 / 9 },
     name: 'People in Motion',
     kind: '2D animation · Motion design',
     colors: { bg: '#24563f', fg: '#f6dcb8' },
@@ -155,7 +155,7 @@ export const PROJECTS: Project[] = [
   {
     slug: 'pilot-rescue',
     word: 'Rescue',
-    frame: { ratio: 16 / 9, scale: 0.84, x: -0.07, align: 'right' },
+    frame: { ratio: 16 / 9 },
     name: 'USA Pilot Rescue',
     kind: 'AI film · Visual storytelling',
     colors: { bg: '#b8a98c', fg: '#1d1d18' },
@@ -214,7 +214,7 @@ export const PROJECTS: Project[] = [
   {
     slug: 'amy',
     word: 'Amy',
-    frame: { ratio: 1.63, scale: 0.9, x: 0.1, align: 'left' },
+    frame: { ratio: 1.63 },
     name: 'Amy',
     kind: 'Editorial identity · Art direction',
     colors: { bg: '#c41e2e', fg: '#f4e3c4' },

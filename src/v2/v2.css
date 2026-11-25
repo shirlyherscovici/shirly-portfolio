@@ -242,12 +242,13 @@ html.v2-intro .v2-header > a:first-child {
 .v2-frame {
   position: absolute;
   left: 50%;
-  top: 44%;
+  top: 50%;
   will-change: transform;
 }
 
 .v2-frame-media {
   position: relative;
+  height: 100%;
 }
 
 .v2-card {
@@ -283,30 +284,19 @@ html.v2-intro .v2-header > a:first-child {
 }
 
 .v2-frame-word {
-  display: block;
-  position: relative;
+  position: absolute;
   z-index: 2;
-  margin: -0.42em -50vw 0;
+  left: -50vw;
+  right: -50vw;
+  top: calc(100% - 0.68em);
   text-align: center;
   text-decoration: none;
   font-family: var(--serif);
   font-weight: 600;
-  font-size: clamp(60px, 12vw, 190px);
+  font-size: clamp(52px, 9.5vw, 150px);
   line-height: 1;
   letter-spacing: -0.035em;
   white-space: nowrap;
-}
-
-.v2-frame-word.is-left {
-  margin-left: -6%;
-  margin-right: -100vw;
-  text-align: left;
-}
-
-.v2-frame-word.is-right {
-  margin-left: -100vw;
-  margin-right: -6%;
-  text-align: right;
 }
 
 .v2-index {
@@ -351,10 +341,18 @@ html.v2-intro .v2-header > a:first-child {
 
 .v2-stage-kind {
   position: absolute;
-  left: 50%;
+  right: var(--gutter);
   bottom: 30px;
-  transform: translateX(-50%);
   white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .v2-stage-kind {
+    right: auto;
+    left: var(--gutter);
+    bottom: auto;
+    top: 58px;
+  }
 }
 
 /* ---------- Page transition ---------- */
