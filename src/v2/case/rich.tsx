@@ -623,24 +623,26 @@ export function ChannelSurf({ channels }: { channels: Channel[] }) {
   const box = useRef<HTMLDivElement>(null)
   const [at, setAt] = useState(0)
   const [flip, setFlip] = useState(0)
+  const last = useRef(0)
   const { scrollYProgress: p } = useScroll({ target: box, offset: ['start start', 'end end'] })
   useMotionValueEvent(p, 'change', (v) => {
     const i = Math.min(n - 1, Math.max(0, Math.floor(v * n)))
-    setAt((old) => {
-      if (old !== i) setFlip((f) => f + 1)
-      return i
-    })
+    if (i === last.current) return
+    last.current = i
+    setAt(i)
+    setFlip((f) => f + 1)
   })
   const tune = (i: number) => {
     const el = box.current
     if (!el) return
     const top = el.getBoundingClientRect().top + window.scrollY
     const run = el.offsetHeight - window.innerHeight
-    window.scrollTo({ top: top + run * ((i + 0.5) / n), behavior: 'smooth' })
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    window.scrollTo({ top: top + run * ((i + 0.5) / n), behavior: calm ? 'auto' : 'smooth' })
   }
   const ch = channels[at]
   return (
-    <section ref={box} className="cs-tv" style={{ height: `${n * 70 + 100}vh` }}>
+    <section ref={box} className="cs-tv" style={{ height: `${n * 45 + 100}vh` }}>
       <div className="cs-tv-stage">
         <div className="cs-tv-set">
           <div className="cs-tv-screen">
@@ -696,14 +698,17 @@ export function DragShelf({ items }: { items: Img[] }) {
   const down = (e: React.PointerEvent) => {
     if (e.pointerType !== 'mouse' || e.button !== 0 || !track.current) return
     drag.current = { x: e.clientX, left: track.current.scrollLeft, moved: 0, id: e.pointerId }
-    setHeld(true)
   }
   const move = (e: React.PointerEvent) => {
     const d = drag.current
-    if (!held || d.id !== e.pointerId || !track.current) return
+    if (d.id !== e.pointerId || !track.current) return
     const dx = e.clientX - d.x
     d.moved = Math.max(d.moved, Math.abs(dx))
-    if (d.moved > 4 && !track.current.hasPointerCapture(e.pointerId)) track.current.setPointerCapture(e.pointerId)
+    if (d.moved <= 4) return
+    if (!track.current.hasPointerCapture(e.pointerId)) {
+      track.current.setPointerCapture(e.pointerId)
+      setHeld(true)
+    }
     track.current.scrollLeft = d.left - dx * 1.6
   }
   const up = (e: React.PointerEvent) => {
@@ -719,11 +724,11 @@ export function DragShelf({ items }: { items: Img[] }) {
   }, [held])
   return (
     <div className={`cs-shelf${held ? ' is-held' : ''}`}>
-      <p className="cs-shelf-hint" aria-hidden="true">
+      <p className="cs-shelf-hint">
         <span className="cs-shelf-hint-mouse">Hold &amp; drag ↔ · click to open</span>
         <span className="cs-shelf-hint-touch">Swipe ↔ · tap to open</span>
       </p>
-      <div ref={track} className="cs-shelf-track" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
+      <div ref={track} className="cs-shelf-track" role="region" aria-label="Research material" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
         {items.map((m, i) => (
           <button
             key={m.src}

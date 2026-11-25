@@ -166,7 +166,7 @@ export function CaseStudy({ project }: { project: Project }) {
       <div className={`cs v2-project cs-${c.theme}`}>
         {/* ---------- Hero (same box as the home wipe lands on) ---------- */}
         <div className="cs-hero-wrap">
-        <section className="v2-hero" style={{ background: hero.bg, color: hero.fg }}>
+        <section className="v2-hero" style={{ background: hero.bg, color: hero.fg, ['--halo' as string]: hero.bg }}>
           <motion.div className="cs-hero-full" style={{ clipPath: heroClip }}>
             <motion.div className={`cs-hero-img${topFocus ? ' is-top' : ''}`} style={{ scale: heroScale, y: heroShift }}>
             {c.heroVideo ? (

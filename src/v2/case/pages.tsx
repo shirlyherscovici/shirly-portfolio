@@ -53,7 +53,7 @@ function AmyCrop({ src, pos, alt }: { src: string; pos: string; alt: string }) {
   return (
     <button type="button" className="cs-amy-crop" onClick={() => open({ src, alt })} aria-label={`Enlarge: ${alt}`}>
       <img src={src} alt="" loading="lazy" style={{ objectPosition: pos }} />
-      <span className="cs-enlarge" aria-hidden="true">Enlarge</span>
+      <span className="cs-enlarge" aria-hidden="true">Enlarge ↗</span>
     </button>
   )
 }
@@ -473,7 +473,7 @@ const eightiesBody = (
     </Act>
 
     <Act bg={EI.night} fg={EI.cream} accent={EI.teal}>
-      <Chapter num="04" title="Research" note="The material gathered for the room: album covers, teen magazines and family photos. Hold and drag to flip through the crate." />
+      <Chapter num="04" title="Research" note="The material gathered for the room: album covers, teen magazines and family photos." />
       <DragShelf
         items={[
           { src: v2('eighties/src/album-1.webp'), alt: 'Yardena Arazi album cover' },

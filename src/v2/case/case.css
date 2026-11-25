@@ -2242,9 +2242,12 @@
   position: relative;
 }
 
+.cs .cs-amy-trio.is-early .cs-zoom::after {
+  content: 'Enlarge \2197';
+}
+
 .cs .cs-amy-trio.is-early .cs-zoom::after,
 .cs .cs-enlarge {
-  content: 'Enlarge \2197';
   position: absolute;
   right: 12px;
   bottom: 12px;
@@ -2401,12 +2404,12 @@
 
 .cs .cs-tv-dial button {
   min-width: 44px;
-  min-height: 36px;
+  min-height: 44px;
   padding: 0 8px;
-  border: 1px solid rgba(255, 244, 230, 0.25);
+  border: 1px solid rgba(255, 244, 230, 0.4);
   border-radius: 6px;
   background: #120c09;
-  color: rgba(255, 244, 230, 0.7);
+  color: #fff4e6;
   font: 22px/1 'VT323', monospace;
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s, box-shadow 0.2s;
@@ -2421,10 +2424,9 @@
 
 .cs .cs-tv-hint {
   margin: 0;
-  font: 20px/1 'VT323', monospace;
+  font: 22px/1 'VT323', monospace;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  opacity: 0.7;
 }
 
 /* neon strip between acts */
@@ -2542,7 +2544,8 @@
 
 @media (max-width: 760px) {
   .cs .cs-tv-osd { font-size: 26px; }
-  .cs .cs-tv-dial button { min-width: 40px; font-size: 18px; }
+  .cs .cs-tv-dial button { min-width: 44px; font-size: 18px; }
+  .cs .cs-tv-stage { padding: 0 8px; }
   .cs .cs-shelf-item { width: 62vw; }
   .cs .cs-shelf-track { scroll-snap-type: x mandatory; }
   .cs .cs-shelf-item { scroll-snap-align: center; }
@@ -2566,7 +2569,9 @@
 .cs .v2-hero-title.cs-title-over {
   z-index: 2;
   -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 1.5px currentColor;
+  -webkit-text-stroke: 2px currentColor;
+  /* a soft halo in the page colour keeps the outline readable over dark or busy covers */
+  filter: drop-shadow(0 0 1px var(--halo)) drop-shadow(0 0 5px color-mix(in srgb, var(--halo) 70%, transparent));
 }
 
 .cs .cs-title-mask {
