@@ -1754,3 +1754,14 @@ html.v2-booting .v2-allbtn {
   white-space: nowrap;
   box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.45);
 }
+
+.v2-brand-line {
+  margin: 2px 0 0;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  opacity: 0.5;
+  max-width: 34ch;
+}
+@media (max-width: 760px) {
+  .v2-brand-line { display: none; }
+}

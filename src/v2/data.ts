@@ -172,6 +172,7 @@ export const PROJECTS: Project[] = [
 export const PERSON = {
   name: 'Shirly Herscovici',
   role: 'Motion & graphic designer · AI video creator',
+  line: 'Realistic AI films for the news, and 8+ years of motion and design.',
   email: 'shirly3212@gmail.com',
   linkedin: 'https://www.linkedin.com/in/shirly-herscovici/',
   cv: asset('/resume.pdf'),

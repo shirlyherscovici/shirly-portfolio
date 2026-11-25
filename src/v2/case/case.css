@@ -3335,3 +3335,12 @@
   .cs .cs-mo-trio { grid-template-columns: 1fr; }
   .cs .cs-mo-trio > :nth-child(2) { margin-top: 0; }
 }
+
+/* One-line outcome above the intro text */
+.cs .cs-intro-lead {
+  margin: 0 0 0.9em;
+  font-size: clamp(20px, 1.9vw, 28px);
+  line-height: 1.25;
+  font-weight: 500;
+  max-width: 34ch;
+}

@@ -309,12 +309,14 @@ export function ScrollRows({ items, caption }: { items: Img[]; caption?: string 
 /* ---------- Text pieces ---------- */
 export function Intro({
   title,
+  lead,
   text,
   meta,
   link,
   linkStyle,
 }: {
   title: string
+  lead?: string
   text: string
   meta: { label: string; value: string }[]
   link?: { label: string; href: string }
@@ -328,6 +330,7 @@ export function Intro({
         </Reveal>
         <PopWords text={title} className="cs-intro-title" />
         <Reveal delay={0.15}>
+          {lead && <p className="cs-intro-lead">{lead}</p>}
           <p className="cs-intro-text">{text}</p>
           {link && (
             <a className="cs-btn" href={link.href} target="_blank" rel="noopener noreferrer" style={linkStyle}>

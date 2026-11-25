@@ -63,6 +63,7 @@ const amyBody = (
     <Act bg={AMY.paper} fg={AMY.ink} accent={AMY.red}>
       <Intro
         title="Amy Winehouse — N12 Special"
+        lead="One design language for the episode, from the concept to every banner size."
         text="An episode of Culture Gaps, an N12 corner that tells the stories of fringe artists and cultural gaps people never knew about. For the Amy Winehouse and 27 Club episode I designed the concept and the design language, built the episode in Storycard from the content I was given, and made its banners in every size and all of its visual elements."
         meta={[
           { label: 'Client', value: 'N12 · Culture Gaps series' },
@@ -155,6 +156,7 @@ const motionBody = (
     <Act bg={MO.dark} fg={MO.cream} accent={MO.yellow}>
       <Intro
         title="People in Motion"
+        lead="One film that brings character animation, game UI and kinetic type together."
         text="A character-led motion piece combining animation, game-inspired UI, kinetic typography and transitions across changing visual worlds."
         meta={[
           { label: 'Role', value: 'Design, 2D animation, compositing' },
@@ -198,6 +200,7 @@ const rescueBody = (
     <Act bg={RE.black} fg={RE.bone} accent={RE.amber}>
       <Intro
         title="USA Pilot Rescue"
+        lead="From the producer’s brief to prime time in four hours."
         text="There was no real image of the rescue. I had four hours to build it as a cinematic sequence for prime-time broadcast: frame direction, AI motion generation, continuity, compositing and final delivery."
         meta={[
           { label: 'Client', value: 'N12' },
@@ -208,7 +211,7 @@ const rescueBody = (
         ]}
       />
       <Chapter num="01" title="The full film" note="The complete N12 piece as it aired: AI-generated frames, motion and compositing in one sequence." />
-      <Film src={A('navigator/main-film.mp4')} poster={v2('ai/main-film-frame.webp')} captions={A('navigator/captions-en.vtt')} alt="USA Pilot Rescue, full film" tag="Full film · prime time" />
+      <Film src={A('navigator/main-film.mp4')} poster={v2('ai/main-film-frame.webp')} captions={A('navigator/captions-en.vtt')} alt="USA Pilot Rescue, full film" tag="Full film · English subtitles" />
       <Gap size="l" />
     </Act>
 
@@ -228,7 +231,7 @@ const rescueBody = (
 
     <Act bg={RE.black} fg={RE.bone} accent={RE.amber}>
       <Gap />
-      <Chapter num="03" title="From news brief to broadcast" note="How the film was made, from the producer’s request to the final edit." />
+      <Chapter num="03" title="How it was made" note="How the film was made, from the producer’s request to the final edit." />
       <Pipeline items={AI_PROCESS} />
       <Gap size="l" />
     </Act>
@@ -257,6 +260,7 @@ const soundBody = (
     <Act bg={SO.night} fg={SO.lilac} accent={SO.neon}>
       <Intro
         title="Music from the Screen"
+        lead="Neon key art, a mobile voting flow and a chart countdown for N12 × Galgalatz."
         text="A chart of songs from Israeli cinema, for N12 and Galgalatz. I created the neon key art, designed the mobile voting flow and carried the look through the social posts of the campaign."
         meta={[
           { label: 'Client', value: 'N12 × Galgalatz' },
@@ -282,16 +286,7 @@ const soundBody = (
     </Act>
 
     <Act bg={SO.violet} fg={SO.lilac} accent={SO.neon}>
-      <Chapter num="02" title="Concept" />
-      <Steps
-        items={[
-          { k: 'Challenge', v: 'A cluttered, low-engagement voting flow.' },
-          { k: 'UX Idea', v: 'Guide users to discover → listen → vote.' },
-          { k: 'Execution', v: 'iPhone-first voting UI, real content.' },
-        ]}
-      />
-      <Gap />
-      <Chapter num="03" title="Try the vote" note="A playable copy of the voting flow, with songs from the real chart." />
+      <Chapter num="02" title="Try the vote" note="A playable copy of the voting flow, with songs from the real chart." />
       <VoteChart
         art={v2('galgalatz/banner-cover.webp')}
         songs={[
@@ -302,6 +297,15 @@ const soundBody = (
           { film: 'Despicable Me 2', song: 'Happy', artist: 'Pharrell Williams' },
           { film: 'A Star Is Born', song: 'Shallow', artist: 'Lady Gaga, Bradley Cooper' },
           { film: 'Good Morning, Vietnam', song: 'What a Wonderful World', artist: 'Louis Armstrong' },
+        ]}
+      />
+      <Gap />
+      <Chapter num="03" title="Concept" />
+      <Steps
+        items={[
+          { k: 'Challenge', v: 'A cluttered, low-engagement voting flow.' },
+          { k: 'UX Idea', v: 'Guide users to discover → listen → vote.' },
+          { k: 'Execution', v: 'iPhone-first voting UI, real content.' },
         ]}
       />
       <Gap size="l" />
@@ -332,7 +336,8 @@ const louvreBody = (
     <Act bg={LV.night} fg={LV.stone} accent={LV.gold}>
       <Intro
         title="The Louvre Heist"
-        text="A 70-second AI film for N12 that rebuilds the Louvre jewel heist shot by shot: the van by the Seine, the cut glass, the galleries, the crown on the pavement and the getaway. I wrote, directed and produced it, and made every shot with AI. Delivered in 16:9 for web and 9:16 for mobile."
+        lead="Written, directed and produced by me, with every shot made in AI."
+        text="A 70-second AI film for N12 that rebuilds the Louvre jewel heist shot by shot: the van by the Seine, the cut glass, the galleries, the crown on the pavement and the getaway. Delivered in 16:9 for web and 9:16 for mobile."
         meta={[
           { label: 'Client', value: 'N12' },
           { label: 'Role', value: 'Script, direction, production · AI video creator' },
@@ -401,6 +406,7 @@ const eightiesBody = (
 
       <Intro
         title="Yardena & Ofira — an 80s room"
+        lead="Real 80s archive placed into an AI-made room, with the Hebrew intact and no distorted faces."
         text="A 35-second AI film set in a teenage bedroom of the 1980s, built around the pop rivalry of the time: Yardena Arazi against Ofra Haza. Posters, magazine covers, a cassette player and a framed photo set the scene."
         meta={[
           { label: 'Length', value: '0:35' },
@@ -496,6 +502,7 @@ const quizBody = (
     <Act bg={QZ.cream} fg={QZ.navy} accent={QZ.navy}>
       <Intro
         title="Was It or Wasn’t It?"
+        lead="One AI illustration for every question of N12’s Independence Day trivia."
         text="An Independence Day trivia for N12: true stories from Israel’s history mixed with made-up ones. I designed the AI images for the questions, one picture per question, all in the same retro print style."
         meta={[
           { label: 'Client', value: 'N12' },
@@ -549,6 +556,7 @@ const partnerBody = (
     <Act bg={PA.night} fg={PA.cream} accent={PA.amber}>
       <Intro
         title="The Partner"
+        lead="A podcast story with no pictures, turned into a four-part video series."
         text="A short series from N12’s daily podcast One a Day. The story only existed as audio, so I turned it into pictures: I wrote, directed and produced the series, built every scene from the transcript and animated it with Flow. The speaker’s words stay on screen."
         meta={[
           { label: 'Client', value: 'N12 · One a Day podcast' },
