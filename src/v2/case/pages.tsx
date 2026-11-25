@@ -27,7 +27,7 @@ const v2 = (p: string) => asset(`/v2/${p}`)
 const A = (p: string) => asset(`/assets/${p}`)
 
 export type Case = {
-  theme: 'amy' | 'motion' | 'rescue' | 'soundtrack'
+  theme: 'amy' | 'motion' | 'rescue' | 'soundtrack' | 'louvre' | 'eighties' | 'quiz'
   /** Colours of the first act, used before any act reaches the middle of the screen */
   acts: { bg: string; fg: string }
   heroVideo?: string
@@ -63,7 +63,6 @@ const amyBody = (
         link={{ label: 'View live project', href: 'https://special.n12.co.il/AmyWinehouse' }}
         linkStyle={{ background: AMY.red, color: AMY.paper }}
       />
-      <Visual m={{ src: v2('amy/hero-banner.webp'), alt: 'Amy Winehouse N12 Special campaign hero', ratio: '1304 / 800' }} bleed parallax />
       <Gap />
 
       <Chapter num="01" title="Creative direction" note="From early explorations to the final direction." />
@@ -89,11 +88,11 @@ const amyBody = (
       <div className="cs-wrap cs-amy-notes">
         {[
           { k: 'Textures & treatment', v: 'Halftone dots, ink splatters and worn-paper textures give the identity its raw editorial character.', img: v2('amy/hero-banner.webp'), pos: '72% 30%' },
-          { k: 'Iconography', v: 'Tattoo-flash motifs reference Amy’s personal iconography and the wider 27 Club visual world.', img: v2('amy/bird.webp'), pos: 'center', contain: true },
+          { k: 'Iconography', v: 'Tattoo-flash motifs reference Amy’s personal iconography and the wider 27 Club visual world.', img: v2('amy/grid-mobile.webp'), pos: '8% 12%' },
           { k: 'Image treatment', v: 'High-contrast portraiture and distressed overlays connect photography to the graphic system.', img: v2('amy/concept-3.webp'), pos: '40% 35%' },
         ].map((n, i) => (
           <Reveal key={n.k} delay={i * 0.08} className="cs-amy-note">
-            <div className={`cs-amy-crop ${n.contain ? 'is-contain' : ''}`}>
+            <div className="cs-amy-crop">
               <img src={n.img} alt="" loading="lazy" style={{ objectPosition: n.pos }} />
             </div>
             <span className="cs-step">{String(i + 1).padStart(2, '0')}</span>
@@ -105,7 +104,7 @@ const amyBody = (
       <Gap />
 
       <Chapter num="03" title="Banner development" note="The final direction brings tattoo culture, distressed print textures and 27 Club references into one cohesive identity." />
-      <Visual m={{ src: v2('amy/hero-banner.webp'), alt: 'Final campaign banner', label: 'Final banner', ratio: '1304 / 800' }} />
+      <Visual m={{ src: v2('amy/hero-banner.webp'), alt: 'Final campaign banner', label: 'Final banner', ratio: '1304 / 800' }} bleed parallax />
       <Gap size="l" />
     </Act>
 
@@ -151,18 +150,13 @@ const amyBody = (
     <Act bg={AMY.red} fg={AMY.paper} accent={AMY.ink}>
       <Chapter num="06" title="System in use" note="The visual system applied across desktop and mobile formats." />
       <Visual m={{ src: v2('amy/grid-desktop.webp'), alt: 'Desktop grid showing the full 27 Club artist system', label: 'Desktop layout', caption: 'The 27 Club system applied across the full artist grid.' }} />
-      <div className="cs-wrap-wide cs-split-75">
-        <Visual m={{ src: v2('amy/amy-phones.webp'), alt: 'Mobile screens of the special', ratio: '1579 / 996', contain: true }} />
-        <Visual m={{ src: v2('amy/grid-mobile.webp'), alt: 'Mobile layout', label: 'Mobile layout', caption: 'The same visual system adapted for a compact vertical experience.', ratio: '3 / 4' }} />
+      <Gap size="s" />
+      <div className="cs-wrap cs-narrow">
+        <Visual m={{ src: v2('amy/grid-mobile.webp'), alt: 'Mobile layout of the 27 Club artist grid', label: 'Mobile layout', caption: 'The same visual system adapted for a compact vertical experience.', ratio: '1526 / 2269' }} />
       </div>
       <Gap size="l" />
     </Act>
 
-    <Act bg={AMY.ink} fg={AMY.paper} accent={AMY.red}>
-      <Gap size="s" />
-      <Visual m={{ src: v2('amy/hero-banner.webp'), alt: 'Amy Winehouse N12 Special, final banner', ratio: '1304 / 800' }} bleed parallax />
-      <Gap />
-    </Act>
   </>
 )
 
@@ -195,28 +189,13 @@ const motionBody = (
       />
       <Gap />
       <Chapter num="02" title="Character animation" />
-      <div className="cs-wrap-wide cs-split-75">
-        <Visual m={{ video: A('motion/clips/03-character-animation.mp4'), poster: v2('motion/01-character-selection.webp'), alt: 'Character animation', caption: 'Expressive character movement integrated into animated environments.' }} frame />
-        <Visual m={{ src: v2('motion/01-character-selection.webp'), alt: 'Character selection scene', ratio: '16 / 9' }} />
-      </div>
+      <Visual m={{ video: A('motion/clips/03-character-animation.mp4'), poster: v2('motion/01-character-selection.webp'), alt: 'Character animation', caption: 'Expressive character movement integrated into animated environments.' }} frame />
       <Gap size="l" />
     </Act>
 
     <Act bg={MO.yellow} fg={MO.green} accent={MO.green}>
       <Chapter num="03" title="UI & game animation" />
       <Visual m={{ video: A('motion/clips/02-ui-game-animation.mp4'), poster: v2('motion/02-tetris.webp'), alt: 'UI and game animation', caption: 'Animated interfaces, game systems and responsive graphic elements.' }} frame />
-      <Gap size="s" />
-      <Grid
-        wide
-        cols={4}
-        steps
-        items={[
-          { src: v2('motion/02-tetris.webp'), alt: 'Puzzle game scene', ratio: '16 / 9' },
-          { src: v2('motion/03-mario-platform.webp'), alt: 'Platform game scene', ratio: '16 / 9' },
-          { src: v2('motion/04-gold-digger.webp'), alt: 'Gold digger scene', ratio: '16 / 9' },
-          { src: v2('motion/05-icy-tower.webp'), alt: 'Tower climbing scene', ratio: '16 / 9' },
-        ]}
-      />
       <Gap size="l" />
     </Act>
 
@@ -269,17 +248,11 @@ const rescueBody = (
         <Visual m={{ src: v2('ai/2.webp'), alt: 'Command scene', label: 'Command Center', caption: 'Controlled environment, information and visual continuity.', ratio: '21 / 9' }} bleed parallax />
         <Visual m={{ src: v2('ai/7.webp'), alt: 'Extraction scene', label: 'Rescue / Extraction', caption: 'Consistent people, aircraft and environment across the sequence.', ratio: '21 / 9' }} bleed parallax />
       </div>
-      <Gap />
-      <Chapter num="03" title="AI generation" />
-      <div className="cs-wrap-wide cs-split-75">
-        <Compare before={{ src: v2('ai/pilot-original.webp'), alt: 'Generated pilot frame' }} after={{ src: v2('ai/pilot-cutout.webp'), alt: 'Pilot cut-out', ratio: '1616 / 973' }} labels={['Frame', 'Cut-out']} />
-        <Visual m={{ src: v2('ai/c13-airplane.webp'), alt: 'Generated aircraft element', ratio: '1800 / 1105', contain: true }} />
-      </div>
       <Gap size="l" />
     </Act>
 
     <Act bg={RE.blue} fg={RE.sand} accent={RE.sand}>
-      <Chapter num="04" title="From frame to motion" note="Select a shot, then watch the directed key frame come to life." />
+      <Chapter num="03" title="From frame to motion" note="Select a shot, then watch the directed key frame come to life." />
       <FrameToMotion
         shots={[
           { label: 'Pilot / Survival', still: v2('ai/pilot-crawling-transmitting-202604051655.webp'), motion: A('navigator/motion/002.mp4'), caption: 'Directed character, environment and cinematic mood.' },
@@ -301,7 +274,7 @@ const rescueBody = (
     </Act>
 
     <Act bg={RE.black} fg={RE.bone} accent={RE.amber}>
-      <Chapter num="05" title="Continuity & compositing" />
+      <Chapter num="04" title="Continuity & compositing" />
       <div className="cs-wrap cs-aime">
         <Reveal className="cs-aime-cell">
           <p className="cs-label">AI</p>
@@ -313,7 +286,7 @@ const rescueBody = (
         </Reveal>
       </div>
       <Gap />
-      <Chapter num="06" title="Final broadcast" note="The complete N12 visual piece — combining AI-generated frames, motion and compositing into one final sequence." />
+      <Chapter num="05" title="Final broadcast" note="The complete N12 visual piece — combining AI-generated frames, motion and compositing into one final sequence." />
       <Film src={A('navigator/main-film.mp4')} poster={v2('ai/main-film-frame.webp')} captions={A('navigator/captions-en.vtt')} alt="USA Pilot Rescue final film" />
       <Gap size="l" />
     </Act>
@@ -347,7 +320,7 @@ const soundBody = (
       <Steps
         items={[
           { k: 'Challenge', v: 'A cluttered, low-engagement voting flow.' },
-          { k: 'UX Idea', v: 'Guide users discover → listen → vote.' },
+          { k: 'UX Idea', v: 'Guide users to discover → listen → vote.' },
           { k: 'Execution', v: 'iPhone-first voting UI, real content.' },
           { k: 'Outcome', v: 'Music From The Screen — listen, discover and vote.' },
         ]}
@@ -384,27 +357,151 @@ const soundBody = (
       <Gap />
       <Chapter num="04" title="Voting flow" />
       <Grid wide cols={5} steps items={phones} />
-      <Gap size="s" />
-      <Visual m={{ src: v2('galgalatz/game-uiux.webp'), alt: 'Voting flow UI screens', ratio: '16 / 10', contain: true }} />
-      <Gap />
-      <Chapter num="05" title="On mobile" />
-      <div className="cs-wrap-wide cs-split-75 is-reverse">
-        <Visual m={{ src: v2('galgalatz/n12-phone.webp'), alt: 'The flow inside the N12 app', ratio: '1400 / 859', contain: true }} />
-        <Visual m={{ src: v2('galgalatz/glaglatz-phones.webp'), alt: 'Phone mockups of the voting flow', ratio: '1086 / 1448', contain: true }} />
-      </div>
       <Gap size="l" />
     </Act>
 
     <Act bg={SO.night} fg={SO.lilac} accent={SO.neon}>
-      <Chapter num="06" title="Social" />
+      <Chapter num="05" title="Social" />
       <ScrollRows
         items={[
-          { src: v2('galgalatz/img-1.webp'), alt: 'Social post', ratio: '4 / 5' },
           { src: v2('galgalatz/img-2.webp'), alt: 'Social post', ratio: '4 / 5' },
           { src: v2('galgalatz/img-3.webp'), alt: 'Social post', ratio: '4 / 5' },
           { src: v2('galgalatz/img-4.webp'), alt: 'Social post', ratio: '4 / 5' },
           { src: v2('galgalatz/img-7.webp'), alt: 'Social post', ratio: '4 / 5' },
-          { src: v2('galgalatz/rank-01.webp'), alt: 'Chart post', ratio: '4 / 5' },
+        ]}
+      />
+      <Gap size="l" />
+    </Act>
+  </>
+)
+
+/* ======================================================================
+ * 05 · THE LOUVRE HEIST — AI news film, two formats
+ * ==================================================================== */
+const LV = { night: '#14171b', stone: '#ece6da', gold: '#d9b25f', slate: '#2b3138' }
+const louvreBody = (
+  <>
+    <Act bg={LV.night} fg={LV.stone} accent={LV.gold}>
+      <Intro
+        title="The Louvre Heist"
+        text="A 70-second AI film for N12 that rebuilds the Louvre jewel heist shot by shot: the van by the Seine, the cut glass, the galleries, the crown on the pavement and the getaway. Delivered in 16:9 for web and 9:16 for mobile."
+        meta={[
+          { label: 'Client', value: 'N12' },
+          { label: 'Length', value: '1:10' },
+          { label: 'Formats', value: '16:9 · 9:16' },
+        ]}
+      />
+      <Film src={v2('louvre/louvre-film.mp4')} poster={v2('louvre/poster.webp')} alt="The Louvre Heist, full film, 16:9" />
+      <Gap />
+      <Chapter num="01" title="Shot by shot" />
+      <div className="cs-letterbox-run">
+        <Visual m={{ src: v2('louvre/sparks.webp'), alt: 'Thieves cutting through glass on a lift', label: 'The break-in', ratio: '16 / 9' }} bleed parallax />
+        <Visual m={{ src: v2('louvre/gallery.webp'), alt: 'Two men in orange vests running through a gilded gallery', label: 'The gallery', ratio: '16 / 9' }} bleed parallax />
+      </div>
+      <Gap size="s" />
+      <Grid
+        wide
+        cols={3}
+        items={[
+          { src: v2('louvre/vitrine.webp'), alt: 'A masked thief at a jewel case', ratio: '16 / 9' },
+          { src: v2('louvre/alarm.webp'), alt: 'Guards running under the alarm light', ratio: '16 / 9' },
+          { src: v2('louvre/getaway.webp'), alt: 'The getaway on motorbikes', ratio: '16 / 9' },
+        ]}
+      />
+      <Gap size="l" />
+    </Act>
+
+    <Act bg={LV.gold} fg={LV.night} accent={LV.night}>
+      <Chapter num="02" title="The crown" />
+      <div className="cs-wrap-wide cs-split-75">
+        <Visual m={{ src: v2('louvre/crown-flight.webp'), alt: 'The crown falling towards the street', ratio: '16 / 9' }} />
+        <Visual m={{ src: v2('louvre/crown.webp'), alt: 'The crown broken on the pavement', ratio: '16 / 9' }} />
+      </div>
+      <Gap size="l" />
+    </Act>
+
+    <Act bg={LV.slate} fg={LV.stone} accent={LV.gold}>
+      <Chapter num="03" title="Cut for mobile" note="The same story reframed for a vertical feed." />
+      <Film src={v2('louvre/louvre-film-vertical.mp4')} poster={v2('louvre/poster-vertical.webp')} alt="The Louvre Heist, vertical 9:16 version" vertical />
+      <Gap size="l" />
+    </Act>
+  </>
+)
+
+/* ======================================================================
+ * 06 · YARDENA & OFIRA — an 80s bedroom
+ * ==================================================================== */
+const EI = { blush: '#fbe3e6', navy: '#272c66', pink: '#e0457b', denim: '#7d9cc4' }
+const eightiesBody = (
+  <>
+    <Act bg={EI.blush} fg={EI.navy} accent={EI.pink}>
+      <Intro
+        title="Yardena & Ofira — an 80s room"
+        text="A 35-second AI film set in a teenage bedroom of the 1980s, built around the pop rivalry of the time: Yardena Arazi against Ofra Haza. Posters, magazine covers, a cassette player and a framed photo set the scene."
+        meta={[
+          { label: 'Length', value: '0:35' },
+          { label: 'Disciplines', value: 'AI film · Art direction' },
+        ]}
+      />
+      <Film src={v2('eighties/room-film.mp4')} poster={v2('eighties/poster.webp')} alt="Yardena and Ofira, an 80s room, full film" />
+      <Gap />
+      <Chapter num="01" title="The room" note="Every object placed to date the room to one decade." />
+      <Stack
+        items={[
+          { src: v2('eighties/magazine.webp'), alt: 'Teen magazine on the bed with the headline about the rivalry', ratio: '16 / 9' },
+          { src: v2('eighties/radio.webp'), alt: 'A hand turning the dial of a cassette radio', ratio: '16 / 9' },
+          { src: v2('eighties/posters.webp'), alt: 'Posters and magazine covers on the wall', ratio: '16 / 9' },
+          { src: v2('eighties/bedside.webp'), alt: 'Bedside table with a framed photo and a digital clock', ratio: '16 / 9' },
+          { src: v2('eighties/sneakers.webp'), alt: 'Sneakers on the floor by the desk', ratio: '16 / 9' },
+        ]}
+      />
+      <Gap size="l" />
+    </Act>
+  </>
+)
+
+/* ======================================================================
+ * 07 · WAS IT OR WASN’T IT — illustrated quiz
+ * ==================================================================== */
+const QZ = { teal: '#3fa9b5', cream: '#f4ead2', ink: '#2e1d14', red: '#d9452b' }
+const q = (n: string, alt: string): Img => ({ src: v2(`quiz/${n}.webp`), alt, ratio: '1 / 1' })
+const quizBody = (
+  <>
+    <Act bg={QZ.cream} fg={QZ.ink} accent={QZ.red}>
+      <Intro
+        title="Was It or Wasn’t It?"
+        text="A series of retro pop-art illustrations for a trivia quiz, one picture per question, all drawn in the same halftone print style."
+        meta={[{ label: 'Disciplines', value: 'Illustration · AI image generation' }]}
+      />
+      <Stack
+        items={[
+          q('ben-gurion', 'Pop-art portrait of David Ben-Gurion in sunglasses'),
+          q('shark', 'A shark wearing sunglasses and headphones'),
+          q('bamba', 'Bags of Bamba next to a plate of hummus'),
+          q('israel-railways', 'An Israel Railways train in an underwater tunnel'),
+          q('jimmy-turk', 'Football player in an Israel national team shirt'),
+        ]}
+      />
+      <Gap size="l" />
+    </Act>
+    <Act bg={QZ.teal} fg={QZ.ink} accent={QZ.cream}>
+      <Chapter num="01" title="One style, every question" />
+      <Grid
+        wide
+        cols={4}
+        items={[
+          q('cleopatra', 'Cleopatra in sunglasses in front of a pyramid'),
+          q('walt-disney', 'Walt Disney drinking coffee by the sea'),
+          q('frank-sinatra', 'Frank Sinatra at a microphone'),
+          q('jordanian-legion', 'Soldiers of the Jordanian Legion'),
+          q('astronaut', 'An astronaut on the moon'),
+          q('south-america', 'Map of South America with Israeli flags'),
+          q('television', 'A vintage television set'),
+          q('telephone', 'A hand holding a smartphone by the sea'),
+          q('nun', 'A nun walking by a stone wall'),
+          q('siesta', 'A man taking a siesta on a sofa'),
+          q('paul-mccartney', 'Paul McCartney singing with a guitar'),
+          q('radio', 'A vintage radio'),
         ]}
       />
       <Gap size="l" />
@@ -452,5 +549,26 @@ export const CASES: Record<string, Case> = {
       { label: 'Crafted', value: 'Early 2022' },
     ],
     body: soundBody,
+  },
+  louvre: {
+    theme: 'louvre',
+    acts: { bg: LV.night, fg: LV.stone },
+    credits: [
+      { label: 'Client', value: 'N12' },
+      { label: 'Type', value: 'AI film · Web and mobile' },
+    ],
+    body: louvreBody,
+  },
+  eighties: {
+    theme: 'eighties',
+    acts: { bg: EI.blush, fg: EI.navy },
+    credits: [{ label: 'Type', value: 'AI film · Art direction' }],
+    body: eightiesBody,
+  },
+  quiz: {
+    theme: 'quiz',
+    acts: { bg: QZ.cream, fg: QZ.ink },
+    credits: [{ label: 'Type', value: 'Illustration series' }],
+    body: quizBody,
   },
 }

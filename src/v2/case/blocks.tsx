@@ -31,10 +31,14 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
     // Focus the close button, and hand focus back to the picture that opened it
     const back = document.activeElement as HTMLElement | null
     close.current?.focus()
+    const html = document.documentElement
+    const prev = html.style.overflow
+    html.style.overflow = 'hidden'
     const k = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(null)
     window.addEventListener('keydown', k)
     return () => {
       window.removeEventListener('keydown', k)
+      html.style.overflow = prev
       back?.focus?.()
     }
   }, [open])
@@ -406,6 +410,8 @@ export function Compare({ before, after, labels = ['Before', 'After'] }: { befor
     if (r) pos.set(Math.max(0, Math.min(100, ((x - r.left) / r.width) * 100)))
   }
   const played = useRef(false)
+  const intro = useRef<ReturnType<typeof animate> | null>(null)
+  useEffect(() => () => intro.current?.stop(), [])
   return (
     <motion.div
       ref={box}
@@ -414,9 +420,10 @@ export function Compare({ before, after, labels = ['Before', 'After'] }: { befor
       onViewportEnter={() => {
         if (played.current) return
         played.current = true
-        animate(pos, [50, 22, 78, 50], { duration: 2.4, ease: 'easeInOut', delay: 0.3 })
+        intro.current = animate(pos, [50, 22, 78, 50], { duration: 2.4, ease: 'easeInOut', delay: 0.3 })
       }}
       onPointerDown={(e) => {
+        intro.current?.stop()
         ;(e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId)
         set(e.clientX)
       }}
@@ -428,6 +435,9 @@ export function Compare({ before, after, labels = ['Before', 'After'] }: { befor
       aria-valuemax={100}
       aria-valuenow={now}
       onKeyDown={(e) => {
+        intro.current?.stop()
+        if (e.key === 'Home') pos.set(0)
+        if (e.key === 'End') pos.set(100)
         if (e.key === 'ArrowLeft') pos.set(Math.max(0, pos.get() - 5))
         if (e.key === 'ArrowRight') pos.set(Math.min(100, pos.get() + 5))
       }}
@@ -488,9 +498,10 @@ export function FrameToMotion({ shots }: { shots: { label: string; still: string
   const [live, setLive] = useState(false)
   const v = useRef<HTMLVideoElement>(null)
   const pick = useCallback((i: number) => {
+    if (i === at) return
     setLive(false)
     setAt(i)
-  }, [])
+  }, [at])
   const s = shots[at]
   return (
     <div className="cs-wrap-wide cs-f2m">
@@ -503,7 +514,7 @@ export function FrameToMotion({ shots }: { shots: { label: string; still: string
           loop
           playsInline
           autoPlay
-          preload="auto"
+          preload="metadata"
           onPlaying={() => setLive(true)}
           aria-label={`${s.label} in motion`}
         />
@@ -524,7 +535,7 @@ export function FrameToMotion({ shots }: { shots: { label: string; still: string
 }
 
 /* ---------- Film: the finished piece, large, with its own controls ---------- */
-export function Film({ src, poster, captions, alt }: { src: string; poster: string; captions?: string; alt: string }) {
+export function Film({ src, poster, captions, alt, vertical = false }: { src: string; poster: string; captions?: string; alt: string; vertical?: boolean }) {
   const wrap = useRef<HTMLDivElement>(null)
   const v = useRef<HTMLVideoElement>(null)
   const [playing, setPlaying] = useState(false)
@@ -538,7 +549,7 @@ export function Film({ src, poster, captions, alt }: { src: string; poster: stri
   }
   return (
     <Reveal className="cs-wrap-wide">
-      <div ref={wrap} className={`cs-film ${playing ? 'is-playing' : ''}`}>
+      <div ref={wrap} className={`cs-film ${vertical ? 'is-vertical' : ''} ${playing ? 'is-playing' : ''}`}>
         <video
           ref={v}
           src={src}
@@ -570,7 +581,8 @@ export function Film({ src, poster, captions, alt }: { src: string; poster: stri
               const el = wrap.current
               if (!el) return
               if (document.fullscreenElement) document.exitFullscreen()
-              else el.requestFullscreen?.()
+              else if (el.requestFullscreen) el.requestFullscreen()
+              else (v.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null)?.webkitEnterFullscreen?.()
             }}
           >
             Fullscreen

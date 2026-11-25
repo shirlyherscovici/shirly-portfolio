@@ -40,6 +40,24 @@ export function CaseStudy({ project }: { project: Project }) {
   const c = CASES[project.slug]
   const nextRef = useRef<HTMLElement>(null)
   const [act, setAct] = useState<{ bg: string; fg: string } | null>(null)
+  const heroVid = useRef<HTMLVideoElement>(null)
+  /* Only tell the header about a tone when it actually changes, not on every scroll tick */
+  const lastTone = useRef('')
+  const toneTo = (t: { bg: string; fg: string }) => {
+    const k = t.bg + t.fg
+    if (k === lastTone.current) return
+    lastTone.current = k
+    setTone(t)
+  }
+
+  /* The hero clip stops decoding once the story covers it */
+  useEffect(() => {
+    const el = heroVid.current
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => (e.isIntersecting ? el.play().catch(() => {}) : el.pause()))
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
 
   useEffect(() => {
     if (!via) return
@@ -72,9 +90,9 @@ export function CaseStudy({ project }: { project: Project }) {
         setGoing(true)
         return
       }
-      if (top < 60) setTone(next.colors)
-      else if (window.scrollY > window.innerHeight * 0.92) setTone(tone)
-      else setTone(hero)
+      if (top < 60) toneTo(next.colors)
+      else if (window.scrollY > window.innerHeight * 0.92) toneTo(tone)
+      else toneTo(hero)
     }
     apply()
     window.addEventListener('scroll', apply, { passive: true })
@@ -83,7 +101,7 @@ export function CaseStudy({ project }: { project: Project }) {
       window.removeEventListener('scroll', apply)
       window.removeEventListener('resize', apply)
     }
-  }, [hero, next, going, setTone, c])
+  }, [hero, next, going, setTone, c]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!going) return
@@ -96,7 +114,12 @@ export function CaseStudy({ project }: { project: Project }) {
     window.addEventListener('keydown', keys)
     window.scrollTo(0, document.documentElement.scrollHeight)
     setTone(next.hero)
-    const t = window.setTimeout(() => fly({ slug: next.slug, src: next.cover.src, rect: { x: 0, y: 0, w: 0, h: 0 }, bg: next.hero.bg, handoff: true }), 1250)
+    const here = window.location.hash
+    const t = window.setTimeout(() => {
+      // The visitor pressed Back while the wipe was running: stay where they went
+      if (window.location.hash !== here) return
+      fly({ slug: next.slug, src: next.cover.src, rect: { x: 0, y: 0, w: 0, h: 0 }, bg: next.hero.bg, handoff: true })
+    }, 1250)
     return () => {
       window.clearTimeout(t)
       window.removeEventListener('wheel', stop)
@@ -119,7 +142,7 @@ export function CaseStudy({ project }: { project: Project }) {
         <section className="v2-hero" style={{ background: hero.bg, color: hero.fg }}>
           <motion.div className="v2-hero-media" style={{ y: mediaY }}>
             {c.heroVideo ? (
-              <video src={c.heroVideo} poster={project.cover.src} autoPlay muted loop playsInline aria-label={project.cover.alt} />
+              <video ref={heroVid} src={c.heroVideo} poster={project.cover.src} autoPlay muted loop playsInline aria-label={project.cover.alt} />
             ) : (
               <motion.img
                 src={project.cover.src}
