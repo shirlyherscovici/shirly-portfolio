@@ -1162,6 +1162,7 @@
   height: 100vh;
   height: 100svh;
   overflow: hidden;
+  overflow: clip; /* not scrollable, so focus or a click can never slide the stage sideways */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1273,6 +1274,7 @@
   height: 100vh;
   height: 100svh;
   overflow: hidden;
+  overflow: clip; /* not scrollable, so focus or a click can never slide the stage sideways */
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
@@ -1892,4 +1894,82 @@
   place-items: center;
   text-align: center;
   padding: 0 var(--gutter);
+}
+
+/* ---------- Amy opens on the before / after, as high as the screen allows ---------- */
+.cs .cs-amy-open {
+  width: min(var(--cs-wide), 82vh);
+  width: min(var(--cs-wide), 82svh);
+  margin-top: clamp(24px, 5vh, 56px);
+}
+
+.cs .cs-amy-open .cs-caption {
+  text-align: center;
+}
+
+/* ---------- Reel sound toggle ---------- */
+.cs .cs-reel-audio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cs .cs-reel-sound {
+  position: absolute;
+  top: clamp(72px, 11vh, 112px);
+  right: var(--gutter);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.4);
+  color: #f1ece2;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+
+.cs .cs-reel-sound:hover,
+.cs .cs-reel-sound.is-on {
+  border-color: #e50914;
+}
+
+.cs .cs-reel-eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.cs .cs-reel-eq i {
+  width: 2px;
+  height: 3px;
+  background: currentColor;
+}
+
+.cs .cs-reel-sound.is-on .cs-reel-eq i {
+  background: #e50914;
+  animation: cs-eq 0.9s ease-in-out infinite alternate;
+}
+
+.cs .cs-reel-sound.is-on .cs-reel-eq i:nth-child(2) { animation-delay: -0.3s; }
+.cs .cs-reel-sound.is-on .cs-reel-eq i:nth-child(3) { animation-delay: -0.6s; }
+
+@keyframes cs-eq {
+  from { height: 3px; }
+  to { height: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cs .cs-reel-sound.is-on .cs-reel-eq i { animation: none; height: 10px; }
 }

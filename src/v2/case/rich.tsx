@@ -49,10 +49,31 @@ function ReelCard({ s, i, n, p }: { s: Scene; i: number; n: number; p: MotionVal
   )
 }
 
-export function ClipReel({ scenes, title }: { scenes: Scene[]; title?: string }) {
+export function ClipReel({ scenes, title, sound }: { scenes: Scene[]; title?: string; sound?: string }) {
   const box = useRef<HTMLDivElement>(null)
   const track = useRef<HTMLDivElement>(null)
   const [dist, setDist] = useState(0)
+
+  /* Sound: the clips are silent, so the button plays the film's own soundtrack
+   * under the reel, and only while the reel is on screen */
+  const audio = useRef<HTMLVideoElement>(null)
+  const [on, setOn] = useState(false)
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    const el = box.current
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.15 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+  useEffect(() => {
+    const a = audio.current
+    if (!a) return
+    if (on && inView) {
+      a.volume = 0.8
+      a.play().catch(() => setOn(false))
+    } else a.pause()
+  }, [on, inView])
   useLayoutEffect(() => {
     const m = () => setDist(Math.max(0, (track.current?.scrollWidth ?? 0) - window.innerWidth))
     m()
@@ -71,6 +92,19 @@ export function ClipReel({ scenes, title }: { scenes: Scene[]; title?: string })
     <section ref={box} className="cs-reel" style={{ height: `${Math.round((scenes.length * 0.5 + 1) * 100)}vh` }}>
       <div className="cs-reel-stage">
         {title && <p className="cs-label cs-reel-title">{title}</p>}
+        {sound && (
+          <>
+            <video ref={audio} src={sound} preload="none" loop playsInline aria-hidden="true" tabIndex={-1} className="cs-reel-audio" />
+            <button type="button" className={`cs-reel-sound${on ? ' is-on' : ''}`} aria-pressed={on} onClick={() => setOn((v) => !v)}>
+              <span className="cs-reel-eq" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+              </span>
+              {on ? 'Sound on' : 'Sound off'}
+            </button>
+          </>
+        )}
         <motion.div ref={track} className="cs-reel-track" style={{ x }}>
           {scenes.map((s, i) => (
             <ReelCard key={s.video} s={s} i={i} n={scenes.length} p={p} />

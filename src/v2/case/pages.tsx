@@ -60,6 +60,10 @@ const amyBody = (
         link={{ label: 'View live project', href: 'https://special.n12.co.il/AmyWinehouse' }}
         linkStyle={{ background: AMY.red, color: AMY.paper }}
       />
+      <div className="cs-wrap-wide cs-amy-open">
+        <Compare before={{ src: v2('amy/005-before.webp'), alt: 'Original archive photo' }} after={{ src: v2('amy/005-after.webp'), alt: 'Final treatment', ratio: '1 / 1' }} labels={['Original', 'Final']} />
+        <p className="cs-caption">Drag the line: the archive photo, and the same photo in the campaign’s treatment.</p>
+      </div>
       <Gap />
 
       <Chapter num="01" title="Creative direction" note="From early explorations to the final direction." />
@@ -106,11 +110,7 @@ const amyBody = (
     </Act>
 
     <Act bg={AMY.ink} fg={AMY.paper} accent={AMY.red}>
-      <Chapter num="04" title="Before & after" note="Drag the line, or flip any card to see the original photo." />
-      <div className="cs-wrap cs-narrow">
-        <Compare before={{ src: v2('amy/005-before.webp'), alt: 'Original archive photo' }} after={{ src: v2('amy/005-after.webp'), alt: 'Final treatment', ratio: '1 / 1' }} labels={['Original', 'Final']} />
-      </div>
-      <Gap size="s" />
+      <Chapter num="04" title="Before & after" note="Every portrait went through the same treatment. Flip any card to see the original photo." />
       <FlipWall pairs={amyPairs} />
       <Gap size="l" />
     </Act>
@@ -229,6 +229,7 @@ const rescueBody = (
     <Act bg="#050506" fg={RE.bone} accent="#e50914">
       <ClipReel
         title="02 · Scenes from the film"
+        sound={A('navigator/main-film.mp4')}
         scenes={[
           clip('descent', 'Descent'),
           clip('pilot-down', 'Pilot down'),
