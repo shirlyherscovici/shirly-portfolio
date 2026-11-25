@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import {
   AnimatePresence,
   motion,
+  useMotionValue,
   useMotionValueEvent,
   useReducedMotion,
   useScroll,
@@ -9,8 +10,8 @@ import {
   useTransform,
   type MotionValue,
 } from 'framer-motion'
-import { PROJECTS, type Project } from './data'
-import { href, useFlight, useTone } from './store'
+import { PROJECTS, SHELL, type Project } from './data'
+import { href, useCanHover, useFlight, useTone } from './store'
 import { Contact } from './Contact'
 
 /* ---------- colour helpers: mix in OKLab so blends stay clean (no muddy greys) ---------- */
@@ -130,7 +131,8 @@ function strip(p: number, hs: number[], gap: number) {
   return centres.map((c) => c - focus)
 }
 
-/* ---------- One window of the strip: the image sits behind and the window slides over it ---------- */
+/* ---------- One window of the strip: the image sits behind and the window slides over it.
+ *  The picture also pans slowly all the time, so there is always some movement revealing it. ---------- */
 function Frame({
   project,
   index,
@@ -138,7 +140,6 @@ function Frame({
   hs,
   gap,
   w,
-  tint,
   active,
   onOpen,
   onPick,
@@ -149,26 +150,27 @@ function Frame({
   hs: number[]
   gap: number
   w: number
-  tint: MotionValue<string>
   active: boolean
   onOpen: (el: HTMLElement, project: Project) => void
   onPick: (i: number) => void
 }) {
+  const reduce = useReducedMotion()
   const ref = useRef<HTMLAnchorElement>(null)
   const h = hs[index]
   const y = useTransform(p, (v) => strip(v, hs, gap)[index])
   const scale = useTransform(p, (v) => sizeAt(index - v))
   // Counter-move the picture so it reads as fixed behind the moving window
-  const imgY = useTransform(p, (v) => -Math.max(-1.3, Math.min(1.3, index - v)) * 0.14 * h)
-  const veil = useTransform(p, (v) => Math.min(1, Math.abs(index - v)) * 0.55)
+  const imgY = useTransform(p, (v) => -Math.max(-1.3, Math.min(1.3, index - v)) * 0.12 * h)
+  // Neighbours go black and white, like film you have not reached yet
+  const filter = useTransform(p, (v) => `grayscale(${Math.min(1, Math.abs(index - v))})`)
+  const opacity = useTransform(p, (v) => 1 - Math.min(1, Math.abs(index - v)) * 0.3)
 
   return (
-    <motion.div className="v2-frame" style={{ y, scale, width: w, height: h, marginLeft: -w / 2, marginTop: -h / 2 }}>
+    <motion.div className="v2-frame" style={{ y, scale, opacity, width: w, height: h, marginLeft: -w / 2, marginTop: -h / 2 }}>
       <a
         ref={ref}
         href={href.project(project.slug)}
-        className="v2-window"
-        data-cursor={active ? 'View' : undefined}
+        className={`v2-window ${active ? 'is-active' : ''}`}
         tabIndex={active ? 0 : -1}
         aria-label={`${project.name}, open project`}
         draggable={false}
@@ -178,8 +180,13 @@ function Frame({
           else onPick(index)
         }}
       >
-        <motion.img src={project.cover.src} alt={project.cover.alt} style={{ y: imgY }} draggable={false} />
-        <motion.span className="v2-veil" style={{ backgroundColor: tint, opacity: veil }} aria-hidden="true" />
+        <motion.div
+          className="v2-window-pan"
+          animate={reduce ? undefined : { x: ['-2.5%', '2.5%'], y: ['1.5%', '-1.5%'] }}
+          transition={{ duration: 7 + index, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+        >
+          <motion.img src={project.cover.src} alt={project.cover.alt} style={{ y: imgY, filter }} draggable={false} />
+        </motion.div>
       </a>
     </motion.div>
   )
@@ -225,7 +232,6 @@ export function Home() {
   const fg = useTransform(p, (v) => along(v, 'fg'))
 
   useMotionValueEvent(p, 'change', (v) => setIdx(Math.max(0, Math.min(n - 1, Math.round(v)))))
-  useEffect(() => setTone(PROJECTS[idx].colors), [idx, setTone])
 
   useEffect(() => {
     const root = document.documentElement
@@ -264,48 +270,112 @@ export function Home() {
   }
 
   const mobile = vw < 760
+  const canHover = useCanHover()
   const w = mobile ? vw * 0.7 : Math.min(vw * 0.4, vh * 0.66 * 1.4, 700)
   const hs = PROJECTS.map(({ frame }) => w / Math.max(1.25, Math.min(1.78, frame.ratio)))
   const gap = mobile ? 26 : 64
-  // The strip enters straight, then leans into its angle
-  const tilt = mobile ? { rotateZ: -4, skewX: -4 } : { rotateZ: -6, skewX: -7 }
   const project = PROJECTS[idx]
 
+  /* List mode: bring the pointer to the right edge and the project list opens,
+   * the room goes dark and the strip lies back in perspective at the centre. */
+  const [list, setList] = useState(false)
+  useEffect(() => {
+    if (mobile || !canHover) {
+      setList(false)
+      return
+    }
+    const onMove = (e: PointerEvent) => {
+      const x = e.clientX / window.innerWidth
+      if (x > 0.86) setList(true)
+      else if (x < 0.55) setList(false)
+    }
+    window.addEventListener('pointermove', onMove)
+    return () => window.removeEventListener('pointermove', onMove)
+  }, [mobile, canHover])
+  useEffect(() => setTone(list ? { bg: SHELL.bg, fg: SHELL.fg } : PROJECTS[idx].colors), [list, idx, setTone])
+
+  // The strip enters straight, then leans into its angle (only the first time)
+  const [settled, setSettled] = useState(false)
+  useEffect(() => {
+    if (!ready) return
+    const t = window.setTimeout(() => setSettled(true), 2300)
+    return () => window.clearTimeout(t)
+  }, [ready])
+  const tilt = mobile
+    ? { rotateX: 4, rotateY: -10, rotateZ: -4 }
+    : list
+      ? { rotateX: 36, rotateY: 0, rotateZ: 0, x: '-27vw', scale: 1.12 }
+      : { rotateX: 5, rotateY: -17, rotateZ: -5, x: '0vw', scale: 1 }
+  const turn = { duration: settled ? 0.9 : 1.1, ease, delay: settled ? 0 : 1.0 }
+
+  // A little lean toward the pointer
+  const mx = useMotionValue(0)
+  const my = useMotionValue(0)
+  const leanY = useSpring(useTransform(mx, (v) => v * 5), { stiffness: 60, damping: 18 })
+  const leanX = useSpring(useTransform(my, (v) => -v * 4), { stiffness: 60, damping: 18 })
+  useEffect(() => {
+    if (!canHover || reduce) return
+    // In list mode the strip lies straight back, so the lean is switched off there
+    if (list) {
+      mx.set(0)
+      my.set(0)
+      return
+    }
+    const onMove = (e: PointerEvent) => {
+      mx.set(e.clientX / window.innerWidth - 0.5)
+      my.set(e.clientY / window.innerHeight - 0.5)
+    }
+    window.addEventListener('pointermove', onMove)
+    return () => window.removeEventListener('pointermove', onMove)
+  }, [canHover, reduce, list, mx, my])
+
+  const fade = { opacity: list ? 0 : 1, transition: { duration: 0.4 } }
+  const openAt = (i: number) => {
+    const win = document.querySelectorAll<HTMLElement>('.v2-window')[i]
+    if (win) open(win, PROJECTS[i])
+  }
+
   return (
-    <motion.main className="v2-home" style={{ backgroundColor: bg, color: fg }}>
+    <motion.main className="v2-home" style={{ backgroundColor: bg, color: fg, ['--glow' as string]: fg }}>
       <AnimatePresence>{loading && <Loader onDone={finishIntro} />}</AnimatePresence>
 
       <section ref={stripRef} className="v2-strip" style={{ height: n * vh }} aria-label="Selected work">
         {PROJECTS.map((pr, i) => (
           <span key={pr.slug} className="v2-snapmark" style={{ top: i * vh }} aria-hidden="true" />
         ))}
-        <div className="v2-stage">
+        <div className={`v2-stage ${list ? 'is-list' : ''}`}>
+          <motion.div className="v2-dim" initial={false} animate={{ opacity: list ? 1 : 0 }} transition={{ duration: 0.6 }} aria-hidden="true" />
+
           <div className="v2-plane-wrap">
             <motion.div
               className="v2-plane"
-              initial={{ y: '70vh', opacity: 0, rotateZ: 0, skewX: 0 }}
+              initial={{ y: '70vh', opacity: 0, rotateX: 0, rotateY: 0, rotateZ: 0 }}
               animate={ready ? { y: 0, opacity: 1, ...tilt } : undefined}
               transition={{
                 y: { duration: 1.1, ease: soft },
                 opacity: { duration: 0.5 },
-                rotateZ: { duration: 1.1, ease, delay: 1.0 },
-                skewX: { duration: 1.1, ease, delay: 1.0 },
+                rotateX: turn,
+                rotateY: turn,
+                rotateZ: turn,
+                x: { duration: 0.9, ease },
+                scale: { duration: 0.9, ease },
               }}
             >
               {/* A slow, constant drift so the strip never feels frozen */}
               <motion.div
                 className="v2-plane-drift"
+                style={{ rotateY: leanY, rotateX: leanX }}
                 animate={reduce ? undefined : { y: [0, -14, 0], x: [0, 6, 0] }}
                 transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
               >
                 {PROJECTS.map((pr, i) => (
-                  <Frame key={pr.slug} project={pr} index={i} p={p} hs={hs} gap={gap} w={w} tint={bg} active={i === idx} onOpen={open} onPick={scrollToIndex} />
+                  <Frame key={pr.slug} project={pr} index={i} p={p} hs={hs} gap={gap} w={w} active={i === idx} onOpen={open} onPick={scrollToIndex} />
                 ))}
               </motion.div>
             </motion.div>
           </div>
 
-          <div className="v2-info">
+          <motion.div className="v2-info" initial={false} animate={fade}>
             <AnimatePresence mode="wait">
               {ready && (
                 <motion.div key={project.slug} className="v2-info-inner" exit={{ opacity: 0, y: -16, transition: { duration: 0.25 } }}>
@@ -314,7 +384,6 @@ export function Home() {
                       <motion.a
                         href={href.project(project.slug)}
                         className="v2-char"
-                        data-cursor="View"
                         initial={{ y: '105%' }}
                         animate={{ y: '0%' }}
                         transition={{ duration: 0.7, ease: soft }}
@@ -329,11 +398,9 @@ export function Home() {
                   <motion.a
                     href={href.project(project.slug)}
                     className="v2-label v2-info-cta"
-                    data-cursor="Open"
                     onClick={(e) => {
                       e.preventDefault()
-                      const win = document.querySelectorAll<HTMLElement>('.v2-window')[idx]
-                      if (win) open(win, project)
+                      openAt(idx)
                     }}
                     initial={{ opacity: 0, y: 14 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -344,19 +411,30 @@ export function Home() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </motion.div>
 
-          <div className="v2-peek-slot">
+          <motion.div className="v2-peek-slot" initial={false} animate={fade}>
             <AnimatePresence mode="wait">{ready && !mobile && <Peek key={project.slug} project={project} frame={fg} />}</AnimatePresence>
-          </div>
+          </motion.div>
 
           {/* Colour band down the side, in the same colour as the project text */}
-          <motion.span className="v2-sideband" style={{ backgroundColor: fg }} aria-hidden="true" />
+          <motion.span className="v2-sideband" style={{ backgroundColor: fg }} initial={false} animate={fade} aria-hidden="true" />
 
           <nav className="v2-pills" aria-label="Projects">
             {PROJECTS.map((pr, i) => (
-              <button key={pr.slug} type="button" className={i === idx ? 'on' : ''} onClick={() => scrollToIndex(i)} aria-label={pr.name} aria-current={i === idx}>
-                <span />
+              <button
+                key={pr.slug}
+                type="button"
+                className={i === idx ? 'on' : ''}
+                onPointerEnter={() => {
+                  if (list && i !== idx) scrollToIndex(i)
+                }}
+                onClick={() => (list && i === idx ? openAt(i) : scrollToIndex(i))}
+                aria-label={pr.name}
+                aria-current={i === idx}
+              >
+                <span className="v2-pill-name">{pr.word}</span>
+                <span className="v2-pill" style={i === idx ? { background: pr.colors.fg, borderColor: pr.colors.fg } : undefined} />
               </button>
             ))}
           </nav>

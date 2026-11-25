@@ -221,29 +221,6 @@ html.v2-snap {
   overflow: hidden;
   border-radius: 2px;
   background: rgba(0, 0, 0, 0.18);
-  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.45);
-}
-
-.v2-window img {
-  position: absolute;
-  left: 0;
-  top: -20%;
-  width: 100%;
-  height: 140%;
-  object-fit: cover;
-  pointer-events: none;
-  transition: scale 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.v2-window:hover img {
-  scale: 1.04;
-}
-
-.v2-veil {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  mix-blend-mode: multiply;
 }
 
 .v2-info {
@@ -343,42 +320,108 @@ html.v2-snap {
 
 .v2-pills {
   position: absolute;
-  z-index: 3;
+  z-index: 5;
   right: clamp(16px, 3vw, 48px);
   top: 50%;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  align-items: flex-end;
+  gap: 2px;
 }
 
 .v2-pills button {
-  display: block;
-  padding: 6px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 5px 6px;
   background: none;
   border: 0;
   cursor: pointer;
   color: inherit;
+  transition: color 0.4s;
 }
 
-.v2-pills span {
+.v2-pill {
   display: block;
   width: 7px;
-  height: 18px;
+  height: 16px;
   border-radius: 4px;
   border: 1.5px solid currentColor;
   opacity: 0.55;
   transition: opacity 0.3s, background-color 0.3s, height 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.v2-pills button:hover span {
+.v2-pills button:hover .v2-pill {
   opacity: 1;
 }
 
-.v2-pills button.on span {
-  height: 30px;
+.v2-pills button.on .v2-pill {
+  height: 26px;
   opacity: 1;
-  background: currentColor;
+}
+
+.v2-pill-name {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(12px);
+  pointer-events: none;
+  transition: opacity 0.4s, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.v2-stage.is-list .v2-pills {
+  color: #f0f0f0;
+}
+
+.v2-stage.is-list .v2-pill-name {
+  opacity: 0.5;
+  transform: none;
+  pointer-events: auto;
+}
+
+.v2-stage.is-list .v2-pills button.on .v2-pill-name,
+.v2-stage.is-list .v2-pills button:hover .v2-pill-name {
+  opacity: 1;
+}
+
+.v2-dim {
+  position: absolute;
+  inset: 0;
+  background: #121212;
+  pointer-events: none;
+}
+
+.v2-plane {
+  transform-style: preserve-3d;
+}
+
+.v2-window-pan {
+  position: absolute;
+  inset: -6%;
+}
+
+.v2-window-pan img {
+  position: absolute;
+  left: 0;
+  top: -16%;
+  width: 100%;
+  height: 132%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.v2-window {
+  transition: box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.v2-window.is-active:hover {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--glow) 45%, transparent),
+    0 0 46px 4px color-mix(in srgb, var(--glow) 38%, transparent);
 }
 
 @media (max-width: 760px) {
