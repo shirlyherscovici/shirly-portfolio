@@ -117,7 +117,7 @@ export const PROJECTS: Project[] = [
     kind: '2D animation · Motion design',
     colors: { bg: '#ffd23f', fg: '#174a36' },
     hero: { bg: '#fff0c2', fg: '#174a36' },
-    cover: { kind: 'image', src: v2('motion/cover-beams.webp'), alt: 'Animated desert scene with beams of light and people walking towards the emblem' },
+    cover: { kind: 'image', src: v2('motion/cover-poster.webp'), alt: 'The soldier character jumping over a turtle in a platform game, with the other game worlds of the film around it' },
     loop: asset('/assets/motion/clips/02-ui-game-animation.mp4'),
     intro: 'A character-led motion project built as a playful game world: character animation, UI and game animation, kinetic typography and transitions.',
     credits: [{ label: 'Role', value: 'Design, 2D animation, compositing' }],

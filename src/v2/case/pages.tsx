@@ -20,9 +20,10 @@ import {
   Statement,
   Steps,
   Visual,
+  useLightbox,
   type Img,
 } from './blocks'
-import { ClipReel, EpisodePlayer, EpisodeScroll, FormatMorph, PhoneStory, RealVsFilm, RetroGrid, TruthOrFake, Vault, type Question, type Scene } from './rich'
+import { ChannelSurf, ClipReel, DragShelf, NeonMarquee, PhoneStory, SeriesStage, RealVsFilm, RetroGrid, TruthOrFake, Vault, type Question, type Scene } from './rich'
 
 const v2 = (p: string) => asset(`/v2/${p}`)
 const A = (p: string) => asset(`/assets/${p}`)
@@ -45,6 +46,17 @@ const ba = (n: string, alt: string) => ({
   after: { src: v2(`amy/ba/${n}-after.webp`), alt: `Final treatment, ${alt}`, ratio: '1 / 1' },
 })
 const amyPairs = ['001', '002', '003', '004', '006', '007', '008', '009', '010', '011'].map((n) => ba(n, `portrait ${n}`))
+
+/* A cropped detail that opens the whole picture */
+function AmyCrop({ src, pos, alt }: { src: string; pos: string; alt: string }) {
+  const open = useLightbox()
+  return (
+    <button type="button" className="cs-amy-crop" onClick={() => open({ src, alt })} aria-label={`Enlarge: ${alt}`}>
+      <img src={src} alt="" loading="lazy" style={{ objectPosition: pos }} />
+      <span className="cs-enlarge" aria-hidden="true">Enlarge</span>
+    </button>
+  )
+}
 
 const amyBody = (
   <>
@@ -77,11 +89,11 @@ const amyBody = (
       </div>
       <Gap />
 
-      <Chapter num="01" title="Creative direction" note="From early explorations to the final direction." />
-      <div className="cs-wrap-wide cs-amy-trio">
-        <Visual m={{ src: v2('amy/concept-1.webp'), alt: 'First direction', label: 'Direction 01', caption: 'Early exploration focused on strong contrast, portraiture and immediate visual impact.', ratio: '16 / 10' }} className="is-lead" />
-        <Visual m={{ src: v2('amy/concept-2.webp'), alt: 'Second direction', label: 'Direction 02', caption: 'A bolder route testing color, portrait placement and tattoo-inspired visual language.', ratio: '16 / 10' }} />
-        <Visual m={{ src: v2('amy/concept-3.webp'), alt: 'Third direction', label: 'Direction 03', caption: 'A more restrained direction testing monochrome treatment and a quieter editorial tone.', ratio: '16 / 10' }} />
+      <Chapter num="01" title="Early banners" note="Earlier banner versions made on the way to the final one. Each tested a direction, and together they shaped the special’s visual language. Open any of them to look closer." />
+      <div className="cs-wrap-wide cs-amy-trio is-early">
+        <Visual m={{ src: v2('amy/concept-1.webp'), alt: 'Early banner, first direction', label: 'Early banner · 01', caption: 'Early exploration focused on strong contrast, portraiture and immediate visual impact.', ratio: '16 / 10' }} className="is-lead" />
+        <Visual m={{ src: v2('amy/concept-2.webp'), alt: 'Early banner, second direction', label: 'Early banner · 02', caption: 'A bolder route testing color, portrait placement and tattoo-inspired visual language.', ratio: '16 / 10' }} />
+        <Visual m={{ src: v2('amy/concept-3.webp'), alt: 'Early banner, third direction', label: 'Early banner · 03', caption: 'A more restrained direction testing monochrome treatment and a quieter editorial tone.', ratio: '16 / 10' }} />
       </div>
       <Gap />
 
@@ -99,14 +111,12 @@ const amyBody = (
       </div>
       <div className="cs-wrap cs-amy-notes">
         {[
-          { k: 'Textures & treatment', v: 'Halftone dots, ink splatters and worn-paper textures give the identity its raw editorial character.', img: v2('amy/hero-banner.webp'), pos: '72% 30%' },
-          { k: 'Iconography', v: 'Tattoo-flash motifs reference Amy’s personal iconography and the wider 27 Club visual world.', img: v2('amy/grid-desktop.webp'), pos: '6% 10%' },
-          { k: 'Image treatment', v: 'High-contrast portraiture and distressed overlays connect photography to the graphic system.', img: v2('amy/concept-3.webp'), pos: '40% 35%' },
+          { k: 'Textures & treatment', v: 'Halftone dots, ink splatters and worn-paper textures give the identity its raw editorial character.', img: v2('amy/hero-banner.webp'), pos: '72% 30%', alt: 'The final banner' },
+          { k: 'Iconography', v: 'Tattoo-flash motifs reference Amy’s personal iconography and the wider 27 Club visual world.', img: v2('amy/grid-desktop.webp'), pos: '6% 10%', alt: 'The full 27 Club artist grid' },
+          { k: 'Image treatment', v: 'High-contrast portraiture and distressed overlays connect photography to the graphic system.', img: v2('amy/concept-3.webp'), pos: '40% 35%', alt: 'Early banner, third direction' },
         ].map((n, i) => (
           <Reveal key={n.k} delay={i * 0.08} className="cs-amy-note">
-            <div className="cs-amy-crop">
-              <img src={n.img} alt="" loading="lazy" style={{ objectPosition: n.pos }} />
-            </div>
+            <AmyCrop src={n.img} pos={n.pos} alt={n.alt} />
             <span className="cs-step">{String(i + 1).padStart(2, '0')}</span>
             <p className="cs-label">{n.k}</p>
             <p>{n.v}</p>
@@ -147,16 +157,6 @@ const amyBody = (
       <Gap size="l" />
     </Act>
 
-    <Act bg={AMY.red} fg={AMY.paper} accent={AMY.ink}>
-      <Chapter num="06" title="System in use" note="The 27 Club system applied across the full artist grid, laid out for the screen you are on." />
-      <div className="cs-only-desktop">
-        <Visual m={{ src: v2('amy/grid-desktop.webp'), alt: 'Desktop grid showing the full 27 Club artist system', label: 'Desktop layout', caption: 'The 27 Club system applied across the full artist grid.' }} />
-      </div>
-      <div className="cs-wrap cs-narrow cs-only-mobile">
-        <Visual m={{ src: v2('amy/grid-mobile.webp'), alt: 'Mobile layout of the 27 Club artist grid', label: 'Mobile layout', caption: 'The same visual system adapted for a compact vertical experience.', ratio: '1526 / 2269' }} />
-      </div>
-      <Gap size="l" />
-    </Act>
 
   </>
 )
@@ -438,18 +438,18 @@ const eightiesBody = (
       <Gap size="l" />
     </Act>
 
+    <NeonMarquee words={['Yardena Arazi', 'Ofra Haza', 'Maariv LaNoar', '1980s']} />
     <Act bg={EI.pink} fg={EI.night} accent={EI.yellow}>
-      <Chapter num="02" title="The room" note="Every object placed to date the room to one decade." />
-      <Stack
-        items={[
-          { src: v2('eighties/magazine.webp'), alt: 'Teen magazine on the bed with the headline about the rivalry', ratio: '16 / 9' },
-          { src: v2('eighties/radio.webp'), alt: 'A hand turning the dial of a cassette radio', ratio: '16 / 9' },
-          { src: v2('eighties/posters.webp'), alt: 'Posters and magazine covers on the wall', ratio: '16 / 9' },
-          { src: v2('eighties/bedside.webp'), alt: 'Bedside table with a framed photo and a digital clock', ratio: '16 / 9' },
-          { src: v2('eighties/sneakers.webp'), alt: 'Sneakers on the floor by the desk', ratio: '16 / 9' },
+      <Chapter num="02" title="The room" note="Every object placed to date the room to one decade. Scroll to flip through it, one channel at a time." />
+      <ChannelSurf
+        channels={[
+          { src: v2('eighties/magazine.webp'), alt: 'Teen magazine on the bed with the headline about the rivalry', name: 'Magazine' },
+          { src: v2('eighties/radio.webp'), alt: 'A hand turning the dial of a cassette radio', name: 'Cassette radio' },
+          { src: v2('eighties/posters.webp'), alt: 'Posters and magazine covers on the wall', name: 'Posters' },
+          { src: v2('eighties/bedside.webp'), alt: 'Bedside table with a framed photo and a digital clock', name: 'Bedside' },
+          { src: v2('eighties/sneakers.webp'), alt: 'Sneakers on the floor by the desk', name: 'Sneakers' },
         ]}
       />
-      <Gap size="l" />
     </Act>
 
     <Act bg={EI.teal} fg={EI.night} accent={EI.pink}>
@@ -473,21 +473,19 @@ const eightiesBody = (
     </Act>
 
     <Act bg={EI.night} fg={EI.cream} accent={EI.teal}>
-      <Chapter num="04" title="Research" note="The material gathered for the room: album covers, teen magazines and family photos." />
-      <Grid
-        wide
-        cols={5}
+      <Chapter num="04" title="Research" note="The material gathered for the room: album covers, teen magazines and family photos. Hold and drag to flip through the crate." />
+      <DragShelf
         items={[
-          { src: v2('eighties/src/album-1.webp'), alt: 'Yardena Arazi album cover', ratio: '1 / 1' },
-          { src: v2('eighties/src/album-2.webp'), alt: 'Yardena Arazi album cover', ratio: '1 / 1' },
-          { src: v2('eighties/src/album-3.webp'), alt: 'Yardena Arazi album cover', ratio: '1 / 1' },
-          { src: v2('eighties/src/album-4.webp'), alt: 'Yardena Arazi album cover', ratio: '1 / 1' },
-          { src: v2('eighties/src/album-5.webp'), alt: 'Yardena Arazi album cover, Back in the Frame', ratio: '1 / 1' },
-          { src: v2('eighties/src/album-6.webp'), alt: 'Yardena Arazi album cover', ratio: '1 / 1' },
-          { src: v2('eighties/src/maariv-yardena-1.webp'), alt: 'Maariv LaNoar cover with Yardena Arazi', ratio: '1 / 1' },
-          { src: v2('eighties/src/maariv-ofra.webp'), alt: 'Maariv LaNoar cover with Ofra Haza', ratio: '1 / 1' },
-          { src: v2('eighties/src/ofira-childhood.webp'), alt: 'Childhood family photo', ratio: '1 / 1' },
-          { src: v2('eighties/src/ofira-friends.webp'), alt: 'Photo of three friends in the 80s', ratio: '1 / 1' },
+          { src: v2('eighties/src/album-1.webp'), alt: 'Yardena Arazi album cover' },
+          { src: v2('eighties/src/album-2.webp'), alt: 'Yardena Arazi album cover' },
+          { src: v2('eighties/src/album-3.webp'), alt: 'Yardena Arazi album cover' },
+          { src: v2('eighties/src/album-4.webp'), alt: 'Yardena Arazi album cover' },
+          { src: v2('eighties/src/album-5.webp'), alt: 'Yardena Arazi album cover, Back in the Frame' },
+          { src: v2('eighties/src/album-6.webp'), alt: 'Yardena Arazi album cover' },
+          { src: v2('eighties/src/maariv-yardena-1.webp'), alt: 'Maariv LaNoar cover with Yardena Arazi' },
+          { src: v2('eighties/src/maariv-ofra.webp'), alt: 'Maariv LaNoar cover with Ofra Haza' },
+          { src: v2('eighties/src/ofira-childhood.webp'), alt: 'Childhood family photo' },
+          { src: v2('eighties/src/ofira-friends.webp'), alt: 'Photo of three friends in the 80s' },
         ]}
       />
       <Gap size="l" />
@@ -567,41 +565,14 @@ const partnerBody = (
     </Act>
 
     <Act bg="#05090b" fg={PA.cream} accent={PA.amber}>
-      <EpisodeScroll
-        episodes={[
-          { src: pv('part-1.mp4'), poster: pv('part-1.webp'), srcMobile: pv('part-1-mobile.mp4'), posterMobile: pv('part-1-mobile.webp'), num: '01', title: '0:31 · press sound on' },
+      <SeriesStage
+        parts={[
+          { src: pv('part-1.mp4'), poster: pv('part-1.webp'), srcMobile: pv('part-1-mobile.mp4'), posterMobile: pv('part-1-mobile.webp'), num: '01', title: '0:31' },
           { src: pv('part-2.mp4'), poster: pv('part-2.webp'), num: '02', title: '0:28' },
           { src: pv('part-3.mp4'), poster: pv('part-3.webp'), srcMobile: pv('part-3-mobile.mp4'), posterMobile: pv('part-3-mobile.webp'), num: '03', title: '0:30' },
           { src: pv('part-4.mp4'), poster: pv('part-4.webp'), num: '04', title: '0:51' },
         ]}
       />
-    </Act>
-
-    <Act bg={PA.teal} fg={PA.cream} accent={PA.amber}>
-      <Gap />
-      <Chapter num="02" title="One story, two formats" note="Keep scrolling: the wide cut for web narrows into the vertical cut made for the feed, at the same moment of the story." />
-      <FormatMorph wide={pv('loop-3.mp4')} poster={pv('loop-3.webp')} tall={pv('morph-tall.mp4')} tallPoster={pv('morph-tall.webp')} />
-    </Act>
-
-    <Act bg={PA.night} fg={PA.cream} accent={PA.amber}>
-      <Gap />
-      <Chapter num="03" title="Watch the parts" note="Any part on its own, in full. On a phone, parts one and three play in their vertical cut." />
-      <EpisodePlayer
-        parts={[
-          { src: pv('part-1.mp4'), poster: pv('part-1.webp'), srcMobile: pv('part-1-mobile.mp4'), posterMobile: pv('part-1-mobile.webp'), num: '01', title: 'Part one', length: '0:31' },
-          { src: pv('part-2.mp4'), poster: pv('part-2.webp'), num: '02', title: 'Part two', length: '0:28' },
-          { src: pv('part-3.mp4'), poster: pv('part-3.webp'), srcMobile: pv('part-3-mobile.mp4'), posterMobile: pv('part-3-mobile.webp'), num: '03', title: 'Part three', length: '0:30' },
-          { src: pv('part-4.mp4'), poster: pv('part-4.webp'), num: '04', title: 'Part four', length: '0:51' },
-        ]}
-      >
-        {(p, phone) =>
-          phone && p.srcMobile ? (
-            <Film src={p.srcMobile} poster={p.posterMobile ?? p.poster} alt={`The Partner, part ${p.num}, vertical cut`} tag={`Part ${p.num} · ${p.length} · 9:16`} vertical />
-          ) : (
-            <Film src={p.src} poster={p.poster} alt={`The Partner, part ${p.num}`} tag={`Part ${p.num} · ${p.length}`} />
-          )
-        }
-      </EpisodePlayer>
       <Gap size="l" />
     </Act>
   </>

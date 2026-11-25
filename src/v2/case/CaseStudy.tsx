@@ -12,21 +12,22 @@ import './case.css'
 
 const wipe = [0.76, 0, 0.24, 1] as const
 
+/* The letters rise one by one out of a mask, each with a slight tilt that settles */
 function Title({ word, filled, delay }: { word: string; filled: boolean; delay: number }) {
   return (
-    <>
-      <span className="v2-title-outline" aria-hidden="true">
-        {word}
-      </span>
-      <motion.span
-        className="v2-title-fill"
-        initial={filled ? false : { clipPath: 'inset(-20% 100% -30% 0%)' }}
-        animate={{ clipPath: 'inset(-20% 0% -30% 0%)' }}
-        transition={{ duration: 1.3, ease: wipe, delay }}
-      >
-        {word}
-      </motion.span>
-    </>
+    <span className="cs-title-mask">
+      {Array.from(word).map((ch, k) => (
+        <motion.span
+          key={k}
+          className="cs-title-ch"
+          initial={filled ? false : { y: '115%', rotate: 9 }}
+          animate={{ y: '0%', rotate: 0 }}
+          transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1], delay: delay + k * 0.045 }}
+        >
+          {ch === ' ' ? '\u00A0' : ch}
+        </motion.span>
+      ))}
+    </span>
   )
 }
 
@@ -183,9 +184,14 @@ export function CaseStudy({ project }: { project: Project }) {
             )}
             </motion.div>
           </motion.div>
-          <motion.h1 className="v2-hero-title" style={{ opacity: heroText }}>
+          {/* Solid under the cover, outline over it: the title reads filled on the
+              background and hollow where it crosses the picture */}
+          <motion.h1 className="v2-hero-title cs-title-under" style={{ opacity: heroText }} aria-label={project.word}>
             <Title word={project.word} filled={via === 'next'} delay={via === 'home' ? 0.75 : 0.35} />
           </motion.h1>
+          <motion.p className="v2-hero-title cs-title-over" style={{ opacity: heroText }} aria-hidden="true">
+            <Title word={project.word} filled={via === 'next'} delay={via === 'home' ? 0.75 : 0.35} />
+          </motion.p>
           <motion.p className="v2-label v2-hero-kind" style={{ opacity: heroText }}>
             {project.kind}
           </motion.p>

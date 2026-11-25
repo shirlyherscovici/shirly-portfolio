@@ -3,7 +3,7 @@
  * objects, real-vs-film scenes, a playable quiz and an 80s grid floor. */
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { AnimatePresence, motion, useScroll, useTransform, useMotionValueEvent, type MotionValue } from 'framer-motion'
-import { ease, type Img } from './blocks'
+import { ease, useLightbox, type Img } from './blocks'
 
 /* Play a muted clip only while it is on screen */
 function useInViewPlay(ref: React.RefObject<HTMLVideoElement>) {
@@ -419,10 +419,6 @@ export function RetroGrid({ children }: { children?: ReactNode }) {
   )
 }
 
-/* ======================================================================
- * Episodes (The Partner): one full-screen stage; as you scroll, each part
- * wipes in over the last one, its number slides past and a rail fills.
- * ==================================================================== */
 export type Episode = { src: string; poster: string; srcMobile?: string; posterMobile?: string; num: string; title: string }
 
 /* Phones get the vertical cut where one exists */
@@ -438,210 +434,317 @@ function usePhone() {
   return phone
 }
 
-function EpisodeLayer({ e, i, n, p, phone, setRef, onEnded }: { e: Episode; i: number; n: number; p: MotionValue<number>; phone: boolean; setRef: (el: HTMLVideoElement | null) => void; onEnded: () => void }) {
-  const start = i / n
-  // each layer opens as a widening band from the middle of the screen
-  const open = useTransform(p, [start - 0.6 / n, start], [50, 0], { clamp: true })
-  const clip = useTransform(open, (o) => (i === 0 ? 'inset(0% 0% 0% 0%)' : `inset(${o}% 0% ${o}% 0%)`))
-  const scale = useTransform(p, [start - 0.6 / n, start + 1 / n], [1.2, 1])
-  const textY = useTransform(p, [start - 0.3 / n, start + 0.2 / n, start + 0.85 / n], [80, 0, -40])
-  const textO = useTransform(p, [start - 0.3 / n, start + 0.15 / n, start + 0.8 / n, start + 1 / n], i === n - 1 ? [0, 1, 1, 1] : [0, 1, 1, 0])
-  const tall = phone && !!e.srcMobile
-  return (
-    <motion.div className={`cs-ep-layer${phone ? ' is-phone' : ''}`} style={{ clipPath: clip, zIndex: i + 1 }}>
-      <motion.video
-        ref={setRef}
-        src={tall ? e.srcMobile : e.src}
-        poster={tall ? e.posterMobile : e.poster}
-        muted
-        playsInline
-        preload={i === 0 ? 'metadata' : 'none'}
-        aria-label={`The Partner, part ${e.num}`}
-        onEnded={onEnded}
-        style={{ scale: phone ? 1 : scale }}
-      />
-      <motion.div className="cs-ep-text" style={{ y: textY, opacity: textO }}>
-        <span className="cs-ep-num" aria-hidden="true">{e.num}</span>
-        <p className="cs-label">Part {e.num}</p>
-        <p className="cs-ep-title">{e.title}</p>
-      </motion.div>
-    </motion.div>
-  )
-}
-
-/* Episodes: the four parts in order, full screen. The part on screen plays
- * (with sound once the visitor turns it on); when it ends, the page moves on
- * to the next part. */
-export function EpisodeScroll({ episodes }: { episodes: Episode[] }) {
-  const n = episodes.length
+/* ======================================================================
+ * Series stage (The Partner): a series is watched, not scrolled. The parts
+ * play one after another in a full-frame player with episode buttons; scrolling
+ * on shrinks that same frame into the vertical cut made for phones.
+ * ==================================================================== */
+export function SeriesStage({ parts }: { parts: Episode[] }) {
+  const n = parts.length
   const box = useRef<HTMLDivElement>(null)
-  const vids = useRef<(HTMLVideoElement | null)[]>([])
+  const wide = useRef<HTMLVideoElement>(null)
+  const tall = useRef<HTMLVideoElement>(null)
   const phone = usePhone()
-  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start start', 'end end'] })
   const [at, setAt] = useState(0)
-  useMotionValueEvent(p, 'change', (v) => setAt(Math.min(n - 1, Math.floor(v * n * 0.999))))
-  const [inView, setInView] = useState(false)
   const [playing, setPlaying] = useState(true)
   const [sound, setSound] = useState(false)
+  const [inView, setInView] = useState(false)
+  const [narrow, setNarrow] = useState(false)
   const [t, setT] = useState(0)
+  const part = parts[at]
+  const hasTall = !!part.srcMobile
 
-  // on screen = the section covers the middle of the viewport, read from the scroll itself
+  const [vp, setVp] = useState(() => ({ w: window.innerWidth, h: window.innerHeight }))
+  useEffect(() => {
+    const r = () => setVp({ w: window.innerWidth, h: window.innerHeight })
+    window.addEventListener('resize', r)
+    return () => window.removeEventListener('resize', r)
+  }, [])
+
+  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start start', 'end end'] })
   const { scrollYProgress: seen } = useScroll({ target: box, offset: ['start center', 'end center'] })
   useMotionValueEvent(seen, 'change', (v) => setInView(v > 0 && v < 1))
   useEffect(() => {
     const v = seen.get()
     setInView(v > 0 && v < 1)
   }, [seen])
+  useMotionValueEvent(p, 'change', (v) => setNarrow(!phone && v > 0.55))
 
-  // only the part on screen plays; the others wait where they stopped
+  // full frame → the phone frame
+  const ph = Math.min(vp.h * 0.8, 760)
+  const width = useTransform(p, [0.18, 0.75], [vp.w, (ph * 9) / 16])
+  const height = useTransform(p, [0.18, 0.75], [vp.h, ph])
+  const radius = useTransform(p, [0.18, 0.75], [0, 30])
+  const tallO = useTransform(p, [0.5, 0.62], [0, 1])
+  const fullUi = useTransform(p, [0.12, 0.3], [1, 0])
+  const morphUi = useTransform(p, [0.3, 0.45], [0, 1])
+  const wideLabel = useTransform(p, [0.3, 0.42, 0.5, 0.58], [0, 1, 1, 0])
+  const tallLabel = useTransform(p, [0.6, 0.7], [0, 1])
+
+  // which element carries the picture and the sound right now
+  const useTall = phone ? hasTall : narrow && hasTall
+  const active = () => (useTall ? tall.current : wide.current)
+
   useEffect(() => {
-    vids.current.forEach((v, i) => {
-      if (!v) return
-      v.muted = !sound
-      if (i === at && inView && playing) {
-        if (v.preload === 'none') v.preload = 'auto'
-        v.play().catch(() => {
-          // sound needs a tap on some browsers: fall back to muted
-          v.muted = true
-          setSound(false)
-          v.play().catch(() => setPlaying(false))
-        })
-      } else v.pause()
+    const a = active()
+    const other = useTall ? wide.current : tall.current
+    if (other && a && !other.paused) {
+      // hand over at the same moment of the story
+      if (Math.abs(other.currentTime - a.currentTime) > 0.3) a.currentTime = other.currentTime
+    }
+    if (other) {
+      other.muted = true
+      if (!phone && hasTall) {
+        // keep the hidden cut running silently so the hand-over is seamless
+        if (inView && playing) other.play().catch(() => {})
+        else other.pause()
+      } else other.pause()
+    }
+    if (!a) return
+    a.muted = !sound
+    if (inView && playing) {
+      a.play().catch(() => {
+        a.muted = true
+        setSound(false)
+        a.play().catch(() => setPlaying(false))
+      })
+    } else a.pause()
+  }, [useTall, inView, playing, sound, at, phone]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const a = active()
+    if (!a) return
+    const on = () => setT(a.duration ? a.currentTime / a.duration : 0)
+    a.addEventListener('timeupdate', on)
+    return () => a.removeEventListener('timeupdate', on)
+  }, [useTall, at]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const go = (i: number) => {
+    setT(0)
+    setAt(i)
+    setPlaying(true)
+  }
+  const ended = (fromTall: boolean) => {
+    if (fromTall !== useTall) return
+    if (at < n - 1) go(at + 1)
+    else setPlaying(false)
+  }
+  const toggle = () => {
+    const a = active()
+    if (!playing && a && a.ended) a.currentTime = 0
+    setPlaying((x) => !x)
+  }
+
+  const controls = (
+    <div className="cs-series-controls">
+      <div className="cs-series-eps" role="tablist" aria-label="Parts">
+        {parts.map((e, i) => (
+          <button key={e.src} type="button" role="tab" aria-selected={i === at} className={i === at ? 'on' : i < at ? 'done' : ''} onClick={() => go(i)}>
+            <span className="cs-series-ep-num">{e.num}</span>
+            <span className="cs-series-ep-len">{e.title}</span>
+            <span className="cs-series-ep-bar" aria-hidden="true">
+              <span style={{ width: i === at ? `${t * 100}%` : i < at ? '100%' : '0%' }} />
+            </span>
+          </button>
+        ))}
+      </div>
+      <div className="cs-series-btns">
+        <button type="button" className="cs-ep-btn" onClick={toggle} aria-label={playing ? 'Pause' : 'Play'}>
+          <span aria-hidden="true">{playing ? '❚❚' : '▶'}</span>
+        </button>
+        <button type="button" className={`cs-ep-btn cs-ep-sound${sound ? ' is-on' : ''}`} onClick={() => setSound((s) => !s)} aria-pressed={sound}>
+          <span className="cs-reel-eq" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </span>
+          {sound ? 'Sound on' : 'Sound off'}
+        </button>
+      </div>
+    </div>
+  )
+
+  return (
+    <section ref={box} className={`cs-series${phone ? ' is-phone' : ''}`} style={{ height: phone ? '100svh' : '280vh' }}>
+      <div className="cs-series-stage">
+        <motion.div className="cs-series-frame" style={phone ? undefined : { width, height, borderRadius: radius }}>
+          <video
+            key={part.src}
+            ref={wide}
+            src={part.src}
+            poster={part.poster}
+            muted
+            playsInline
+            preload="metadata"
+            aria-label={`The Partner, part ${part.num}`}
+            onEnded={() => ended(false)}
+            className={(narrow || phone) && !hasTall ? 'is-contained' : ''}
+          />
+          {hasTall && (
+            <motion.video
+              key={part.srcMobile}
+              ref={tall}
+              src={part.srcMobile}
+              poster={part.posterMobile}
+              muted
+              playsInline
+              preload={phone ? 'metadata' : 'none'}
+              aria-label={`The Partner, part ${part.num}, vertical cut`}
+              onEnded={() => ended(true)}
+              style={{ opacity: phone ? 1 : tallO }}
+            />
+          )}
+          <motion.div className="cs-series-title" style={phone ? undefined : { opacity: fullUi }}>
+            <span className="cs-ep-num" aria-hidden="true">{part.num}</span>
+            <p className="cs-label">Part {part.num} of {String(n).padStart(2, '0')}</p>
+          </motion.div>
+        </motion.div>
+        {!phone && (
+          <motion.div className="cs-series-labels" style={{ opacity: morphUi }}>
+            <motion.p className="cs-label" style={{ opacity: wideLabel }}>16:9 · web and TV</motion.p>
+            <motion.p className="cs-label" style={{ opacity: tallLabel }}>{hasTall ? '9:16 · the vertical cut for the feed' : 'This part was cut for web only'}</motion.p>
+          </motion.div>
+        )}
+        {controls}
+      </div>
+    </section>
+  )
+}
+
+
+/* ======================================================================
+ * 80s: a CRT that changes channel as you scroll through the room.
+ * Each shot is a channel; a burst of static sits between them.
+ * ==================================================================== */
+export type Channel = Img & { name: string }
+
+export function ChannelSurf({ channels }: { channels: Channel[] }) {
+  const n = channels.length
+  const box = useRef<HTMLDivElement>(null)
+  const [at, setAt] = useState(0)
+  const [flip, setFlip] = useState(0)
+  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start start', 'end end'] })
+  useMotionValueEvent(p, 'change', (v) => {
+    const i = Math.min(n - 1, Math.max(0, Math.floor(v * n)))
+    setAt((old) => {
+      if (old !== i) setFlip((f) => f + 1)
+      return i
     })
-  }, [at, inView, playing, sound, phone])
-
-  // progress of the part on screen
-  useEffect(() => {
-    const v = vids.current[at]
-    if (!v) return
-    const on = () => setT(v.duration ? v.currentTime / v.duration : 0)
-    v.addEventListener('timeupdate', on)
-    on()
-    return () => v.removeEventListener('timeupdate', on)
-  }, [at, phone])
-
-  const goTo = (i: number) => {
+  })
+  const tune = (i: number) => {
     const el = box.current
     if (!el) return
     const top = el.getBoundingClientRect().top + window.scrollY
     const run = el.offsetHeight - window.innerHeight
     window.scrollTo({ top: top + run * ((i + 0.5) / n), behavior: 'smooth' })
   }
-
-  const ended = (i: number) => {
-    if (i !== at) return
-    if (i < n - 1) {
-      const next = vids.current[i + 1]
-      if (next) next.currentTime = 0
-      goTo(i + 1)
-    } else setPlaying(false)
-  }
-
-  const toggle = () => {
-    const v = vids.current[at]
-    if (!playing && v && v.ended) v.currentTime = 0
-    setPlaying((x) => !x)
-  }
-
+  const ch = channels[at]
   return (
-    <section ref={box} className="cs-ep" style={{ height: `${n * 100 + 60}vh` }}>
-      <div className="cs-ep-stage">
-        {episodes.map((e, i) => (
-          <EpisodeLayer key={e.src} e={e} i={i} n={n} p={p} phone={phone} setRef={(el) => (vids.current[i] = el)} onEnded={() => ended(i)} />
-        ))}
-        <ol className="cs-ep-rail" aria-label="Parts">
-          {episodes.map((e, i) => (
-            <li key={e.num} className={i === at ? 'on' : i < at ? 'done' : ''}>
-              <button type="button" onClick={() => goTo(i)} aria-current={i === at ? 'step' : undefined} aria-label={`Part ${e.num}`}>
-                <span>{e.num}</span>
+    <section ref={box} className="cs-tv" style={{ height: `${n * 70 + 100}vh` }}>
+      <div className="cs-tv-stage">
+        <div className="cs-tv-set">
+          <div className="cs-tv-screen">
+            {channels.map((c, i) => (
+              <img key={c.src} src={c.src} alt={i === at ? c.alt : ''} aria-hidden={i === at ? undefined : true} loading="lazy" className={i === at ? 'on' : ''} />
+            ))}
+            <span key={flip} className="cs-tv-static" aria-hidden="true" />
+            <span className="cs-tv-scan" aria-hidden="true" />
+            <p className="cs-tv-osd" aria-live="polite">
+              CH {String(at + 1).padStart(2, '0')}
+              <span>{ch.name}</span>
+            </p>
+          </div>
+          <div className="cs-tv-dial" role="group" aria-label="Channels">
+            {channels.map((c, i) => (
+              <button key={c.src} type="button" className={i === at ? 'on' : ''} onClick={() => tune(i)} aria-label={`Channel ${i + 1}: ${c.name}`}>
+                {String(i + 1).padStart(2, '0')}
               </button>
-            </li>
-          ))}
-        </ol>
-        <div className="cs-ep-controls">
-          <button type="button" className="cs-ep-btn" onClick={toggle} aria-label={playing ? 'Pause' : 'Play'}>
-            <span aria-hidden="true">{playing ? '❚❚' : '▶'}</span>
-          </button>
-          <button type="button" className={`cs-ep-btn cs-ep-sound${sound ? ' is-on' : ''}`} onClick={() => setSound((s) => !s)} aria-pressed={sound}>
-            <span className="cs-reel-eq" aria-hidden="true">
-              <i />
-              <i />
-              <i />
-            </span>
-            {sound ? 'Sound on' : 'Sound off'}
-          </button>
-          <span className="cs-ep-time" aria-hidden="true">
-            <span style={{ width: `${t * 100}%` }} />
-          </span>
+            ))}
+          </div>
         </div>
+        <p className="cs-tv-hint" aria-hidden="true">Scroll to change channel</p>
       </div>
     </section>
   )
 }
 
-/* ======================================================================
- * Format morph: the wide cut narrows into the vertical cut as you scroll,
- * the same moment in both, so the reframing is visible.
- * ==================================================================== */
-export function FormatMorph({ wide, tall, poster, tallPoster }: { wide: string; tall: string; poster: string; tallPoster: string }) {
+/* 80s: a neon strip that slides as the page scrolls */
+export function NeonMarquee({ words }: { words: string[] }) {
   const box = useRef<HTMLDivElement>(null)
-  const a = useRef<HTMLVideoElement>(null)
-  const b = useRef<HTMLVideoElement>(null)
-  useInViewPlay(a)
-  useInViewPlay(b)
-  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start start', 'end end'] })
-  const [vw, setVw] = useState(() => window.innerWidth)
-  const [vh, setVh] = useState(() => window.innerHeight)
-  useEffect(() => {
-    const r = () => (setVw(window.innerWidth), setVh(window.innerHeight))
-    window.addEventListener('resize', r)
-    return () => window.removeEventListener('resize', r)
-  }, [])
-  const h = Math.min(vh * 0.74, ((vw * 0.9) * 9) / 16)
-  const width = useTransform(p, [0.15, 0.75], [(h * 16) / 9, (h * 9) / 16])
-  const radius = useTransform(p, [0.15, 0.75], [6, 28])
-  const tallO = useTransform(p, [0.45, 0.65], [0, 1])
-  const wideLabel = useTransform(p, [0.3, 0.45], [1, 0])
-  const tallLabel = useTransform(p, [0.55, 0.7], [0, 1])
+  const { scrollYProgress: p } = useScroll({ target: box, offset: ['start end', 'end start'] })
+  const a = useTransform(p, [0, 1], ['0%', '-30%'])
+  const b = useTransform(p, [0, 1], ['-30%', '0%'])
+  const line = Array.from({ length: 4 }, () => words.join(' ✶ ')).join(' ✶ ')
   return (
-    <section ref={box} className="cs-morph" style={{ height: '260vh' }}>
-      <div className="cs-morph-stage">
-        <motion.div className="cs-morph-frame" style={{ width, height: h, borderRadius: radius }}>
-          <video ref={a} src={wide} poster={poster} muted loop playsInline preload="none" aria-label="Wide 16:9 cut" />
-          <motion.video ref={b} src={tall} poster={tallPoster} muted loop playsInline preload="none" aria-label="Vertical 9:16 cut" style={{ opacity: tallO }} />
-        </motion.div>
-        <div className="cs-morph-labels">
-          <motion.p className="cs-label" style={{ opacity: wideLabel }}>16:9 · web and TV</motion.p>
-          <motion.p className="cs-label" style={{ opacity: tallLabel }}>9:16 · social and mobile</motion.p>
-        </div>
-      </div>
-    </section>
+    <div ref={box} className="cs-neon" aria-hidden="true">
+      <motion.p style={{ x: a }}>{line}</motion.p>
+      <motion.p className="is-alt" style={{ x: b }}>{line}</motion.p>
+    </div>
   )
 }
 
 /* ======================================================================
- * Episode player: every part in full, with sound, one at a time
+ * 80s research: a shelf you hold and drag. While held, the gaps close and
+ * every item shrinks so the whole collection fits in view; let go to look
+ * closer, click one to open it.
  * ==================================================================== */
-export type Part = { src: string; poster: string; srcMobile?: string; posterMobile?: string; num: string; title: string; length: string }
-
-export function EpisodePlayer({ parts, children }: { parts: Part[]; children: (p: Part, phone: boolean) => ReactNode }) {
-  const [at, setAt] = useState(0)
-  const phone = usePhone()
+export function DragShelf({ items }: { items: Img[] }) {
+  const onOpen = useLightbox()
+  const track = useRef<HTMLDivElement>(null)
+  const [held, setHeld] = useState(false)
+  const drag = useRef({ x: 0, left: 0, moved: 0, id: -1 })
+  const down = (e: React.PointerEvent) => {
+    if (e.pointerType !== 'mouse' || e.button !== 0 || !track.current) return
+    drag.current = { x: e.clientX, left: track.current.scrollLeft, moved: 0, id: e.pointerId }
+    setHeld(true)
+  }
+  const move = (e: React.PointerEvent) => {
+    const d = drag.current
+    if (!held || d.id !== e.pointerId || !track.current) return
+    const dx = e.clientX - d.x
+    d.moved = Math.max(d.moved, Math.abs(dx))
+    if (d.moved > 4 && !track.current.hasPointerCapture(e.pointerId)) track.current.setPointerCapture(e.pointerId)
+    track.current.scrollLeft = d.left - dx * 1.6
+  }
+  const up = (e: React.PointerEvent) => {
+    if (drag.current.id !== e.pointerId) return
+    drag.current.id = -1
+    setHeld(false)
+  }
+  useEffect(() => {
+    if (!held) return
+    const off = () => setHeld(false)
+    window.addEventListener('blur', off)
+    return () => window.removeEventListener('blur', off)
+  }, [held])
   return (
-    <div className="cs-player">
-      <div className="cs-wrap-wide">
-        <div className="cs-player-tabs" role="tablist" aria-label="Parts">
-          {parts.map((p, i) => (
-            <button key={p.src} type="button" role="tab" aria-selected={i === at} className={i === at ? 'on' : ''} onClick={() => setAt(i)}>
-              <img src={p.poster} alt="" loading="lazy" />
-              <span className="cs-step">{p.num}</span>
-              <span className="cs-player-title">{p.title}</span>
-              <span className="cs-player-len">{p.length}</span>
-            </button>
-          ))}
-        </div>
+    <div className={`cs-shelf${held ? ' is-held' : ''}`}>
+      <p className="cs-shelf-hint" aria-hidden="true">
+        <span className="cs-shelf-hint-mouse">Hold &amp; drag ↔ · click to open</span>
+        <span className="cs-shelf-hint-touch">Swipe ↔ · tap to open</span>
+      </p>
+      <div ref={track} className="cs-shelf-track" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
+        {items.map((m, i) => (
+          <button
+            key={m.src}
+            type="button"
+            className="cs-shelf-item"
+            style={{ '--i': i } as React.CSSProperties}
+            onClick={(e) => {
+              if (drag.current.moved > 6) {
+                e.preventDefault()
+                drag.current.moved = 0
+                return
+              }
+              onOpen(m)
+            }}
+            aria-label={`Enlarge: ${m.alt}`}
+          >
+            <img src={m.src} alt="" loading="lazy" draggable={false} />
+            <span className="cs-shelf-no">{String(i + 1).padStart(2, '0')}</span>
+          </button>
+        ))}
       </div>
-      <div key={parts[at].src + phone}>{children(parts[at], phone)}</div>
     </div>
   )
 }

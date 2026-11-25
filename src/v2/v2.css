@@ -1403,3 +1403,44 @@ html.v2-booting .v2-pills {
     top: calc(50% - var(--hero-w) * 0.3125 - 40px);
   }
 }
+
+/* ---------- Boot name: each letter fills like liquid, a wave rising inside the outline ---------- */
+.v2-boot-ch {
+  position: relative;
+  display: inline-block;
+}
+
+.v2-boot-ch .v2-boot-fill {
+  position: absolute;
+  inset: 0;
+  --wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 300' preserveAspectRatio='none'%3E%3Cpath d='M0 22 C17 6 33 6 50 22 S83 38 100 22 V300 H0 Z'/%3E%3C/svg%3E");
+  -webkit-mask-image: var(--wave);
+  mask-image: var(--wave);
+  -webkit-mask-size: 1.4em 3.4em;
+  mask-size: 1.4em 3.4em;
+  -webkit-mask-repeat: repeat-x;
+  mask-repeat: repeat-x;
+  -webkit-mask-position: 0 1.3em;
+  mask-position: 0 1.3em;
+  animation: v2-boot-liquid 1.5s cubic-bezier(0.45, 0.05, 0.25, 1) forwards;
+  animation-delay: calc(0.3s + var(--i) * 0.055s);
+}
+
+@keyframes v2-boot-liquid {
+  0% {
+    -webkit-mask-position: 0 1.3em;
+    mask-position: 0 1.3em;
+  }
+  100% {
+    -webkit-mask-position: -2.8em -0.55em;
+    mask-position: -2.8em -0.55em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v2-boot-ch .v2-boot-fill {
+    animation: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}

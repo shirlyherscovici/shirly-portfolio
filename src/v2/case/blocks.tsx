@@ -23,6 +23,8 @@ const isClip = (m: Item): m is Clip => 'video' in m
 
 /* ---------- Lightbox ---------- */
 const LightboxC = createContext<(m: Img | null) => void>(() => {})
+/** Open any picture in the lightbox */
+export const useLightbox = () => useContext(LightboxC)
 export function LightboxProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState<Img | null>(null)
   const close = useRef<HTMLButtonElement>(null)

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import {
   AnimatePresence,
   animate,
@@ -434,7 +434,7 @@ export function Home() {
           <motion.div
             className="v2-info"
             initial={false}
-            animate={{ clipPath: list ? 'inset(-20% 100% -20% -10%)' : 'inset(-20% -10% -20% -10%)' }}
+            animate={{ clipPath: list ? 'inset(-20% -10% 100% -10%)' : 'inset(-20% -10% -20% -10%)' }}
             transition={{ duration: 0.9, ease }}
           >
             <AnimatePresence mode="wait">
@@ -498,17 +498,16 @@ export function Home() {
                 aria-hidden="true"
               >
                 <div className="v2-boot-name">
-                  <p className="v2-boot-title">
-                    <span className="v2-boot-outline">{PERSON.name}</span>
-                    <motion.span
-                      className="v2-boot-fill"
-                      style={{ color: PROJECTS[0].colors.bg }}
-                      initial={{ clipPath: 'inset(-20% 100% -30% 0%)' }}
-                      animate={{ clipPath: 'inset(-20% 0% -30% 0%)' }}
-                      transition={{ duration: 1.6, ease, delay: 0.3 }}
-                    >
-                      {PERSON.name}
-                    </motion.span>
+                  {/* Each letter fills like liquid: a wavy surface rises inside the outline */}
+                  <p className="v2-boot-title" aria-label={PERSON.name}>
+                    {Array.from(PERSON.name).map((ch, k) => (
+                      <span key={k} className="v2-boot-ch" style={{ '--i': k } as CSSProperties} aria-hidden="true">
+                        <span className="v2-boot-outline">{ch === ' ' ? '\u00A0' : ch}</span>
+                        <span className="v2-boot-fill" style={{ color: PROJECTS[0].colors.bg }}>
+                          {ch === ' ' ? '\u00A0' : ch}
+                        </span>
+                      </span>
+                    ))}
                   </p>
                   <motion.p className="v2-label" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9, duration: 0.6 }}>
                     {PERSON.role}
