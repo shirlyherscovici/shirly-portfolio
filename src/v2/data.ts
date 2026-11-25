@@ -27,6 +27,8 @@ export type Project = {
   colors: { bg: string; fg: string }
   cover: MediaItem
   loop?: string
+  /** Small preview on the home page when the project has no loop video */
+  peek?: string
   /** Shape of the cover on the home film strip (width / height) */
   frame: { ratio: number }
   intro: string
@@ -46,6 +48,7 @@ export const PROJECTS: Project[] = [
     kind: 'Key art · UI · Social',
     colors: { bg: '#1c1540', fg: '#ff7eb6' },
     cover: { kind: 'image', src: v2('galgalatz/banner-cover.webp'), alt: 'Neon key art for Music from the Screen, N12 × Galgalatz' },
+    peek: v2('galgalatz/game-uiux.webp'),
     intro:
       'A chart of songs from Israeli cinema, for N12 and Galgalatz. I created the neon key art, designed the mobile voting flow and carried the look through the social posts of the campaign.',
     credits: [
@@ -219,6 +222,7 @@ export const PROJECTS: Project[] = [
     kind: 'Editorial identity · Art direction',
     colors: { bg: '#c41e2e', fg: '#f4e3c4' },
     cover: { kind: 'image', src: v2('amy/hero-banner.webp'), alt: 'Amy Winehouse editorial banner with tattoo-inspired collage' },
+    peek: v2('amy/amy-phones-front.webp'),
     intro:
       'An N12 special inspired by Amy Winehouse and the 27 Club: art direction, banner development, identity assets, before and after image treatments and responsive applications.',
     link: { label: 'View live project', href: 'https://special.n12.co.il/AmyWinehouse' },
