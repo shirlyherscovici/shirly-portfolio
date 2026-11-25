@@ -598,7 +598,7 @@ export function SeriesStage({ parts }: { parts: Episode[] }) {
             poster={part.poster}
             muted
             playsInline
-            preload="metadata"
+            preload={phone && hasTall ? 'none' : 'metadata'}
             aria-label={`The Partner, part ${part.num}`}
             onEnded={() => ended(false)}
             className={phone && !hasTall ? 'is-contained' : ''}

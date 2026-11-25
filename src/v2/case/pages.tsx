@@ -219,6 +219,15 @@ const motionBody = (
  * ==================================================================== */
 const RE = { black: '#0b1d45', bone: '#ffffff', amber: '#ff4d61', flare: '#c8102e', dust: '#f7f5f2', ink: '#ffffff' }
 const clip = (n: string, title: string): Scene => ({ video: v2(`ai/clips/${n}.mp4`), poster: v2(`ai/clips/${n}.webp`), title })
+/* The process behind the AI films for N12, as Shirly describes it */
+const AI_PROCESS = [
+  { k: 'The brief', v: 'The producer asks for an idea.' },
+  { k: 'Images', v: 'I shape the key images in ChatGPT.' },
+  { k: 'Script & storyboard', v: 'A short script, then a storyboard built in ChatGPT.' },
+  { k: 'Shots in Flow', v: 'Every shot is generated separately in Flow.' },
+  { k: 'Edit', v: 'I put the shots together into one film.' },
+]
+
 const rescueBody = (
   <>
     <Act bg={RE.black} fg={RE.bone} accent={RE.amber}>
@@ -230,6 +239,7 @@ const rescueBody = (
           { label: 'Role', value: 'AI direction, motion, compositing, edit' },
           { label: 'Timeline', value: '4 hours to prime time' },
           { label: 'Disciplines', value: 'AI Direction · Script · Frame Design · Compositing' },
+          { label: 'Tools', value: 'ChatGPT · Flow' },
         ]}
       />
       <Chapter num="01" title="The full film" note="The complete N12 piece as it aired: AI-generated frames, motion and compositing in one sequence." />
@@ -259,15 +269,8 @@ const rescueBody = (
       <Gap />
       <Statement small="The brief" text="A prime-time N12 visual story created under a live-news deadline, combining AI-generated imagery with directed frame design, continuity control and motion compositing." />
       <Gap />
-      <Chapter num="03" title="From news brief to broadcast" note="A simple four-step workflow from developing story to final broadcast." />
-      <Pipeline
-        items={[
-          { k: 'News Brief', v: 'Turning a developing story into a visual sequence.' },
-          { k: 'Frame Direction', v: 'Defining the shot, character, environment and mood.' },
-          { k: 'AI Motion', v: 'Bringing the selected frame into motion.' },
-          { k: 'Final Compositing', v: 'Refining continuity, movement and the final broadcast sequence.' },
-        ]}
-      />
+      <Chapter num="03" title="From news brief to broadcast" note="How the film was made, from the producer’s request to the final edit." />
+      <Pipeline items={AI_PROCESS} />
       <Gap size="l" />
     </Act>
 
@@ -373,6 +376,7 @@ const louvreBody = (
           { label: 'Client', value: 'N12' },
           { label: 'Length', value: '1:10' },
           { label: 'Formats', value: '16:9 · 9:16' },
+          { label: 'Tools', value: 'ChatGPT · Flow' },
         ]}
         link={{ label: 'Visit the live site', href: 'https://special.n12.co.il/louvre' }}
         linkStyle={{ background: LV.gold, color: LV.night }}
@@ -414,6 +418,12 @@ const louvreBody = (
       <Film src={v2('louvre/louvre-film-vertical.mp4')} poster={v2('louvre/poster-vertical.webp')} alt="The Louvre Heist, vertical 9:16 version" tag="Full film · 9:16" vertical />
       <Gap size="l" />
     </Act>
+
+    <Act bg={LV.night} fg={LV.stone} accent={LV.gold}>
+      <Chapter num="05" title="How it was made" note="From the producer’s request to the final edit." />
+      <Pipeline items={AI_PROCESS} />
+      <Gap size="l" />
+    </Act>
   </>
 )
 
@@ -431,6 +441,7 @@ const eightiesBody = (
         meta={[
           { label: 'Length', value: '0:35' },
           { label: 'Disciplines', value: 'AI film · Art direction' },
+          { label: 'Tools', value: 'Claude · Magnific' },
         ]}
       />
       <Chapter num="01" title="The full film" note="The complete 0:35 piece. Press play, sound on." />
@@ -581,6 +592,7 @@ const partnerBody = (
           { label: 'Role', value: 'AI animation with Flow' },
           { label: 'Parts', value: '4' },
           { label: 'Formats', value: '16:9 · 9:16' },
+          { label: 'Tools', value: 'ChatGPT · Flow' },
         ]}
       />
       <Gap size="s" />
@@ -595,6 +607,12 @@ const partnerBody = (
           { src: pv('part-4.mp4'), poster: pv('part-4.webp'), srcMobile: pv('part-4-mobile.mp4'), posterMobile: pv('part-4-mobile.webp'), num: '04', title: '0:51' },
         ]}
       />
+      <Gap size="l" />
+    </Act>
+
+    <Act bg={PA.night} fg={PA.cream} accent={PA.amber}>
+      <Chapter num="01" title="How it was made" note="From the producer’s request to the final edit." />
+      <Pipeline items={AI_PROCESS} />
       <Gap size="l" />
     </Act>
   </>

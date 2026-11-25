@@ -331,7 +331,16 @@ export function Home() {
 
   /* List mode: bring the pointer to the right edge and the project list opens,
    * the room goes dark and the strip lies back in perspective at the centre. */
-  const [list, setList] = useState(false)
+  const [hoverList, setList] = useState(false)
+  /* The All projects button holds the list open (on phones it opens a plain index instead) */
+  const [held, setHeld] = useState(false)
+  const list = (hoverList || held) && !mobile
+  useEffect(() => {
+    if (!held) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setHeld(false)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [held])
   useEffect(() => {
     if (mobile || !canHover) {
       setList(false)
@@ -534,6 +543,44 @@ export function Home() {
             )}
           </AnimatePresence>
 
+          {!boot && (
+            <button
+              type="button"
+              className="v2-label v2-allbtn"
+              aria-expanded={held}
+              onClick={() => {
+                setHeld((h) => !h)
+                setList(false)
+              }}
+            >
+              {held ? 'Close' : `All projects (${n})`}
+            </button>
+          )}
+
+          <AnimatePresence>
+            {held && mobile && (
+              <motion.nav
+                className="v2-index"
+                aria-label="All projects"
+                initial={{ clipPath: 'inset(0% 0% 100% 0%)' }}
+                animate={{ clipPath: 'inset(0% 0% 0% 0%)' }}
+                exit={{ clipPath: 'inset(0% 0% 100% 0%)' }}
+                transition={{ duration: 0.6, ease }}
+              >
+                <ol>
+                  {PROJECTS.map((pr, i) => (
+                    <li key={pr.slug}>
+                      <a href={href.project(pr.slug)} onClick={() => setHeld(false)}>
+                        <span className="v2-label">{String(i + 1).padStart(2, '0')}</span>
+                        <span className="v2-index-name">{pr.name}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </motion.nav>
+            )}
+          </AnimatePresence>
+
           <nav className="v2-pills" aria-label="Projects">
             {PROJECTS.map((pr, i) => (
               <button
@@ -543,7 +590,12 @@ export function Home() {
                 onPointerEnter={() => {
                   if (list && i !== idx) scrollToIndex(i)
                 }}
-                onClick={() => (list && i === idx ? openAt(i) : scrollToIndex(i))}
+                onClick={() => {
+                  if (list && i === idx) {
+                    setHeld(false)
+                    openAt(i)
+                  } else scrollToIndex(i)
+                }}
                 aria-label={pr.name}
                 aria-current={i === idx}
               >
