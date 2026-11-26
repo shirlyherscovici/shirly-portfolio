@@ -312,6 +312,59 @@ export function Home() {
     return () => window.removeEventListener('keydown', onKey)
   }) // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* Phones: one swipe, anywhere on the strip (on the picture too), moves exactly one project.
+   * Off the ends it hands back to the page: past the last project the swipe scrolls on to the contact. */
+  const idxRef = useRef(idx)
+  idxRef.current = idx
+  useEffect(() => {
+    if (vw >= 760) return
+    let x0 = 0, y0 = 0, on = false, moved = false, target = 0, at = 0
+    const strip = () => stripRef.current
+    // where the strip is (or is heading, right after a swipe), as a project number
+    const cur = () => {
+      if (performance.now() - at < 900) return target
+      const st = strip()
+      return st ? Math.max(0, Math.min(n - 1, Math.round((window.scrollY - st.offsetTop) / vh))) : idxRef.current
+    }
+    const start = (e: TouchEvent) => {
+      const st = strip()
+      const t = e.target as Element | null
+      on = !!st && !t?.closest('.v2-reel, .v2-header, .v2-reelbtn, .v2-allbtn, .v2-index, button')
+        && window.scrollY - st.offsetTop <= st.offsetHeight - vh * 0.5 && window.scrollY >= st.offsetTop - 2
+      moved = false
+      x0 = e.touches[0].clientX
+      y0 = e.touches[0].clientY
+    }
+    const move = (e: TouchEvent) => {
+      if (!on) return
+      const dy = y0 - e.touches[0].clientY
+      const dx = x0 - e.touches[0].clientX
+      if (!moved && Math.abs(dy) < 6 && Math.abs(dx) < 6) return
+      // past the last project going on, or above the first going back: let the page scroll as usual
+      if (!moved && ((cur() === n - 1 && dy > 0) || (cur() === 0 && dy < 0))) { on = false; return }
+      moved = true
+      e.preventDefault()
+    }
+    const end = (e: TouchEvent) => {
+      if (!on || !moved) return
+      on = false
+      const dy = y0 - e.changedTouches[0].clientY
+      const dx = x0 - e.changedTouches[0].clientX
+      const step = Math.abs(dy) > 36 && Math.abs(dy) > Math.abs(dx) ? Math.sign(dy) : 0
+      target = Math.max(0, Math.min(n - 1, cur() + step))
+      at = performance.now()
+      scrollToIndex(target)
+    }
+    window.addEventListener('touchstart', start, { passive: true })
+    window.addEventListener('touchmove', move, { passive: false })
+    window.addEventListener('touchend', end)
+    return () => {
+      window.removeEventListener('touchstart', start)
+      window.removeEventListener('touchmove', move)
+      window.removeEventListener('touchend', end)
+    }
+  }, [vw, vh, n]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const open = (el: HTMLElement, project: Project) => {
     const r = el.getBoundingClientRect()
     fly({ slug: project.slug, src: project.cover.src, rect: { x: r.left, y: r.top, w: r.width, h: r.height }, bg: project.hero.bg })

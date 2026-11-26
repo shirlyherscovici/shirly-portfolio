@@ -501,8 +501,9 @@ html.v2-snap {
   .v2-plane-wrap {
     left: 0;
     right: 0;
-    bottom: 36%;
-    top: 56px;
+    /* the picture sits in the middle of the space between the header and the project name */
+    bottom: 30%;
+    top: 140px;
     overflow: hidden;
     -webkit-mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 82%, transparent);
     mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 82%, transparent);
@@ -2180,4 +2181,9 @@ html.v2-booting .v2-reelbtn {
     grid-row: auto;
     padding: 0 0 6px;
   }
+}
+
+/* About: on phones the tools list is left out, the skills say enough */
+@media (max-width: 760px) {
+  .v2-ab-tools { display: none; }
 }

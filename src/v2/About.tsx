@@ -331,7 +331,7 @@ export function About() {
                 ))}
               </ul>
             </div>
-            <div>
+            <div className="v2-ab-tools">
               <p className="v2-label v2-ab-sub">Tools</p>
               <ul className="v2-tags">
                 {TOOLS.map((s) => (
