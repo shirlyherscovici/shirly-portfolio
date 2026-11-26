@@ -502,11 +502,11 @@ html.v2-snap {
     left: 0;
     right: 0;
     /* the picture sits in the middle of the space between the header and the project name */
-    bottom: 30%;
-    top: 140px;
+    bottom: 33%;
+    top: 160px;
     overflow: hidden;
-    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 82%, transparent);
-    mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 82%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 74%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 74%, transparent);
   }
 
   .v2-info {
