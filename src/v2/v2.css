@@ -1607,6 +1607,88 @@ html.v2-booting .v2-allbtn {
   }
 }
 
+/* ---------- Home: Play showreel button and the full-screen player ---------- */
+.v2-reelbtn {
+  position: absolute;
+  z-index: 8;
+  right: clamp(16px, 3vw, 48px);
+  bottom: calc(clamp(20px, 6vh, 56px) + 54px);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px 12px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: #ff8fb8;
+  color: #171717;
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.3s;
+}
+
+.v2-reelbtn:hover,
+.v2-reelbtn:focus-visible {
+  background: #ffa6c6;
+  transform: translateY(-2px);
+}
+
+.v2-reelbtn-icon {
+  width: 0;
+  height: 0;
+  border-left: 9px solid currentColor;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+}
+
+html.v2-booting .v2-reelbtn {
+  opacity: 0;
+}
+
+.v2-reel {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  padding: 4vmin;
+  background: #0b0b0b;
+}
+
+.v2-reel video {
+  width: 100%;
+  max-width: calc(92vh * 16 / 9);
+  max-height: 92vh;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 4px;
+}
+
+.v2-reel-close {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: none;
+  color: #fff;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .v2-reelbtn {
+    top: 118px;
+    bottom: auto;
+    right: auto;
+    left: var(--gutter);
+    padding: 9px 14px 9px 12px;
+    font-size: 11px;
+  }
+}
+
 /* ---------- About, laid out like a single long letter ---------- */
 .v2-ab {
   max-width: 980px;

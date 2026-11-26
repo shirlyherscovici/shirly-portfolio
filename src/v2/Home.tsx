@@ -14,6 +14,7 @@ import {
 import { PERSON, PROJECTS, SHELL, coverPos, type Project } from './data'
 import { href, useCanHover, useFlight, useTone } from './store'
 import { Contact } from './Contact'
+import { ReelPlayer } from './Reel'
 
 /* ---------- colour helpers: mix in OKLab so blends stay clean (no muddy greys) ---------- */
 function toLin(c: number) {
@@ -334,6 +335,8 @@ export function Home() {
   const [hoverList, setList] = useState(false)
   /* The All projects button holds the list open (on phones it opens a plain index instead) */
   const [held, setHeld] = useState(false)
+  /* The showreel plays full screen over the page */
+  const [reel, setReel] = useState(false)
   const list = (hoverList || held) && !mobile
   useEffect(() => {
     if (!held) return
@@ -544,6 +547,13 @@ export function Home() {
           </AnimatePresence>
 
           {!boot && (
+            <button type="button" className="v2-label v2-reelbtn" onClick={() => setReel(true)} data-cursor="Play">
+              <span className="v2-reelbtn-icon" aria-hidden="true" />
+              Play showreel
+            </button>
+          )}
+
+          {!boot && (
             <button
               type="button"
               className="v2-label v2-allbtn"
@@ -608,6 +618,7 @@ export function Home() {
       </section>
 
       <Contact />
+      <ReelPlayer open={reel} onClose={() => setReel(false)} />
     </motion.main>
   )
 }
