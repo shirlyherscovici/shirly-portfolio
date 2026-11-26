@@ -33,6 +33,8 @@ export type Project = {
   /** Shape of the cover on the home film strip (width / height) */
   frame: { ratio: number; /** home window: how far the picture overscans (top, height of its drift box), when a logo sits near an edge */ fit?: { top: string; h: string; /** show the picture whole, on this backdrop, instead of cropping it */ whole?: string } }
   intro: string
+  /** A shorter line for the home page, when the intro's first sentence runs too long */
+  homeLine?: string
   link?: { label: string; href: string }
   credits: { label: string; value: string }[]
 }
@@ -74,6 +76,7 @@ export const ALL_PROJECTS: Project[] = [
     hero: { bg: '#d7263d', fg: '#f6efe3' },
     cover: { kind: 'image', src: v2('amy/hero-banner.webp'), alt: 'Amy Winehouse editorial banner with tattoo-inspired collage' },
     peek: v2('amy/grid-desktop.webp'),
+    homeLine: 'An episode of N12’s Culture Gaps series on Amy Winehouse and the 27 Club: its concept and design language.',
     intro:
       'An episode of N12’s Culture Gaps series on Amy Winehouse and the 27 Club: the concept and design language, built in Storycard, banners in every size and before and after image treatments.',
     link: { label: 'View live project', href: 'https://special.n12.co.il/AmyWinehouse' },

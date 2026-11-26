@@ -476,7 +476,7 @@ export function Home() {
                     </span>
                   </h2>
                   <motion.p className="v2-info-line" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: soft, delay: 0.12 }}>
-                    {firstLine(project.intro)}
+                    {project.homeLine ?? firstLine(project.intro)}
                   </motion.p>
                   <motion.a
                     href={href.project(project.slug)}
