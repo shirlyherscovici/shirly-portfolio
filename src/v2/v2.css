@@ -865,6 +865,12 @@ html.v2-snap {
   letter-spacing: -0.035em;
 }
 
+/* room for the tail of the y in "Shirly", without opening up the line spacing */
+.v2-about-hello .v2-mask {
+  padding-bottom: 0.24em;
+  margin-bottom: -0.18em;
+}
+
 .v2-about-lede {
   font-size: clamp(20px, 2.2vw, 28px);
   line-height: 1.45;
