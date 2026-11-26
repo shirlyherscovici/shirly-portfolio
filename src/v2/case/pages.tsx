@@ -23,7 +23,7 @@ import {
   useLightbox,
   type Img,
 } from './blocks'
-import { DriftRows, StampPalette, PhoneParade, VoteChart, RadioReplay, ChannelSurf, ClipReel, SeriesStage, RealVsFilm, TruthOrFake, Vault, type Question, type Scene } from './rich'
+import { DriftRows, StampPalette, PhoneParade, RadioReplay, ChannelSurf, ClipReel, SeriesStage, RealVsFilm, TruthOrFake, Vault, type Question, type Scene } from './rich'
 
 const v2 = (p: string) => asset(`/v2/${p}`)
 const A = (p: string) => asset(`/assets/${p}`)
@@ -287,21 +287,7 @@ const soundBody = (
     </Act>
 
     <Act bg={SO.violet} fg={SO.lilac} accent={SO.neon}>
-      <Chapter num="02" title="Try the vote" note="A playable copy of the voting flow, with songs from the real chart." />
-      <VoteChart
-        art={v2('galgalatz/banner-cover.webp')}
-        songs={[
-          { film: 'Rocky III', song: 'Eye Of The Tiger', artist: 'Survivor' },
-          { film: 'Saturday Night Fever', song: 'Stayin’ Alive', artist: 'Bee Gees' },
-          { film: 'Titanic', song: 'My Heart Will Go On', artist: 'Céline Dion' },
-          { film: 'The Big Lebowski', song: 'Hotel California', artist: 'Gipsy Kings' },
-          { film: 'Despicable Me 2', song: 'Happy', artist: 'Pharrell Williams' },
-          { film: 'A Star Is Born', song: 'Shallow', artist: 'Lady Gaga, Bradley Cooper' },
-          { film: 'Good Morning, Vietnam', song: 'What a Wonderful World', artist: 'Louis Armstrong' },
-        ]}
-      />
-      <Gap />
-      <Chapter num="03" title="Concept" />
+      <Chapter num="02" title="Concept" />
       <Steps
         items={[
           { k: 'Challenge', v: 'A cluttered, low-engagement voting flow.' },
@@ -313,7 +299,7 @@ const soundBody = (
     </Act>
 
     <Act bg={SO.night} fg={SO.lilac} accent={SO.neon}>
-      <Chapter num="04" title="On air" note="The chart went out on Galgalatz. Listen back to the broadcast." />
+      <Chapter num="03" title="On air" note="The chart went out on Galgalatz. Listen back to the broadcast." />
       <RadioReplay
         shows={[
           { title: 'The film-songs chart: places 50–31', date: 'Galgalatz · 18.03.22', audio: 'https://traffic.omny.fm/d/clips/6dcbc33f-1fb6-49de-9ae2-ad8a00c01523/a1fb5c29-d7f3-49db-97bd-ae4e008d5a37/60166882-0765-4e28-bcd0-ae5c00e3d25f/audio.mp3', page: 'https://glz.co.il/%D7%92%D7%9C%D7%92%D7%9C%D7%A6/%D7%AA%D7%9B%D7%A0%D7%99%D7%95%D7%AA/%D7%9E%D7%A6%D7%A2%D7%93-%D7%9E%D7%95%D7%96%D7%99%D7%A7%D7%94-%D7%9E%D7%94%D7%9E%D7%A1%D7%9A/%D7%9E%D7%A6%D7%A2%D7%93-%D7%9E%D7%95%D7%96%D7%99%D7%A7%D7%94-%D7%9E%D7%94%D7%9E%D7%A1%D7%9A-%D7%9E%D7%A6%D7%A2%D7%93-%D7%A9%D7%99%D7%A8%D7%99-%D7%94%D7%A1%D7%A8%D7%98%D7%99%D7%9D-%D7%9E%D7%A7%D7%95%D7%9E%D7%95%D7%AA-50-31/', cover: { src: v2('galgalatz/banner-cover.webp'), alt: 'Music from the Screen key art, with the Galgalatz and N12 logos' } },
