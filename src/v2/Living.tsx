@@ -28,7 +28,6 @@ export function Header({ route }: { route: Route }) {
             </a>
           </h1>
           <p className="v2-brand-role">{PERSON.role}</p>
-          <p className="v2-brand-line">{PERSON.line}</p>
         </div>
       ) : (
         <a href={href.home} className="v2-label v2-link" data-cursor="Home">
