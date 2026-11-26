@@ -239,7 +239,7 @@ export function About() {
           </h1>
 
           <motion.p className="v2-ab-intro" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.9, ease }}>
-            I’m a graphic and motion designer from Israel, and I’ve been doing this for over 8 years.
+            I’m a motion and graphic designer from Israel, and I make realistic AI films for the news. I’ve been doing this for over 8 years.
           </motion.p>
 
           <motion.div className="v2-ab-social v2-label" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7, duration: 0.6 }}>

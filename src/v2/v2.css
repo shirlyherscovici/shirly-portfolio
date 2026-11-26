@@ -1599,7 +1599,7 @@ html.v2-booting .v2-allbtn {
 
 @media (max-width: 760px) {
   .v2-allbtn {
-    top: 64px;
+    top: 118px;
     bottom: auto;
     right: var(--gutter);
     padding: 9px 14px;

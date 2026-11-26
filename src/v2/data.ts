@@ -44,7 +44,8 @@ export const SHELL = { bg: '#181818', fg: '#f0f0f0', paper: '#f0efeb', ink: '#18
 /** The dark room the case study content sits in */
 export const DARK = { bg: '#111111', fg: '#ececec' }
 
-export const PROJECTS: Project[] = [
+/** Every project, including ones taken off the site for now */
+export const ALL_PROJECTS: Project[] = [
   {
     slug: 'pilot-rescue',
     word: 'Rescue',
@@ -168,6 +169,11 @@ export const PROJECTS: Project[] = [
     credits: [],
   },
 ]
+
+/** Taken off the site for now; remove a slug from this list to bring the project back */
+export const HIDDEN_PROJECTS = ['quiz', 'eighties']
+
+export const PROJECTS: Project[] = ALL_PROJECTS.filter((p) => !HIDDEN_PROJECTS.includes(p.slug))
 
 export const PERSON = {
   name: 'Shirly Herscovici',

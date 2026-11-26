@@ -157,8 +157,9 @@ const motionBody = (
       <Intro
         title="People in Motion"
         lead="One film that brings character animation, game UI and kinetic type together."
-        text="A character-led motion piece combining animation, game-inspired UI, kinetic typography and transitions across changing visual worlds."
+        text="A film I made at the IDF Education and Youth Corps film unit. The logos in it are the companies that hire the people. A character-led motion piece combining animation, game-inspired UI, kinetic typography and transitions across changing visual worlds."
         meta={[
+          { label: 'Made at', value: 'IDF Education and Youth Corps film unit' },
           { label: 'Role', value: 'Design, 2D animation, compositing' },
           { label: 'Disciplines', value: 'Motion Design · After Effects · 2D Animation · Visual Storytelling' },
         ]}
@@ -616,6 +617,7 @@ export const CASES: Record<string, Case> = {
     acts: { bg: MO.dark, fg: MO.cream },
     heroVideo: A('motion/gameplay_highlight_final.mp4'),
     credits: [
+      { label: 'Made at', value: 'IDF Education and Youth Corps film unit' },
       { label: 'Role', value: 'Design, 2D animation, compositing' },
       { label: 'Type', value: '2D animation · Motion design' },
     ],
