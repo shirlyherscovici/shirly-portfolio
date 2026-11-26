@@ -247,6 +247,13 @@ html.v2-snap {
   white-space: nowrap;
 }
 
+/* the tight letter spacing lets the last letter stick out past its box: give the reveal mask room on the
+   sides (and for tails below), without moving the word */
+.v2-info-word .v2-mask {
+  padding: 0 0.12em 0.12em;
+  margin: 0 -0.12em -0.06em;
+}
+
 .v2-info-word a {
   color: inherit;
   text-decoration: none;
@@ -254,7 +261,9 @@ html.v2-snap {
 
 .v2-info-line {
   margin: clamp(16px, 3vh, 32px) 0 0;
-  max-width: 34ch;
+  /* long lines, so the text ends well above the small video in the corner,
+     but still stops short of the film strip */
+  max-width: min(48ch, 41vw);
   font-size: clamp(17px, 1.5vw, 22px);
   line-height: 1.5;
 }
@@ -505,6 +514,7 @@ html.v2-snap {
 
   .v2-info-line {
     font-size: 16px;
+    max-width: 34ch;
   }
 
   .v2-pills {
@@ -867,8 +877,8 @@ html.v2-snap {
 
 /* room for the tail of the y in "Shirly", without opening up the line spacing */
 .v2-about-hello .v2-mask {
-  padding-bottom: 0.24em;
-  margin-bottom: -0.18em;
+  padding: 0 0.12em 0.24em;
+  margin: 0 -0.12em -0.18em;
 }
 
 .v2-about-lede {
