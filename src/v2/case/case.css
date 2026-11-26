@@ -3281,6 +3281,302 @@
   }
 }
 
+/* ---------- Music from the Screen: the broadcast on a radio ---------- */
+.cs .cs-radio {
+  width: min(1100px, 100% - 2 * var(--gutter));
+  margin: 0 auto;
+  display: grid;
+  gap: 14px;
+}
+
+.cs .cs-radio-unit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  border-radius: 22px;
+  overflow: hidden;
+  background: linear-gradient(160deg, #241046, #0c0320 70%);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 40px 90px -40px color-mix(in srgb, var(--accent) 55%, transparent);
+  transition: box-shadow 0.6s;
+}
+
+.cs .cs-radio.is-on .cs-radio-unit {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 0 60px -10px color-mix(in srgb, var(--accent) 55%, transparent), 0 40px 90px -30px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+.cs .cs-radio-cover {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #0c0320;
+}
+
+.cs .cs-radio-cover img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cs .cs-radio-face {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(20px, 3vw, 40px);
+  min-width: 0;
+}
+
+.cs .cs-radio-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.cs .cs-radio-onair {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 99px;
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  color: var(--accent);
+}
+
+.cs .cs-radio-onair i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: color-mix(in srgb, #ff2d6f 40%, transparent);
+}
+
+.cs .cs-radio.is-on .cs-radio-onair i {
+  background: #ff2d6f;
+  box-shadow: 0 0 10px #ff2d6f;
+  animation: cs-radio-blink 1.4s infinite;
+}
+
+@keyframes cs-radio-blink {
+  50% { opacity: 0.3; }
+}
+
+.cs .cs-radio-brand {
+  opacity: 0.6;
+}
+
+.cs .cs-radio-date {
+  margin: auto 0 6px;
+  padding-top: 28px;
+  font-size: 13px;
+  opacity: 0.6;
+}
+
+.cs .cs-radio-title {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(26px, 3.2vw, 44px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.cs .cs-radio-eq {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 46px;
+  margin: 24px 0 18px;
+}
+
+.cs .cs-radio-eq span {
+  flex: 1;
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(to top, var(--accent), #7d4dff);
+  transform-origin: bottom;
+  transform: scaleY(var(--h, 0.1));
+  opacity: 0.35;
+  transition: transform 0.5s, opacity 0.5s;
+}
+
+.cs .cs-radio.is-on .cs-radio-eq span {
+  opacity: 1;
+  animation: cs-radio-eq 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes cs-radio-eq {
+  0% { transform: scaleY(0.15); }
+  35% { transform: scaleY(0.9); }
+  60% { transform: scaleY(0.4); }
+  100% { transform: scaleY(0.7); }
+}
+
+.cs .cs-radio-dial {
+  position: relative;
+  height: 34px;
+  cursor: pointer;
+  touch-action: none;
+  border-radius: 6px;
+  outline-offset: 4px;
+}
+
+.cs .cs-radio-ticks {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 10%) bottom / 100% 60% no-repeat,
+    repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 2%) bottom / 100% 30% no-repeat;
+  opacity: 0.35;
+}
+
+.cs .cs-radio-fill {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+.cs .cs-radio-needle {
+  position: absolute;
+  top: -4px;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: #ff2d6f;
+  box-shadow: 0 0 12px #ff2d6f;
+}
+
+.cs .cs-radio-needle::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff2d6f;
+}
+
+.cs .cs-radio-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 22px;
+  flex-wrap: wrap;
+}
+
+.cs .cs-radio-play {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #14052e;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.cs .cs-radio-play:hover { transform: scale(1.06); }
+
+.cs .cs-radio-tri {
+  width: 0;
+  height: 0;
+  margin-left: 4px;
+  border-style: solid;
+  border-width: 11px 0 11px 18px;
+  border-color: transparent transparent transparent currentColor;
+}
+
+.cs .cs-radio-pause {
+  width: 18px;
+  height: 20px;
+  border-left: 6px solid currentColor;
+  border-right: 6px solid currentColor;
+}
+
+.cs .cs-radio-spin {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid currentColor;
+  border-right-color: transparent;
+  animation: cs-radio-spin 0.8s linear infinite;
+}
+
+@keyframes cs-radio-spin { to { transform: rotate(360deg); } }
+
+.cs .cs-radio-time {
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+}
+
+.cs .cs-radio-time em { font-style: normal; opacity: 0.55; }
+
+.cs .cs-radio-link {
+  margin-left: auto;
+  font-size: 14px;
+  color: inherit;
+  opacity: 0.75;
+  text-underline-offset: 4px;
+}
+
+.cs .cs-radio-link:hover { opacity: 1; color: var(--accent); }
+
+.cs .cs-radio-presets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.cs .cs-radio-presets button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  background: rgba(255, 255, 255, 0.03);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.3s, background 0.3s;
+}
+
+.cs .cs-radio-presets button:hover { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+
+.cs .cs-radio-presets button.is-cur {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.cs .cs-radio-pn {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+.cs .cs-radio-pt { flex: 1; }
+.cs .cs-radio-pa { font-size: 12px; opacity: 0.7; }
+
+@media (max-width: 760px) {
+  .cs .cs-radio-unit { grid-template-columns: 1fr; }
+  .cs .cs-radio-presets { grid-template-columns: 1fr; }
+  .cs .cs-radio-link { margin-left: 0; width: 100%; }
+}
+
 /* Louvre: a short vertical preview, phone-sized */
 .cs-lv-phone { width: min(340px, 72vw); margin: 0 auto; }
 .cs-lv-phone > * { width: 100%; max-width: none; padding: 0; margin: 0; }

@@ -976,3 +976,154 @@ export function PhoneParade({ phones }: { phones: PhoneShot[] }) {
     </div>
   )
 }
+
+/* ======================================================================
+ * Music from the Screen: the broadcast itself, on a radio. The two Galgalatz
+ * episodes of the film-songs chart play straight from Galgalatz's own stream;
+ * the tuning dial shows where you are and can be dragged to seek.
+ * ==================================================================== */
+export type Broadcast = { title: string; date: string; audio: string; page: string; cover: Img }
+
+const clock = (s: number) => {
+  if (!isFinite(s) || s < 0) return '0:00'
+  const h = Math.floor(s / 3600)
+  const m = Math.floor((s % 3600) / 60)
+  const ss = String(Math.floor(s % 60)).padStart(2, '0')
+  return h ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`
+}
+
+export function RadioReplay({ shows }: { shows: Broadcast[] }) {
+  const audio = useRef<HTMLAudioElement>(null)
+  const dial = useRef<HTMLDivElement>(null)
+  const [cur, setCur] = useState(0)
+  const [playing, setPlaying] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [t, setT] = useState(0)
+  const [dur, setDur] = useState(0)
+  const show = shows[cur]
+  const p = dur ? t / dur : 0
+
+  const toggle = () => {
+    const a = audio.current
+    if (!a) return
+    if (a.paused) {
+      setLoading(true)
+      a.play().catch(() => setLoading(false))
+    } else a.pause()
+  }
+  const pick = (i: number) => {
+    const a = audio.current
+    if (!a) return
+    if (i === cur) return toggle()
+    setCur(i)
+    setT(0)
+    setDur(0)
+    a.src = shows[i].audio
+    setLoading(true)
+    a.play().catch(() => setLoading(false))
+  }
+  const seekTo = (clientX: number) => {
+    const a = audio.current
+    const el = dial.current
+    if (!a || !el || !dur) return
+    const r = el.getBoundingClientRect()
+    a.currentTime = Math.min(1, Math.max(0, (clientX - r.left) / r.width)) * dur
+  }
+  const onDown = (e: React.PointerEvent) => {
+    if (!dur) return
+    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+    seekTo(e.clientX)
+  }
+  const onKey = (e: React.KeyboardEvent) => {
+    const a = audio.current
+    if (!a || !dur) return
+    const step = e.key === 'ArrowRight' ? 30 : e.key === 'ArrowLeft' ? -30 : 0
+    if (!step) return
+    e.preventDefault()
+    a.currentTime = Math.min(dur, Math.max(0, a.currentTime + step))
+  }
+  // pause when the page changes
+  useEffect(() => () => audio.current?.pause(), [])
+
+  return (
+    <div className={`cs-radio${playing ? ' is-on' : ''}`}>
+      <audio
+        ref={audio}
+        src={shows[0].audio}
+        preload="none"
+        onPlay={() => setPlaying(true)}
+        onPlaying={() => setLoading(false)}
+        onWaiting={() => setLoading(true)}
+        onPause={() => setPlaying(false)}
+        onTimeUpdate={(e) => setT(e.currentTarget.currentTime)}
+        onLoadedMetadata={(e) => setDur(e.currentTarget.duration)}
+        onDurationChange={(e) => setDur(e.currentTarget.duration)}
+      />
+      <div className="cs-radio-unit">
+        <div className="cs-radio-cover">
+          <AnimatePresence mode="popLayout" initial={false}>
+            <motion.img
+              key={show.cover.src}
+              src={show.cover.src}
+              alt={show.cover.alt}
+              loading="lazy"
+              draggable={false}
+              initial={{ opacity: 0, scale: 1.06 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6, ease }}
+            />
+          </AnimatePresence>
+        </div>
+        <div className="cs-radio-face">
+          <div className="cs-radio-top">
+            <span className="cs-radio-onair"><i aria-hidden="true" />{playing ? 'On air · Replay' : 'Replay'}</span>
+            <span className="cs-radio-brand">Galgalatz × N12</span>
+          </div>
+          <p className="cs-radio-date">{show.date}</p>
+          <h3 className="cs-radio-title">{show.title}</h3>
+          <div className="cs-radio-eq" aria-hidden="true">
+            {Array.from({ length: 28 }, (_, i) => <span key={i} style={{ ['--h' as string]: (0.12 + ((i * 53) % 37) / 100).toFixed(2), animationDelay: `${-((i * 137) % 900) / 1000}s` }} />)}
+          </div>
+          <div
+            ref={dial}
+            className="cs-radio-dial"
+            role="slider"
+            tabIndex={0}
+            aria-label="Position in the broadcast"
+            aria-valuemin={0}
+            aria-valuemax={Math.round(dur)}
+            aria-valuenow={Math.round(t)}
+            aria-valuetext={`${clock(t)} of ${clock(dur)}`}
+            onPointerDown={onDown}
+            onPointerMove={(e) => e.buttons === 1 && seekTo(e.clientX)}
+            onKeyDown={onKey}
+            data-cursor="Drag"
+          >
+            <div className="cs-radio-ticks" aria-hidden="true" />
+            <div className="cs-radio-fill" style={{ width: `${p * 100}%` }} />
+            <div className="cs-radio-needle" style={{ left: `${p * 100}%` }} />
+          </div>
+          <div className="cs-radio-row">
+            <button type="button" className="cs-radio-play" onClick={toggle} aria-label={playing ? 'Pause' : 'Play the broadcast'} data-cursor={playing ? 'Pause' : 'Play'}>
+              {loading && playing ? <span className="cs-radio-spin" aria-hidden="true" /> : playing ? <span className="cs-radio-pause" aria-hidden="true" /> : <span className="cs-radio-tri" aria-hidden="true" />}
+            </button>
+            <span className="cs-radio-time">{clock(t)} <em>/ {dur ? clock(dur) : '--:--'}</em></span>
+            <a className="cs-radio-link" href={show.page} target="_blank" rel="noopener noreferrer">Listen on Galgalatz ↗</a>
+          </div>
+        </div>
+      </div>
+      <ol className="cs-radio-presets">
+        {shows.map((s, i) => (
+          <li key={s.audio}>
+            <button type="button" className={i === cur ? 'is-cur' : ''} onClick={() => pick(i)} aria-pressed={i === cur}>
+              <span className="cs-radio-pn">0{i + 1}</span>
+              <span className="cs-radio-pt">{s.title}</span>
+              <span className="cs-radio-pa" aria-hidden="true">{i === cur && playing ? '❚❚' : '▶'}</span>
+            </button>
+          </li>
+        ))}
+      </ol>
+    </div>
+  )
+}
